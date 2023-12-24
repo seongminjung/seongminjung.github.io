@@ -1,0 +1,125 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,700;1,400&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Lobster&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Lobster+Two&display=swap");
+
+body {
+  margin: 0;
+  font-family: "Montserrat", sans-serif;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #212529;
+  text-align: left;
+  background-color: #fff;
+}
+
+header {
+  position: fixed;
+  top: 0;
+  background-color: #f2f2f2;
+  width: 100%;
+  height: 300px;
+  padding: 0;
+  color: #666;
+  clip-path: inset(0);
+}
+
+header .profile {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 400px;
+  height: 400px;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 50%;
+  opacity: 0.6;
+  transition: 0.3s ease-in-out;
+}
+
+header .title {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  font-family: "Lobster", sans-serif;
+  font-size: 4rem;
+  font-weight: 400;
+  text-align: center;
+  transition: 0.3s ease-in-out;
+  color: #212529;
+}
+
+header .nav {
+  position: absolute;
+  bottom: 5%;
+  right: 10%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  transition: 0.3s ease-in-out;
+}
+
+header .nav li {
+  line-height: 100%;
+}
+
+header .nav li a {
+  font-size: 1.2rem;
+  color: #212529;
+  text-decoration: none;
+}
+
+header.shrink .profile {
+  width: 0;
+  height: 0;
+}
+
+header.shrink .title {
+  left: 10%;
+  transform: translate(0, -50%);
+  font-size: 2.5rem;
+}
+
+header.shrink .nav {
+  top: 50%;
+  transform: translate(0, -50%);
+}
+
+@media (max-width: 1350px) {
+  header .nav {
+    display: none;
+  }
+}
+
+main {
+  padding-top: 300px;
+  margin: 0 10%;
+}
+
+section {
+  margin: 0 0 -50px;
+}
+
+h3 {
+  /* font-family: "Lobster", sans-serif; */
+  margin: 0;
+  padding-top: 10%;
+  font-size: 2rem;
+  font-weight: 400;
+  text-align: center;
+}
+
+footer {
+  background-color: #f2f2f2;
+  margin-top: 200px;
+  padding: 20px;
+  text-align: center;
+  font-size: 16px;
+  color: #666;
+}

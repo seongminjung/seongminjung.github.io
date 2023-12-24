@@ -4,6 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Seongmin Jung</title>
+    <meta name="description" content="Seongmin Jung's personal website" />
+    <meta name="keywords" content="Seongmin Jung, Robotics" />
+    <meta name="author" content="Seongmin Jung" />
+    <meta name="language" content="English" />
 
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-LL44K1WZ0G"></script>
@@ -13,30 +17,50 @@
         dataLayer.push(arguments);
       }
       gtag("js", new Date());
-
       gtag("config", "G-LL44K1WZ0G");
     </script>
 
-    <style>
-      /* Add your CSS styles here */
-    </style>
+    <!-- import css -->
+    <link rel="stylesheet" href="index.css" />
+    <!-- import js -->
+    <script src="js/header-shrink.js" defer></script>
   </head>
+
   <body>
     <header>
-      <h1>Seongmin Jung</h1>
-      <h2>Undergraduate Student | Electrical & Electronic Engineering</h2>
+      <img class="profile" src="img/profile.jpg" alt="Seongmin Jung" />
+      <h1 class="title">Seongmin Jung</h1>
+      <ul class="nav">
+        <li><a href="#about">About</a></li>
+        <li><a href="#research">Research</a></li>
+        <li><a href="#projects">Projects</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
     </header>
 
     <main>
-      <section>
+      <section id="about">
         <h3>About Me</h3>
+        <p>Undergraduate Student | Electrical & Electronic Engineering</p>
         <p>
           Hello! I'm Seongmin Jung, an undergraduate student majoring in Electrical & Electronic Engineering at Yonsei
           University, South Korea. I have a strong interest in Robotics!
         </p>
       </section>
 
-      <section>
+      <section id="research">
+        <h3>Research Interests</h3>
+        <p>I'm interested in the following topics:</p>
+        <ul>
+          <li>Simultaneous Localization and Mapping (SLAM)</li>
+          <li>Robot Navigation</li>
+          <li>Spatial Perception</li>
+          <li>Scene Understanding</li>
+          <li>Deep Learning</li>
+        </ul>
+      </section>
+
+      <section id="projects">
         <h3>Projects</h3>
         <ul>
           <li>Project 1</li>
@@ -46,7 +70,7 @@
         </ul>
       </section>
 
-      <section>
+      <section id="contact">
         <h3>Contact</h3>
         <p>Email: sjung.vision@gmail.com</p>
         <p>Phone: +82 10-8073-6228</p>
