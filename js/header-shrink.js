@@ -14,7 +14,6 @@ function adjustHeader(scrollPos) {
 
 document.addEventListener("scroll", (event) => {
   lastKnownScrollPosition = window.scrollY;
-  console.log(lastKnownScrollPosition);
   if (!ticking) {
     window.requestAnimationFrame(() => {
       adjustHeader(lastKnownScrollPosition);

@@ -13,6 +13,7 @@ body {
   background-color: #fff;
 }
 
+/* header, main, footer */
 header {
   position: fixed;
   top: 0;
@@ -24,7 +25,7 @@ header {
   clip-path: inset(0);
 }
 
-header .profile {
+header .cover {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -47,6 +48,7 @@ header .title {
   font-family: "Lobster", sans-serif;
   font-size: 4rem;
   font-weight: 400;
+  white-space: nowrap;
   text-align: center;
   transition: 0.3s ease-in-out;
   color: #212529;
@@ -75,7 +77,7 @@ header .nav li a {
   text-decoration: none;
 }
 
-header.shrink .profile {
+header.shrink .cover {
   width: 0;
   height: 0;
 }
@@ -97,22 +99,37 @@ header.shrink .nav {
   }
 }
 
+@media (max-width: 700px) {
+  /* shrink */
+  header {
+    /* added important to override javascript height setting */
+    height: 100px !important;
+  }
+  header .cover {
+    width: 0;
+    height: 0;
+  }
+  header .title {
+    left: 10%;
+    transform: translate(0, -50%);
+    font-size: 2.5rem;
+  }
+  header .nav {
+    top: 50%;
+    transform: translate(0, -50%);
+  }
+}
+
 main {
   padding-top: 300px;
   margin: 0 10%;
 }
 
-section {
-  margin: 0 0 -50px;
-}
-
-h3 {
-  /* font-family: "Lobster", sans-serif; */
-  margin: 0;
-  padding-top: 10%;
-  font-size: 2rem;
-  font-weight: 400;
-  text-align: center;
+@media (max-width: 700px) {
+  /* shrink */
+  main {
+    padding-top: 100px;
+  }
 }
 
 footer {
@@ -122,4 +139,59 @@ footer {
   text-align: center;
   font-size: 16px;
   color: #666;
+}
+
+/* html components */
+
+section {
+  margin: 0 0 -50px;
+  padding-top: 10%;
+}
+
+@media (max-width: 700px) {
+  section {
+    margin: 0 0 0;
+    padding-top: 10%;
+  }
+}
+
+h3 {
+  /* font-family: "Lobster", sans-serif; */
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 400;
+  /* text-align: center; */
+}
+
+/* each element customize */
+#about .flex {
+  display: flex;
+  justify-content: space-between;
+  gap: 50px;
+}
+
+@media (max-width: 700px) {
+  #about .flex {
+    flex-direction: column-reverse;
+    gap: 20px;
+  }
+  #about .flex .right .profile {
+    margin: 20px auto 0;
+  }
+}
+
+#about .flex .left p a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+#about .flex .right .profile {
+  width: 100%;
+  /* max-width: 400px; */
+  min-width: 200px;
+}
+
+#research .emphasis {
+  font-style: italic;
+  text-decoration: underline;
 }
