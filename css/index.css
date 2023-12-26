@@ -67,12 +67,8 @@ header .nav {
   transition: 0.3s ease-in-out;
 }
 
-header .nav li {
-  line-height: 100%;
-}
-
 header .nav li a {
-  font-size: 1.2rem;
+  font-size: 1rem;
   color: #212529;
   text-decoration: none;
 }
@@ -85,7 +81,7 @@ header.shrink .cover {
 header.shrink .title {
   left: 10%;
   transform: translate(0, -50%);
-  font-size: 2.5rem;
+  font-size: 2rem;
 }
 
 header.shrink .nav {
@@ -103,7 +99,7 @@ header.shrink .nav {
   /* shrink */
   header {
     /* added important to override javascript height setting */
-    height: 100px !important;
+    height: 70px !important;
   }
   header .cover {
     width: 0;
@@ -112,7 +108,7 @@ header.shrink .nav {
   header .title {
     left: 10%;
     transform: translate(0, -50%);
-    font-size: 2.5rem;
+    font-size: 2rem !important;
   }
   header .nav {
     top: 50%;
@@ -129,19 +125,25 @@ main {
   /* shrink */
   main {
     padding-top: 100px;
+    margin: 0 10%;
   }
 }
 
 footer {
   background-color: #f2f2f2;
-  margin-top: 200px;
-  padding: 20px;
+  margin-top: 100px;
+  padding: 10px;
   text-align: center;
-  font-size: 16px;
+  font-size: 12px;
   color: #666;
 }
 
 /* html components */
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+}
 
 section {
   margin: 0 0 -50px;
@@ -173,9 +175,9 @@ h3 {
 @media (max-width: 700px) {
   #about .flex {
     flex-direction: column-reverse;
-    gap: 20px;
+    gap: 0;
   }
-  #about .flex .right .profile {
+  #about .flex .profile {
     margin: 20px auto 0;
   }
 }
@@ -185,13 +187,49 @@ h3 {
   text-decoration: none;
 }
 
-#about .flex .right .profile {
-  width: 100%;
-  /* max-width: 400px; */
-  min-width: 200px;
+#about .flex .profile {
+  width: 200px;
 }
 
 #research .emphasis {
   font-style: italic;
   text-decoration: underline;
+}
+
+/* Projects Page */
+h4 {
+  font-size: 1.5rem;
+  font-weight: 400;
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+#projects .project {
+  margin-top: 50px;
+  padding-top: 50px;
+  border-top: 1px solid #e6e6e6;
+}
+
+#projects .project .flex {
+  display: flex;
+  justify-content: space-between;
+  gap: 50px;
+}
+
+#projects .project .flex .left .detail {
+  margin: 0;
+  text-align: justify;
+}
+
+#projects .project .flex .preview {
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+  object-position: center;
+}
+
+@media (max-width: 700px) {
+  #projects .project .flex .preview {
+    display: none;
+  }
 }

@@ -3,9 +3,9 @@ let ticking = false;
 let header = document.querySelector("header");
 
 function adjustHeader(scrollPos) {
-  if (scrollPos > 200) {
+  if (scrollPos > 230) {
     header.classList.add("shrink");
-    header.style.height = 100 + "px";
+    header.style.height = 70 + "px";
   } else {
     header.classList.remove("shrink");
     header.style.height = 300 - scrollPos + "px";
