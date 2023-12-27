@@ -12,11 +12,23 @@ function adjustHeader(scrollPos) {
   }
 }
 
+function setNavModalTop(scrollPos) {
+  let headerHeight = header.offsetHeight;
+  let modal = document.getElementById("nav-modal");
+  if (headerHeight == 70) {
+    // top value is unstable without this
+    modal.style.top = 70 + scrollPos + "px";
+  } else {
+    modal.style.top = headerHeight + scrollPos + "px";
+  }
+}
+
 document.addEventListener("scroll", (event) => {
   lastKnownScrollPosition = window.scrollY;
   if (!ticking) {
     window.requestAnimationFrame(() => {
       adjustHeader(lastKnownScrollPosition);
+      setNavModalTop(lastKnownScrollPosition);
       ticking = false;
     });
     ticking = true;
