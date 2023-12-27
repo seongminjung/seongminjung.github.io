@@ -9,7 +9,7 @@ body {
   font-weight: 400;
   line-height: 1.5;
   color: #212529;
-  text-align: left;
+  text-align: justify;
   background-color: #fff;
 }
 
@@ -136,34 +136,24 @@ header.shrink .nav {
   width: 100%;
   display: none;
   background-color: rgba(220, 220, 220, 0.9);
-}
-
-#nav-modal .nav-modal-wrapper {
-  display: none;
   flex-direction: column;
   text-align: center;
 }
 
-#nav-modal .nav-modal-wrapper a {
+#nav-modal a {
   font-size: 1rem;
   color: #212529;
   text-decoration: none;
   padding: 10px;
 }
 
-#nav-modal .nav-modal-wrapper a:nth-child(2) {
+#nav-modal a:nth-child(2) {
   border-top: 1px solid rgba(0, 0, 0, 0.2);
   border-bottom: 1px solid rgba(0, 0, 0, 0.2);
 }
 
-#nav-modal .nav-modal-wrapper a:hover {
+#nav-modal a:hover {
   background-color: rgba(0, 0, 0, 0.1);
-}
-
-@media (max-width: 1000px) {
-  #nav-modal .nav-modal-wrapper {
-    display: flex;
-  }
 }
 
 main {
@@ -268,7 +258,6 @@ h4 {
 
 #projects .project .flex .left .detail {
   margin: 0;
-  text-align: justify;
 }
 
 #projects .project .flex .preview {
