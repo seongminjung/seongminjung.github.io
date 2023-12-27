@@ -20,22 +20,34 @@
       gtag("config", "G-LL44K1WZ0G");
     </script>
 
+    <!-- Load an icon library to show a hamburger menu (bars) on small screens -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
     <!-- import css -->
     <link rel="stylesheet" href="css/index.css" />
     <!-- import js -->
     <script src="js/header-shrink.js" defer></script>
+    <script src="js/toggle-nav.js" defer></script>
   </head>
 
   <body>
     <header>
       <img class="cover" src="img/cover.jpg" alt="Seongmin Jung" />
-      <h1 class="title">Seongmin Jung</h1>
-      <ul class="nav">
-        <li><a href="/index.html">Home</a></li>
-        <li><a href="/projects.html">Projects</a></li>
-        <li><a href="#projects">Blog</a></li>
-        <li><a href="#contact">Contact</a></li>
-      </ul>
+      <h1 class="title"><a href="/index.html">Seongmin Jung</a></h1>
+      <div class="nav-wrapper">
+        <nav class="nav">
+          <a href="/index.html">Home</a>
+          <a href="/projects.html">Projects</a>
+          <a href="#projects">Blog</a>
+        </nav>
+      </div>
+      <div class="nav-wrapper-dropdown">
+        <nav class="nav">
+          <a href="/index.html">Home</a>
+          <a href="/projects.html">Projects</a>
+          <a href="#projects">Blog</a>
+          <i id="nav-toggle" class="nav-toggle fa fa-bars" onclick="toggleNav()"></i>
+        </nav>
+      </div>
     </header>
 
     <main>

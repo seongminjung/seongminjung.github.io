@@ -51,7 +51,11 @@ header .title {
   white-space: nowrap;
   text-align: center;
   transition: 0.3s ease-in-out;
+}
+
+header .title a {
   color: #212529;
+  text-decoration: none;
 }
 
 header .nav-wrapper {
