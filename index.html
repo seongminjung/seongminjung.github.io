@@ -26,18 +26,28 @@
     <link rel="stylesheet" href="css/index.css" />
     <!-- import js -->
     <script src="js/header-shrink.js" defer></script>
+    <script src="js/toggle-nav.js" defer></script>
   </head>
 
   <body>
     <header>
       <img class="cover" src="img/cover.jpg" alt="Seongmin Jung" />
       <h1 class="title">Seongmin Jung</h1>
-      <nav class="nav">
-        <a href="/index.html">Home</a>
-        <a href="/projects.html">Projects</a>
-        <a href="#projects">Blog</a>
-        <i class="nav-toggle fa fa-bars"></i>
-      </nav>
+      <div class="nav-wrapper">
+        <nav class="nav">
+          <a href="/index.html">Home</a>
+          <a href="/projects.html">Projects</a>
+          <a href="#projects">Blog</a>
+        </nav>
+      </div>
+      <div class="nav-wrapper-dropdown">
+        <nav class="nav">
+          <a href="/index.html">Home</a>
+          <a href="/projects.html">Projects</a>
+          <a href="#projects">Blog</a>
+          <i id="nav-toggle" class="nav-toggle fa fa-bars" onclick="toggleNav()"></i>
+        </nav>
+      </div>
     </header>
 
     <main>

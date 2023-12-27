@@ -54,6 +54,15 @@ header .title {
   color: #212529;
 }
 
+header .nav-wrapper {
+  /* for clarity */
+  display: block;
+}
+
+header .nav-wrapper-dropdown {
+  display: none;
+}
+
 header .nav {
   position: absolute;
   bottom: 5%;
@@ -94,10 +103,16 @@ header.shrink .nav {
 }
 
 @media (max-width: 1000px) {
-  header .nav a {
+  header .nav-wrapper {
     display: none;
   }
-  header .nav-toggle {
+  header .nav-wrapper-dropdown {
+    display: block;
+  }
+  header .nav-wrapper-dropdown .nav a {
+    display: none;
+  }
+  header .nav-wrapper-dropdown .nav-toggle {
     display: block;
     font-size: 1.5rem;
     color: #212529;
