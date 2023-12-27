@@ -67,10 +67,14 @@ header .nav {
   transition: 0.3s ease-in-out;
 }
 
-header .nav li a {
+header .nav a {
   font-size: 1rem;
   color: #212529;
   text-decoration: none;
+}
+
+header .nav-toggle {
+  display: none;
 }
 
 header.shrink .cover {
@@ -89,9 +93,15 @@ header.shrink .nav {
   transform: translate(0, -50%);
 }
 
-@media (max-width: 1350px) {
-  header .nav {
+@media (max-width: 1000px) {
+  header .nav a {
     display: none;
+  }
+  header .nav-toggle {
+    display: block;
+    font-size: 1.5rem;
+    color: #212529;
+    cursor: pointer;
   }
 }
 
@@ -188,7 +198,7 @@ h3 {
 }
 
 #about .flex .profile {
-  width: 200px;
+  height: 240px;
 }
 
 #research .emphasis {
