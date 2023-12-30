@@ -3,6 +3,7 @@ let ticking = false;
 let header = document.querySelector("header");
 let button = document.getElementById("nav-toggle");
 let modal = document.getElementById("nav-modal");
+let tabButtons = document.querySelectorAll("#study .tab p");
 
 function adjustHeader(scrollPos) {
   if (scrollPos > 230) {
@@ -73,4 +74,32 @@ document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
       behavior: "smooth",
     });
   });
+});
+
+// Tab control
+function showTabContent(tabName) {
+  let tabContent = document.querySelectorAll(".tab-content > div");
+  tabContent.forEach((tab) => {
+    if (tab.classList.contains(tabName)) {
+      tab.style.display = "block";
+    } else {
+      tab.style.display = "none";
+    }
+  });
+}
+
+tabButtons.forEach((button) => {
+  button.addEventListener("click", function (e) {
+    let tabName = this.textContent.toLowerCase();
+    showTabContent(tabName);
+    // Add active class to the current button (highlight it)
+    let current = document.getElementsByClassName("active");
+    current[0].className = current[0].className.replace("active", "");
+    this.className += "active";
+  });
+});
+
+// Call showTabContent() on load, default tab is "post"
+window.addEventListener("load", (event) => {
+  showTabContent("post");
 });

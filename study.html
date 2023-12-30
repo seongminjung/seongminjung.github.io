@@ -50,60 +50,60 @@
       <div class="container">
         <section id="study">
           <h3>Study</h3>
-          <p>
+          <!-- <p>
             My projects focus on this fundamental question:
             <span class="emphasis">How can we empower robots to navigate and interact richly at a human level?</span>
             I am eager to broaden my approach and perspective across the entire spectrum of mobile robotics, from
             perception to control.
-          </p>
-          <div class="project">
-            <div class="grid">
-              <h4>HeightGrid</h4>
-              <!-- <img class="preview" src="img/preview_project_3.png" alt="HeightGrid" /> -->
-              <p class="detail">
-                I enhanced pose tracking by integrating scene understanding. I utilized vertically oriented objects in
-                urban settings, such as poles and trees, as landmarks. I created HeightGrid, an innovative 2D grid data
-                structure that records the vertical extent of these objects, efficiently condensing the spatial
-                information into a representative value. Then, I developed a novel pose-tracking algorithm based on 2D
-                Iterative Closest Point (ICP). In the process, each cell was assigned a weight proportional to its
-                height value, considering the significance of each cell's spatial contribution. This approach
-                significantly reduced computational load while maintaining accuracy in relation to the 3D
-                PointCloud-based pose-tracking algorithms.
-              </p>
-            </div>
+          </p> -->
+          <div class="tab">
+            <p class="active">Post</p>
+            <p>Series</p>
           </div>
-          <div class="project">
-            <div class="grid">
-              <h4>Agile Autonomous Navigation</h4>
-              <!-- <img class="preview" src="img/preview_project_2.png" alt="HeightGrid" /> -->
-              <p class="detail">
-                In my undergraduate thesis, I led the software development of an agile autonomous navigation system
-                based on scene understanding, without relying on traditional Simultaneous Localization and Mapping
-                (SLAM). Our approach combined local path planning with path integration, allowing navigation toward the
-                goal while avoiding obstacles. As a testing robot, we mounted a 2D LiDAR on a remote-controlled model
-                car. I created an algorithm for line detection and obstacle clustering from the laser scan. This simple
-                scene understanding facilitated the computation of optimal paths with reduced computational demands. I
-                also elaborated a path integration algorithm by adopting an equation correlating the car's steering
-                angle with the rotation radius. As a result, our robot reached an impressive average speed of 2m/s,
-                while SLAM-based methods could move only a few centimeters per second in the same condition.
-              </p>
+          <div class="tab-content">
+            <div class="post">
+              <div class="item">
+                <div class="grid">
+                  <h4>3. ROS Concepts: Understanding Topics, Nodes, Messages, and Services</h4>
+                  <img class="preview" src="img/preview_project_3.png" alt="preview" />
+                  <p class="detail">
+                    Introduction ROS (Robot Operating System) is a powerful framework for building robotic systems. In
+                    order to effectively work with ROS, it's important
+                  </p>
+                </div>
+              </div>
+              <div class="item">
+                <div class="grid">
+                  <h4>2. Unleash the Power of ROS: A Beginner’s Guide to Creating a Workspace and Package</h4>
+                  <img class="preview" src="img/preview_project_2.png" alt="preview" />
+                  <p class="detail">
+                    Workspace Before writing code in ROS, it is important to ensure that the code is in an appropriate
+                    location. The typical location for ROS code is as follows:
+                  </p>
+                </div>
+              </div>
+              <div class="item">
+                <div class="grid">
+                  <h4>
+                    1. Join the ROS1 revolution! A step-by-step guide to installing and setting up the Robot Operating
+                    System
+                  </h4>
+                  <img class="preview" src="img/preview_project_1.png" alt="preview" />
+                  <p class="detail">
+                    What is ROS? ROS (Robot Operating System) is a free and open-source set of software libraries and
+                    tools for building robot applications. It provides hardware ...
+                  </p>
+                </div>
+              </div>
             </div>
-          </div>
-          <div class="project">
-            <div class="grid">
-              <h4>Underwater Robot Simulation</h4>
-              <!-- <img class="preview" src="img/preview_project_1.png" alt="HeightGrid" /> -->
-              <p class="detail">
-                At CWRUbotix, I developed a realistic underwater robot simulation for the MATE ROV World Championship
-                2023. This involved using the Gazebo simulator and ROS to replicate real mission scenarios. The first
-                challenge was buoyancy. With no water model in Gazebo, I adjusted the air density to 1000kg/m<sup
-                  >3</sup
-                >
-                and fine-tuned the robot model's mass. Second, I precisely modeled the eight thrusters' power and blade
-                arrangement, applying fluid dynamics principles. Lastly, I integrated ROS for maneuverability and
-                stabilization, mirroring the actual robot's autopilot system. As a result, our simulation evolved into a
-                realistic platform for testing mission execution.
-              </p>
+            <div class="series">
+              <div class="item">
+                <div class="grid">
+                  <h4>ROS1 Robotics: The Ultimate Guide From Beginner to Pro</h4>
+                  <img class="preview" src="img/preview_project_3.png" alt="preview" />
+                  <p class="detail">ROS1 Robotics: The Ultimate Guide From Beginner to Pro</p>
+                </div>
+              </div>
             </div>
           </div>
         </section>
