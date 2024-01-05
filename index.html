@@ -40,6 +40,7 @@
       </nav>
     </header>
 
+    <div id="nav-modal-bg" onclick="toggleNav()"></div>
     <nav id="nav-modal">
       <a href="/index.html">Home</a>
       <a href="/projects.html">Projects</a>
@@ -48,7 +49,7 @@
 
     <main>
       <div class="container">
-        <section id="about">
+        <section id="bio">
           <h3>Bio</h3>
           <div class="flex">
             <div class="left">
@@ -70,8 +71,9 @@
         <section id="interests">
           <h3>Research Interests</h3>
           <p>
-            My main areas of interest include Robotics, Computer Vision, and Deep Learning. Specifically, I'm interested
-            in the following topics:
+            My main areas of interest include
+            <span class="bold">Robotics, Computer Vision, and Deep Learning</span>. Specifically, I'm interested in the
+            following topics:
           </p>
           <ul>
             <li>Simultaneous Localization and Mapping (SLAM)</li>
@@ -82,28 +84,48 @@
           </ul>
         </section>
 
-        <section id="projects">
-          <h3>Projects</h3>
+        <section id="education">
+          <h3>Education</h3>
+          <h4>Yonsei University</h4>
+          <p><span class="italic">B.S. in Electrical & Electronic Engineering</span> | Mar 2019 - Feb 2024</p>
           <ul>
-            <li>HeightGrid</li>
-            <li>Agile Autonomous Driving</li>
-            <li>CWRUbotix</li>
+            <li>GPA: 4.02 / 4.30 (Class Rank 6 / 338)</li>
           </ul>
+          <h4>Case Western Reserve University</h4>
+          <p><span class="italic">Exchange Program</span> | Aug 2022 - May 2023</p>
         </section>
 
-        <section id="posts">
-          <h3>Recent Posts</h3>
-          <ul>
-            <li>HeightGrid</li>
-            <li>Agile Autonomous Driving</li>
-            <li>CWRUbotix</li>
-          </ul>
+        <section id="home-projects">
+          <h3>Projects</h3>
+          <!-- Grid that shows preview image and title -->
+          <div class="grid">
+            <a href="/projects.html#project-3">
+              <div class="cell">
+                <img class="preview" src="img/preview_project_3.png" alt="preview" />
+                <p class="title">Height-embedded Iterative Closest Point (HeightGrid)</p>
+              </div>
+            </a>
+            <a href="/projects.html#project-2">
+              <div class="cell">
+                <img class="preview" src="img/preview_project_2.png" alt="preview" />
+                <p class="title">Agile Autonomous Navigation</p>
+              </div>
+            </a>
+            <a href="/projects.html#project-1">
+              <div class="cell">
+                <img class="preview" src="img/preview_project_1.png" alt="preview" />
+                <p class="title">Underwater Robot Simulation</p>
+              </div>
+            </a>
+          </div>
         </section>
 
         <section id="contact">
           <h3>Contact</h3>
-          <p>Email: sjung [dot] vision [at] gmail [dot] com</p>
-          <p>Phone: +82 10-8073-6228</p>
+          <ul>
+            <li>Email: sjung [dot] vision [at] gmail [dot] com</li>
+            <li>Phone: +82 10-8073-6228</li>
+          </ul>
         </section>
       </div>
     </main>

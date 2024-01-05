@@ -3,6 +3,7 @@ let ticking = false;
 let header = document.querySelector("header");
 let button = document.getElementById("nav-toggle");
 let modal = document.getElementById("nav-modal");
+let modalBg = document.getElementById("nav-modal-bg");
 let tabButtons = document.querySelectorAll("#study .tab p");
 
 function adjustHeader(scrollPos) {
@@ -30,10 +31,12 @@ function toggleNav() {
     button.classList.remove("fa-bars");
     button.classList.add("fa-times");
     modal.style.display = "flex";
+    modalBg.style.display = "block";
   } else {
     button.classList.remove("fa-times");
     button.classList.add("fa-bars");
     modal.style.display = "none";
+    modalBg.style.display = "none";
   }
 }
 
@@ -49,10 +52,19 @@ document.addEventListener("scroll", (event) => {
   }
 });
 
-// Call setNavModalTop() on load
 window.addEventListener("load", (event) => {
+  // Call setNavModalTop() on load
   adjustHeader(lastKnownScrollPosition);
   setNavModalTop(lastKnownScrollPosition);
+
+  // When there is a hash in the url, scroll to the element
+  if (window.location.hash) {
+    let hash = window.location.hash.substring(1);
+    let element = document.getElementById(hash);
+    element.scrollIntoView();
+  }
+  // But scroll a little bit more to account for the header
+  window.scrollBy(0, -70);
 });
 
 // Call adjustHeader() on window resize
