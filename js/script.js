@@ -64,7 +64,7 @@ window.addEventListener("load", (event) => {
     element.scrollIntoView();
   }
   // But scroll a little bit more to account for the header
-  window.scrollBy(0, -70);
+  window.scrollBy(0, -68);
 });
 
 // Call adjustHeader() on window resize
