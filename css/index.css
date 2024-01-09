@@ -37,6 +37,7 @@ h3 {
   margin: 0;
   font-size: 2rem;
   /* font-weight: 400; */
+  text-align: left;
 }
 
 h4 {
@@ -382,6 +383,8 @@ footer {
   row-gap: 20px;
   column-gap: 50px;
   justify-content: space-between;
+  color: #212529;
+  text-decoration: none;
 }
 
 #study .item .grid .publish-date {
