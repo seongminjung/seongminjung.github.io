@@ -33,14 +33,14 @@ section:first-child {
   }
 }
 
-h3 {
+h1 {
   /* font-family: "Lobster", sans-serif; */
   margin: 0;
   font-size: 2rem;
   /* font-weight: 400; */
 }
 
-h4 {
+h2 {
   font-size: 1.2rem;
   /* font-weight: 400; */
   margin: 0;
@@ -302,7 +302,7 @@ footer {
   }
 }
 
-#education h4 {
+#education h2 {
   margin-top: 16px;
 }
 
@@ -379,19 +379,18 @@ footer {
 #study .item .grid {
   display: grid;
   grid-template-columns: auto auto;
-  row-gap: 20px;
   column-gap: 50px;
   justify-content: space-between;
   color: #212529;
   text-decoration: none;
 }
 
-#study .item .grid .publish-date {
+#study .item .grid .date {
   font-size: 0.9rem;
   font-weight: 400;
   color: #666;
-  margin-top: 5px; /* Adjust spacing above the date */
-  margin-bottom: 5px; /* Adjust spacing below the date */
+  margin-top: 5px;
+  margin-bottom: 20px;
 }
 
 #study .item .grid .preview {
@@ -412,10 +411,10 @@ footer {
     margin-top: 30px;
     padding-top: 30px;
   }
-  #study .item .grid h4 {
+  #study .item .grid h2 {
     font-size: 1rem;
   }
-  #study .item .grid .publish-date {
+  #study .item .grid .date {
     font-size: 0.8rem;
   }
   #study .item .grid .detail {
@@ -440,8 +439,8 @@ footer {
   margin-bottom: 20px; /* Adjust spacing below the date */
 }
 
-/* except for the first h4 */
-#post .post-body h4:not(:first-child) {
+/* except for the first h2 */
+#post .post-body h2:not(:first-child) {
   margin-top: 50px;
   margin-bottom: 20px;
 }
