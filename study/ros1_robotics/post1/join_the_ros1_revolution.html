@@ -50,59 +50,96 @@
 
     <main>
       <div class="container">
-        <section id="projects">
+        <section id="post">
           <h3>
             1. Join the ROS1 revolution! A step-by-step guide to installing and setting up the Robot Operating System
           </h3>
-          <div class="project" id="project-3">
-            <div class="grid">
-              <h4>HeightGrid</h4>
-              <img class="preview" src="img/project/project3/preview.png" alt="preview" />
-              <p class="detail">
-                I enhanced pose tracking by integrating scene understanding. I utilized vertically oriented objects in
-                urban settings, such as poles and trees, as landmarks. I created HeightGrid, an innovative 2D grid data
-                structure that records the vertical extent of these objects, efficiently condensing the spatial
-                information into a representative value. Then, I developed a novel pose-tracking algorithm based on 2D
-                Iterative Closest Point (ICP). In the process, each cell was assigned a weight proportional to its
-                height value, considering the significance of each cell's spatial contribution. This approach
-                significantly reduced computational load while maintaining accuracy in relation to the 3D
-                PointCloud-based pose-tracking algorithms.
-              </p>
-            </div>
-          </div>
-          <div class="project" id="project-2">
-            <div class="grid">
-              <h4>Agile Autonomous Navigation</h4>
-              <img class="preview" src="img/project/project2/preview.png" alt="preview" />
-              <p class="detail">
-                In my undergraduate thesis, I led the software development of an agile autonomous navigation system
-                based on scene understanding, without relying on traditional Simultaneous Localization and Mapping
-                (SLAM). Our approach combined local path planning with path integration, allowing navigation toward the
-                goal while avoiding obstacles. As a testing robot, we mounted a 2D LiDAR on a remote-controlled model
-                car. I created an algorithm for line detection and obstacle clustering from the laser scan. This simple
-                scene understanding facilitated the computation of optimal paths with reduced computational demands. I
-                also elaborated a path integration algorithm by adopting an equation correlating the car's steering
-                angle with the rotation radius. As a result, our robot reached an impressive average speed of 2m/s,
-                while SLAM-based methods could move only a few centimeters per second in the same condition.
-              </p>
-            </div>
-          </div>
-          <div class="project" id="project-1">
-            <div class="grid">
-              <h4>Underwater Robot Simulation</h4>
-              <img class="preview" src="img/project/project1/preview.png" alt="preview" />
-              <p class="detail">
-                At CWRUbotix, I developed a realistic underwater robot simulation for the MATE ROV World Championship
-                2023. This involved using the Gazebo simulator and ROS to replicate real mission scenarios. The first
-                challenge was buoyancy. With no water model in Gazebo, I adjusted the air density to 1000kg/m<sup
-                  >3</sup
-                >
-                and fine-tuned the robot model's mass. Second, I precisely modeled the eight thrusters' power and blade
-                arrangement, applying fluid dynamics principles. Lastly, I integrated ROS for maneuverability and
-                stabilization, mirroring the actual robot's autopilot system. As a result, our simulation evolved into a
-                realistic platform for testing mission execution.
-              </p>
-            </div>
+          <p class="date">Posted on <time datetime="2023-01-11">January 11, 2023</time></p>
+          <div class="post-body">
+            <h4>What is ROS?</h4>
+            <p>
+              ROS (Robot Operating System) is a free and open-source set of software libraries and tools for building
+              robot applications. It provides hardware abstraction, device drivers, libraries, visualizers,
+              message-passing, package management, and more. ROS is used in a variety of fields, including robotics,
+              vision, and artificial intelligence.
+            </p>
+            <p>Here are a few examples of how ROS1 has been used in various applications</p>
+            <ul>
+              <li>
+                Mobile robots: ROS1 has been used to build a wide range of mobile robots, including service robots,
+                delivery robots, and robots for inspection and mapping.
+              </li>
+              <li>
+                Aerospace and defense: ROS1 has been used in the development of unmanned aerial vehicles (UAVs) and
+                other aerospace systems.
+              </li>
+              <li>
+                Manufacturing and logistics: ROS1 has been used to build robots for tasks such as material handling,
+                assembly, and inspection in factories and warehouses.
+              </li>
+            </ul>
+
+            <h4>Prerequisites</h4>
+            <p>
+              You may need a flash drive bigger than 4GB to install Ubuntu. Plus, you need some free space on your disk
+              to be assigned to Ubuntu (approx. 64GB will be enough)
+            </p>
+
+            <h4>Ubuntu Installation</h4>
+            <p>
+              Install Ubuntu 20.04.05 Focal Fossa from here:
+              <a href="https://releases.ubuntu.com/releases/20.04/" target="_blank"
+                >https://releases.ubuntu.com/releases/20.04/</a
+              >
+            </p>
+            <ol>
+              <li>Under “Desktop image” click “64-bit PC (AMD64) desktop image” to start downloading Ubuntu image.</li>
+              <li>Install Rufus here: <a href="https://rufus.ie/en/" target="_blank">https://rufus.ie/en/</a></li>
+              <li>Burn the Ubuntu image to the flash drive using Rufus.</li>
+              <li>Reboot your computer, enter the boot menu, and select your flash drive.</li>
+              <li>Follow the instruction to set up your Ubuntu.</li>
+            </ol>
+            <img class="half" src="/study/ros1_robotics/post1/img1.webp" alt="Ubuntu Installation" />
+
+            <h4>ROS1 installation</h4>
+            <img class="half" src="/study/ros1_robotics/post1/img2.webp" alt="ROS1 installation" />
+            <p>
+              Here is the official detailed instruction for installing ROS1:
+              <a href="http://wiki.ros.org/noetic/Installation/Ubuntu" target="_blank"
+                >http://wiki.ros.org/noetic/Installation/Ubuntu</a
+              >
+            </p>
+            <p>We will use ROS1 Noetic Ninjemys version here.</p>
+            <p>1. Update all your subsystems before installation</p>
+            <pre><code class="language-bash">sudo apt update -y && sudo apt upgrade -y</code></pre>
+            <p>2. Set up your computer to accept software from packages.ros.org.</p>
+            <pre><code class="language-bash">sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'</code></pre>
+            <p>3. Set up your keys</p>
+            <pre><code class="language-bash">curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo apt-key add -</code></pre>
+            <p>4. Install ROS1 Noetic</p>
+            <pre><code class="language-bash">sudo apt install ros-noetic-desktop-full -y</code></pre>
+            <p>This step will take 5 to 10 minutes.</p>
+
+            <h4>Checking the installation</h4>
+            <p>
+              One way to check if your ROS installation is working properly is by running the 'roscore' command. roscore
+              is the first thing you should run when starting ROS. It starts up the ROS master, which is the central hub
+              that coordinates communication between all the different parts of your ROS system. To start roscore, open
+              a terminal and run the command:
+            </p>
+            <pre><code class="language-bash">source /opt/ros/noetic/setup.bash<br/>roscore</code></pre>
+            <img class="half" src="/study/ros1_robotics/post1/img3.webp" alt="Checking the installation" />
+            <p>
+              It is a good practice to check the installation by running roscore and other related commands before
+              starting to work with ROS to ensure that everything is set up correctly and avoid potential issues down
+              the road.
+            </p>
+
+            <h4>Hurray! You're done.</h4>
+            <p>
+              Now move on to the next article on using ROS1. Check out my next article about creating workspaces and
+              packages HERE.
+            </p>
           </div>
         </section>
       </div>

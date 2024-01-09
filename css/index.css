@@ -1,6 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,700;1,400&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Lobster&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Lobster+Two&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap");
 
 body {
   margin: 0;
@@ -9,7 +10,7 @@ body {
   font-weight: 400;
   line-height: 1.5;
   color: #212529;
-  text-align: justify;
+  text-align: left;
   background-color: #fff;
 }
 
@@ -37,14 +38,12 @@ h3 {
   margin: 0;
   font-size: 2rem;
   /* font-weight: 400; */
-  text-align: left;
 }
 
 h4 {
   font-size: 1.2rem;
   /* font-weight: 400; */
   margin: 0;
-  text-align: left;
 }
 
 .container {
@@ -425,4 +424,61 @@ footer {
   #study .item:first-child {
     padding-top: 30px;
   }
+}
+
+/* post page */
+#post .post-body {
+  margin-top: 50px;
+  padding-top: 50px;
+  border-top: 1px solid #e6e6e6;
+}
+
+#post .date {
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 20px; /* Adjust spacing above the date */
+  margin-bottom: 20px; /* Adjust spacing below the date */
+}
+
+/* except for the first h4 */
+#post .post-body h4:not(:first-child) {
+  margin-top: 50px;
+  margin-bottom: 20px;
+}
+
+#post .post-body p,
+#post .post-body ul,
+#post .post-body ol {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+#post .post-body a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+#post .post-body img {
+  width: 100%;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+#post .post-body img.half {
+  width: 50%;
+  display: block;
+  margin: 20px auto;
+}
+
+#post .post-body pre {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  padding: 20px;
+  background-color: #f2f2f2;
+  overflow-x: auto;
+}
+
+#post .post-body pre code {
+  font-family: "Source Code Pro", monospace;
+  font-size: 14px;
 }
