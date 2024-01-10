@@ -55,10 +55,6 @@ h2 {
   font-weight: 700;
 }
 
-.italic {
-  font-style: italic;
-}
-
 /* header, main, footer */
 header {
   position: fixed;
@@ -443,12 +439,20 @@ footer {
 }
 
 #post .post-body h2 {
-  font-size: 1.8rem;
+  font-size: 1.7rem;
 }
 
 #post .post-body h2:not(:first-child) {
   margin-top: 50px;
   margin-bottom: 20px;
+}
+
+#post .post-body h3 {
+  font-size: 1.2rem;
+}
+
+#post .post-body h4 {
+  font-size: 1rem;
 }
 
 #post .post-body p,
