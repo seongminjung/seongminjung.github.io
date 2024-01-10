@@ -270,6 +270,10 @@ footer {
   margin-bottom: 16px;
 }
 
+#home-projects .grid a {
+  color: #212529;
+}
+
 #home-projects .grid .cell .preview {
   width: 100%;
   object-fit: cover;
@@ -283,7 +287,6 @@ footer {
   margin: 10px 0 0;
   font-weight: 700;
   text-align: center;
-  color: #212529;
 }
 
 @media (max-width: 800px) {
@@ -439,7 +442,10 @@ footer {
   margin-bottom: 20px; /* Adjust spacing below the date */
 }
 
-/* except for the first h2 */
+#post .post-body h2 {
+  font-size: 1.8rem;
+}
+
 #post .post-body h2:not(:first-child) {
   margin-top: 50px;
   margin-bottom: 20px;
@@ -469,6 +475,12 @@ footer {
   margin: 20px auto;
 }
 
+@media (max-width: 700px) {
+  #post .post-body img.half {
+    width: 100%;
+  }
+}
+
 #post .post-body pre {
   margin-top: 20px;
   margin-bottom: 20px;
@@ -480,4 +492,12 @@ footer {
 #post .post-body pre code {
   font-family: "Source Code Pro", monospace;
   font-size: 14px;
+}
+
+#post .post-body span.color-red {
+  color: #dc3545;
+}
+
+#post .post-body span.color-green {
+  color: #28a745;
 }
