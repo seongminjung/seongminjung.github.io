@@ -61,7 +61,7 @@
           <h1>[ICP & Point Cloud Registration] Part 1: Known Data Association & SVD</h1>
           <p class="date">Posted on <time datetime="2023-09-10">September 10, 2023</time></p>
           <div class="post-body">
-            <h2>To begin with</h2>
+            <h2>To Begin With</h2>
             <p>
               This is a summary of the first part of the ICP & Point Cloud Registration series by Prof. Cyrill
               Stachniss. Lecture slides and videos are available on the
@@ -79,7 +79,7 @@
               in 3D space, and registration is a process of aligning two point clouds. What this algorithm does is
               better explained with a picture.
             </p>
-            <img src="/study/icp_algorithm/post1/img1.png" alt="What is ICP?" />
+            <img class="half" src="/study/icp_algorithm/post1/img1.png" alt="What is ICP?" />
             <p>
               The <span class="color-red">red markers</span> indicate the first 2D Lidar scan and the
               <span class="color-green">green markers</span> indicate the second. Imagine we are in a self-driving car,
@@ -90,7 +90,7 @@
               safety, efficiency, and accuracy.
             </p>
 
-            <h3>In a nutshell</h3>
+            <h3>In a Nutshell</h3>
             <p>
               ICP is a simple and strong algorithm for estimating the transformation between the two point clouds, which
               can be directly used to derive the past trajectory of the car or robot. The algorithm is as follows:
@@ -106,8 +106,8 @@
               computing the transformation given the perfectly matching pairs of points (correspondences).
             </p>
 
-            <h2>Building from scratch</h2>
-            <h3>Software setup</h3>
+            <h2>Building From Scratch</h2>
+            <h3>Software Setup</h3>
             <p>
               We will use <b>ROS noetic</b> with <b>C++</b> language. Detailed setup tutorial can be found in
               <a href="/study/ros1_robotics/post1/join_the_ros1_revolution.html" target="_blank">my previous posts</a>.
@@ -120,12 +120,12 @@
               <b>one-shot optimal solution exists</b> for this alignment problem, provided the
               <b>correct correspondences</b> are identified. Let's see how it works.
             </p>
-            <p>img</p>
+            <img class="half" src="/study/icp_algorithm/post1/img2.png" alt="Dataset" />
             <p>
-              In our setup, the <span class="color-red">red dots</span> depict the initial point cloud, while the
+              In our setup, the <span class="color-red">red dots</span> depict the initial 2D point cloud, while the
               <span class="color-green">green dots</span> indicate the second point cloud. Our goal is to align these
               two sets: we'll use the red dots as our reference and carefully adjust the position of the green dots
-              until they align perfectly with the red ones.
+              so they align perfectly with the red ones.
             </p>
 
             <h3>Key Terms and Parameters</h3>
@@ -134,7 +134,7 @@
               this series. We will use the following notations:
             </p>
 
-            <h4>Key terms</h4>
+            <h4>Key Terms</h4>
             <ul>
               <li>
                 <b>Correspondence</b>: A pair of points that are known to be the same. For the sake of simplicity, we
@@ -154,6 +154,14 @@
               <li><b>Rotation matrix and translation vector</b>: $\mathbf{R}$ and $\mathbf{t}$</li>
               <li><b>Transformed point cloud</b>: $\bar{\mathbf{X}} = \{\bar{x}_1, \bar{x}_2, \cdots, \bar{x}_n\}$</li>
             </ul>
+            <img class="half" src="/study/icp_algorithm/post1/img3.png" alt="Dataset" />
+            <p>
+              Therefore, our dataset is defined as described above, consisting of corresponding points such as x1 and
+              y1, x2 and y2, etc., which represent the same point observed from different locations. Note that the
+              oordinate system used is x-forward and y-left.
+            </p>
+            
+            <h2>One-Shot Optimal Solution</h2>
           </div>
         </section>
       </div>
