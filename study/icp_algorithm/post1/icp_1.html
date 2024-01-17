@@ -124,8 +124,8 @@
             <p>
               In our setup, the <span class="color-red">red dots</span> depict the initial 2D point cloud, while the
               <span class="color-green">green dots</span> indicate the second point cloud. Our goal is to align these
-              two sets: we'll use the red dots as our reference and carefully adjust the position of the green dots
-              so they align perfectly with the red ones.
+              two sets: we'll use the red dots as our reference and carefully adjust the position of the green dots so
+              they align perfectly with the red ones.
             </p>
 
             <h3>Key Terms and Parameters</h3>
@@ -160,8 +160,35 @@
               y1, x2 and y2, etc., which represent the same point observed from different locations. Note that the
               oordinate system used is x-forward and y-left.
             </p>
-            
+
             <h2>One-Shot Optimal Solution</h2>
+            <p>
+              As mentioned earlier, it has been proven that a one-shot direct algorithm exists for registering two point
+              clouds, provided the correct correspondences are known. The core technique utilized in this process is
+              Singular Value Decomposition (SVD). The procedure involves several key steps:
+            </p>
+            <ol>
+              <li>Determine the centroid for each point cloud.</li>
+              <li>Shift both point clouds such that their centroids coincide with the origin.</li>
+              <li>Construct the rotation matrix $\mathbf{R}$ that aligns the two point clouds.</li>
+              <li>
+                Shift both point clouds back to their initial positions and rotate the second point cloud by
+                $\mathbf{R}$.
+              </li>
+              <li>Find the translation vector $\mathbf{t}$ that aligns the two point clouds.</li>
+            </ol>
+            <p>
+              Quite simple, isn't it? This direct method can be done only if the correct correspondences are known,
+              which means that we know the first point cloud and the second point cloud are the same point observed from
+              different locations. In the next section, we will derive the mathematical formulation for each step.
+            </p>
+            <h3>1. Determine the centroid for each point cloud.</h3>
+            <p>
+              The centroid of a point cloud is the average of all points in the point cloud. It can be computed as
+              follows:
+            </p>
+            <p class="math-center">$x_0 = \frac{1}{n} \sum_{i=1}^{n} x_i$</p>
+            <p>where $\mathbf{c}$ is the centroid of the point cloud $\mathbf{X} = \{x_1, x_2, \cdots, x_n\}$.</p>
           </div>
         </section>
       </div>

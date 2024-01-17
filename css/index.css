@@ -462,6 +462,10 @@ footer {
   margin-bottom: 20px;
 }
 
+#post .post-body p.math-center {
+  text-align: center;
+}
+
 #post .post-body a {
   color: #007bff;
   text-decoration: none;
