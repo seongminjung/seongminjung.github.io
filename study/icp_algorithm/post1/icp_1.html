@@ -182,13 +182,73 @@
               which means that we know the first point cloud and the second point cloud are the same point observed from
               different locations. In the next section, we will derive the mathematical formulation for each step.
             </p>
+
             <h3>1. Determine the centroid for each point cloud.</h3>
             <p>
               The centroid of a point cloud is the average of all points in the point cloud. It can be computed as
               follows:
             </p>
             <p class="math-center">$x_0 = \frac{1}{n} \sum_{i=1}^{n} x_i$</p>
-            <p>where $\mathbf{c}$ is the centroid of the point cloud $\mathbf{X} = \{x_1, x_2, \cdots, x_n\}$.</p>
+            <p class="math-center">$y_0 = \frac{1}{n} \sum_{i=1}^{n} y_i$</p>
+
+            <h3>2. Shift both point clouds such that their centroids coincide with the origin.</h3>
+            <p>
+              The centroid of each point cloud is subtracted from all points in the point cloud. This operation shifts
+              the centroid to the origin.
+            </p>
+            <p class="math-center">$x_i = x_i - x_0$</p>
+            <p class="math-center">$y_i = y_i - y_0$</p>
+
+            <h3>3. Construct the rotation matrix $\mathbf{R}$ that aligns the two point clouds.</h3>
+            <h4>
+              3.1. Compute the covariance matrix $\mathbf{H}$ of the two point clouds $\mathbf{X}$ and $\mathbf{Y}$.
+            </h4>
+            <p>
+              The covariance matrix $\mathbf{H}$ is a square matrix that contains the covariance between each pair of
+              elements of a vector. The covariance between two elements $x_i$ and $y_i$ is computed as follows:
+            </p>
+            <p class="math-center">$cov(x_i, y_i) = \sum_{i=1}^{n} (x_i - x_0)(y_i - y_0)$</p>
+            <p>The covariance matrix $\mathbf{H}$ is computed as follows:</p>
+            <p class="math-center">$\mathbf{H} = \sum_{i=1}^{n} (x_i - x_0)(y_i - y_0)$</p>
+
+            <h4>3.2. Construct the rotation matrix $\mathbf{R}$.</h4>
+            <p>
+              The rotation matrix $\mathbf{R}$ is constructed using Singular Value Decomposition (SVD). SVD is a
+              technique to decompose a matrix into three matrices, as follows:
+            </p>
+            <p class="math-center">$\mathbf{H} = \mathbf{U} \mathbf{D} \mathbf{V}^T$</p>
+            <p>
+              $\mathbf{U}$ and $\mathbf{V}$ are orthogonal matrices, and $\mathbf{D}$ is a diagonal matrix. The diagonal
+              elements of $\mathbf{D}$ are called singular values. The singular values are sorted in descending order.
+              The first column of $\mathbf{U}$ is called the left singular vector, and the first column of $\mathbf{V}$
+              is called the right singular vector. The left singular vector and the right singular vector are orthogonal
+              to each other. The left singular vector and the right singular vector corresponding to the largest
+              singular value are called the principal components. The principal components are the directions of the
+              largest variance of the data. The principal components are also called the principal axes.
+            </p>
+            <p>
+              The rotation matrix $\mathbf{R}$ is constructed using the principal components of $\mathbf{X}$ and
+              $\mathbf{Y}$ as follows:
+            </p>
+            <p class="math-center">$\mathbf{R} = \mathbf{V} \mathbf{U}^T$</p>
+
+            <h3>
+              4. Shift both point clouds back to their initial positions and rotate the second point cloud by
+              $\mathbf{R}$.
+            </h3>
+            <p>The rotation matrix $\mathbf{R}$ is applied to the second point cloud $\mathbf{X}$ as follows:</p>
+            <p class="math-center">$\bar{x}_i = \mathbf{R} x_i$</p>
+
+            <h3>5. Find the translation vector $\mathbf{t}$ that aligns the two point clouds.</h3>
+            <p>
+              The translation vector $\mathbf{t}$ is computed as follows. The translation vector $\mathbf{t}$ is the
+              difference between the centroid of the second point cloud $\mathbf{X}$ and the centroid of the rotated
+              second point cloud $\bar{\mathbf{X}}$.
+            </p>
+            <p class="math-center">
+              $\mathbf{t} = \frac{1}{n} \sum_{i=1}^{n} (\bar{x}_i - x_i) = \frac{1}{n} \sum_{i=1}^{n} (\mathbf{R} x_i -
+              x_i)$
+            </p>
           </div>
         </section>
       </div>
