@@ -103,6 +103,9 @@ function showTabContent(tabName) {
 tabButtons.forEach((button) => {
   button.addEventListener("click", function (e) {
     let tabName = this.textContent.toLowerCase();
+    if (tabName == "paper summaries") {
+      tabName = "paper-summaries";
+    }
     showTabContent(tabName);
     // Add active class to the current button (highlight it)
     let current = document.getElementsByClassName("active");
