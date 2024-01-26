@@ -509,3 +509,39 @@ footer {
 #post .post-body span.color-green {
   color: #28a745;
 }
+
+#post .post-footer h2 {
+  font-size: 1.2rem;
+  margin-top: 150px;
+  padding-top: 50px;
+  padding-bottom: 20px;
+  border-top: 1px solid #e6e6e6;
+  border-bottom: 1px solid #a1a1a1;
+}
+
+#post .post-footer ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+#post .post-footer ul li {
+  padding: 10px 0;
+  border-bottom: 1px solid #e6e6e6;
+}
+
+#post .post-footer ul li a {
+  text-decoration: none;
+  color: #212529;
+  display: flex;
+  justify-content: space-between;
+}
+
+#post .post-footer ul li a:hover b {
+  text-decoration: underline;
+}
+
+#post .post-footer ul li a time {
+  font-size: 0.9rem;
+  color: #666;
+}
