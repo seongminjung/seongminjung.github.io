@@ -342,6 +342,24 @@ footer {
   }
 }
 
+/* Series Tag */
+#series-tag {
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: #666;
+  padding: 0;
+  background-color: #f2f2f2;
+  border-radius: 5px;
+  padding: 5px 10px;
+  display: inline-block;
+  text-decoration: none;
+}
+
+#series-tag:hover {
+  color: #212529;
+  background-color: #e6e6e6;
+}
+
 /* Study Page */
 #study .tab {
   display: flex;
@@ -384,17 +402,8 @@ footer {
   text-decoration: none;
 }
 
-#study .item .series {
-  font-size: 0.9rem;
-  font-weight: 400;
-  color: #666;
-  padding: 0;
-  margin-top: 0;
+#study .item #series-tag {
   margin-bottom: 10px;
-  background-color: #f2f2f2;
-  border-radius: 5px;
-  padding: 5px 10px;
-  display: inline-block;
 }
 
 #study .item .grid .date {
@@ -437,18 +446,94 @@ footer {
   }
 }
 
-/* post page */
-#post .post-body {
+/* series page */
+#series .date {
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 20px; /* Adjust spacing above the date */
+  margin-bottom: 20px; /* Adjust spacing below the date */
+}
+
+#series .post {
+  margin-top: 50px;
+}
+
+#series .item {
   margin-top: 50px;
   padding-top: 50px;
   border-top: 1px solid #e6e6e6;
 }
 
+#series .item:first-child {
+  margin-top: 0;
+  padding-top: 50px;
+}
+
+#series .item .grid {
+  display: grid;
+  grid-template-columns: auto auto;
+  column-gap: 50px;
+  justify-content: space-between;
+  color: #212529;
+  text-decoration: none;
+}
+
+#series .item #series-tag {
+  margin-bottom: 10px;
+}
+
+#series .item .grid .date {
+  font-size: 0.9rem;
+  font-weight: 400;
+  color: #666;
+  margin-top: 5px;
+  margin-bottom: 20px;
+}
+
+#series .item .grid .preview {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  object-position: center;
+  grid-row: 1 / 4;
+  grid-column: 2 / 3;
+}
+
+#series .item .grid .detail {
+  margin: 0;
+}
+
+@media (max-width: 700px) {
+  #series .item {
+    margin-top: 30px;
+    padding-top: 30px;
+  }
+  #series .item .grid h2 {
+    font-size: 1rem;
+  }
+  #series .item .grid .date {
+    font-size: 0.8rem;
+  }
+  #series .item .grid .detail {
+    display: none;
+  }
+  #series .item:first-child {
+    padding-top: 30px;
+  }
+}
+
+/* post page */
 #post .date {
   font-size: 0.9rem;
   color: #666;
   margin-top: 20px; /* Adjust spacing above the date */
   margin-bottom: 20px; /* Adjust spacing below the date */
+}
+
+#post .post-body {
+  margin-top: 50px;
+  padding-top: 50px;
+  border-top: 1px solid #e6e6e6;
 }
 
 #post .post-body h2 {
