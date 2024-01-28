@@ -645,9 +645,14 @@ footer {
 }
 
 #post .post-footer h2 {
-  font-size: 1.2rem;
-  padding-bottom: 20px;
+  font-size: 1rem;
+  padding-bottom: 13px;
   border-bottom: 1px solid #a1a1a1;
+}
+
+#post .post-footer h2 a {
+  color: #212529;
+  text-decoration: underline;
 }
 
 #post .post-footer ul {
@@ -666,13 +671,15 @@ footer {
   color: #212529;
   display: flex;
   justify-content: space-between;
+  font-size: 0.8rem;
 }
 
-#post .post-footer ul li a:hover b {
+#post .post-footer ul li a:hover span {
   text-decoration: underline;
 }
 
 #post .post-footer ul li a time {
-  font-size: 0.9rem;
+  text-align: right;
+  flex: 0 0 20%;
   color: #666;
 }
