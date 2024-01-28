@@ -140,7 +140,7 @@ header.shrink .nav {
   transform: translate(0, -50%);
 }
 
-@media (max-width: 1000px) {
+@media (max-width: 1200px) {
   header .nav a {
     display: none;
   }
@@ -200,9 +200,8 @@ header.shrink .nav {
   padding: 10px;
 }
 
-#nav-modal a:nth-child(2) {
+#nav-modal a:not(:first-child) {
   border-top: 1px solid rgba(0, 0, 0, 0.2);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
 }
 
 #nav-modal a:hover {

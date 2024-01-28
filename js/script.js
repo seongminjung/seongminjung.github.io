@@ -67,11 +67,11 @@ window.addEventListener("load", (event) => {
   window.scrollBy(0, -68);
 });
 
-// Call adjustHeader() on window resize
+// When the modal is open and resizing the window bigger than 1200px, close the modal
 window.addEventListener("resize", (event) => {
   adjustHeader(lastKnownScrollPosition);
   setNavModalTop(lastKnownScrollPosition);
-  if (window.innerWidth > 1000) {
+  if (window.innerWidth > 1200) {
     if (button.classList.contains("fa-times")) {
       toggleNav();
     }
@@ -114,7 +114,12 @@ tabButtons.forEach((button) => {
   });
 });
 
-// Call showTabContent() on load, default tab is "post"
 window.addEventListener("load", (event) => {
-  showTabContent("post");
+  // Call showTabContent() on load, default tab is "post" or "travel"
+  // showTabContent("post") if it is study.html, and "travel" if it is blog.html
+  let tabName = "post";
+  if (window.location.pathname.includes("blog")) {
+    tabName = "travel";
+  }
+  showTabContent(tabName);
 });
