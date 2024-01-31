@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BundleSDF: Neural 6-DoF Tracking and 3D Reconstruction of Unknown Objects</title>
+    <meta name="description" content="Seongmin Jung's personal website" />
+    <meta name="keywords" content="Seongmin Jung, Robotics" />
+    <meta name="author" content="Seongmin Jung" />
+    <meta name="language" content="English" />
+    <link rel="shortcut icon" href="/favicon.png" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LL44K1WZ0G"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "G-LL44K1WZ0G");
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML" async></script>
+
+    <!-- Load an icon library to show a hamburger menu (bars) on small screens -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <!-- import css -->
+    <link rel="stylesheet" href="/css/index.css" />
+    <!-- import js -->
+    <script src="/js/script.js" defer></script>
+  </head>
+
+  <body>
+    <header>
+      <img class="cover" src="/asset/cover.jpg" alt="Seongmin Jung" />
+      <h1 class="title"><a href="/index.html">Seongmin Jung</a></h1>
+      <nav class="nav">
+        <a href="/index.html">Home</a>
+        <a href="/projects.html">Projects</a>
+        <a href="/study.html" class="bold">Study</a>
+        <a href="/blog.html">Blog</a>
+        <i id="nav-toggle" class="nav-toggle fa fa-bars" onclick="toggleNav()"></i>
+      </nav>
+    </header>
+
+    <div id="nav-modal-bg" onclick="toggleNav()"></div>
+    <nav id="nav-modal">
+      <a href="/index.html">Home</a>
+      <a href="/projects.html">Projects</a>
+      <a href="/study.html" class="bold">Study</a>
+      <a href="/blog.html">Blog</a>
+    </nav>
+
+    <main>
+      <div class="container">
+        <section id="post">
+          <h1>BundleSDF: Neural 6-DoF Tracking and 3D Reconstruction of Unknown Objects</h1>
+          <p class="date">Posted on <time datetime="2023-11-09">November 9, 2023</time></p>
+          <div class="post-body">
+            <h2>1. Objective</h2>
+            <img class="half" src="/study/paper_summaries/bundlesdf/img1.png" alt="Objective" />
+            <p>BundleSDF: Neural <b>6-DoF Tracking</b> and <b>3D Reconstruction</b> of Unknown Objects</p>
+            <a href="https://bundlesdf.github.io/" target="_blank">Demo</a>
+            <h3>Why selected BundleSDF?</h3>
+            <ul>
+              <li>Near real-time (10Hz)</li>
+              <li>Lightweight neural implicit model "Neural Object Field"</li>
+              <li>Novel unknown dynamic object</li>
+            </ul>
+            <p>How about <b>map building</b> with the idea of BundleSDF?</p>
+
+            <h3>Settings of BundleSDF</h3>
+            <ul>
+              <li>Use RGBD camera</li>
+              <li>Assume rigid object</li>
+              <li>Require object segmentation mask for the first frame</li>
+            </ul>
+
+            <h2>2. Approach</h2>
+            <img class="half" src="/study/paper_summaries/bundlesdf/img2.png" alt="Approach" />
+
+            <h3>2.1. Pose Tracking</h3>
+
+            <h4>2.1.1. Object Extraction</h4>
+            <img class="half" src="/study/paper_summaries/bundlesdf/img3.png" alt="Object Extraction" />
+
+            <h4>2.1.2. RANSAC Pose Estimation</h4>
+            <img class="half" src="/study/paper_summaries/bundlesdf/img4.png" alt="RANSAC Pose Estimation" />
+
+            <h4>2.1.3. Memory Pool</h4>
+            <img class="half" src="/study/paper_summaries/bundlesdf/img5.png" alt="Memory Pool" />
+            <ul>
+              <li>Stores keyframes</li>
+              <li>Minimizes the long-term pose drift using past keyframes</li>
+              <li>Keyframe: Stores RGBD image and estimated pose</li>
+            </ul>
+
+            <h4>2.1.4. Pose Graph Optimization</h4>
+            <img class="half" src="/study/paper_summaries/bundlesdf/img6.png" alt="Pose Graph Optimization" />
+            <ul>
+              <li>1. Select K memory frames with the maximum viewing overlap</li>
+              <li>
+                2. Solve the entire pose graph optimization via the Gauss-Newton algorithm with iterative re-weighting
+              </li>
+              <li>3. Update both new keyframe and K memory frames</li>
+            </ul>
+
+            <h3>2.2. 3D Reconstruction - Neural Object Field</h3>
+            <img class="half" src="/study/paper_summaries/bundlesdf/img7.png" alt="Neural Object Field" />
+            <img class="half" src="/study/paper_summaries/bundlesdf/img8.png" alt="Neural Object Field" />
+
+            <h3>2.3. Rendering</h3>
+
+            <h4>Efficient Ray Sampling & Hybrid SDF Modeling</h4>
+            <img class="half" src="/study/paper_summaries/bundlesdf/img9.png" alt="Efficient Ray Sampling" />
+            <p>
+              Sample points only within a certain range from the surface of the model. Divide the space into 3 types:
+            </p>
+            <ul>
+              <li>Yellow: uncertain free space</li>
+              <li>Red: empty space</li>
+              <li>Blue: near-surface space</li>
+            </ul>
+
+            <h4>Neural Object Field Training Loss</h4>
+            <img
+              class="half"
+              src="/study/paper_summaries/bundlesdf/img10.png"
+              alt="Neural Object Field Training Loss"
+            />
+
+            <h2>3. Metrics</h2>
+            <h3>6-DoF Pose Estimation</h3>
+            <p><b>ADD(-S)</b>: Average Distance of the estimated pose to the ground truth pose</p>
+            <p class="math-center">
+              $\text{ADD}(\hat{T}, T) = \frac{1}{N} \sum_{i=1}^N \min_{\hat{R}, \hat{t}} \| \hat{R} x_i + \hat{t} - (R
+              x_i + t) \|_2$
+            </p>
+            <p class="math-center">
+              $\text{ADD-S}(\hat{T}, T) = \frac{1}{N} \sum_{i=1}^N \min_{\hat{R}, \hat{t}} \| \hat{R} x_i + \hat{t} - (R
+              x_i + t) \|_2 + \min_{\hat{R}, \hat{t}} \| \hat{R}^{-1} x_i + \hat{t} - (R x_i + t) \|_2$
+            </p>
+
+            <h3>3D Reconstruction</h3>
+            <p>
+              <b>Chamfer Distance</b>: Calculate distance between the vertices of result mesh and the ground truth mesh
+            </p>
+            <p class="math-center">
+              $\text{CD}(M, \hat{M}) = \frac{1}{|M|} \sum_{x \in M} \min_{y \in \hat{M}} \|x - y\|_2 +
+              \frac{1}{|\hat{M}|} \sum_{y \in \hat{M}} \min_{x \in M} \|x - y\|_2$
+            </p>
+          </div>
+          <div class="post-footer">
+            <div class="post-footer-profile">
+              <img src="/asset/cover.jpg" alt="Seongmin Jung" />
+              <h1>Seongmin Jung</h1>
+            </div>
+            <h2>Other posts in <a href="/study.html">Paper Summaries</a></h2>
+            <ul>
+              <li>
+                <a href="/study/paper_summaries/bundlesdf.html">
+                  <span><b>BundleSDF: Neural 6-DoF Tracking and 3D Reconstruction of Unknown Objects </b></span>
+                  <time datetime="2023-11-09">November 9, 2023</time>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2024 Seongmin Jung<br />Designed and developed by Seongmin Jung</p>
+    </footer>
+  </body>
+</html>

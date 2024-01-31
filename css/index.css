@@ -536,7 +536,7 @@ footer {
 }
 
 #post .post-body h2 {
-  font-size: 1.7rem;
+  font-size: 1.5rem;
 }
 
 #post .post-body h2:not(:first-child) {
@@ -545,7 +545,8 @@ footer {
 }
 
 #post .post-body h3 {
-  font-size: 1.2rem;
+  margin-top: 30px;
+  font-size: 1.25rem;
 }
 
 #post .post-body h4 {
