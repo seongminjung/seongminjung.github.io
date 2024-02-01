@@ -426,6 +426,18 @@ footer {
   margin: 0;
 }
 
+#study .item .grid .published {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 0;
+}
+
+#study .item .grid .author {
+  font-size: 0.8rem;
+  color: #666;
+  margin-bottom: 0;
+}
+
 @media (max-width: 700px) {
   #study .item {
     margin-top: 30px;
@@ -536,7 +548,7 @@ footer {
 }
 
 #post .post-body h2 {
-  font-size: 1.5rem;
+  font-size: 1.7rem;
 }
 
 #post .post-body h2:not(:first-child) {
@@ -545,8 +557,7 @@ footer {
 }
 
 #post .post-body h3 {
-  margin-top: 30px;
-  font-size: 1.25rem;
+  font-size: 1.2rem;
 }
 
 #post .post-body h4 {
