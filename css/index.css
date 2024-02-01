@@ -458,6 +458,19 @@ footer {
 }
 
 /* series page */
+#series a.back {
+  display: inline-block;
+  font-size: 0.9rem;
+  color: #666;
+  text-decoration: none;
+  margin-bottom: 20px;
+}
+
+#series a.back:hover {
+  color: #212529;
+  text-decoration: underline;
+}
+
 #series .date {
   font-size: 0.9rem;
   color: #666;
@@ -534,6 +547,10 @@ footer {
 }
 
 /* post page */
+#post #series-tag {
+  margin-bottom: 20px;
+}
+
 #post .date {
   font-size: 0.9rem;
   color: #666;
