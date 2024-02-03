@@ -95,7 +95,7 @@
               safety, efficiency, and accuracy.
             </p>
 
-            <h3>In a Nutshell</h3>
+            <h2>Overview</h2>
             <p>
               ICP is a simple and strong algorithm for estimating the transformation between the two point clouds, which
               can be directly used to derive the past trajectory of the car or robot. The algorithm is as follows:
@@ -109,28 +109,6 @@
             <p>
               Through this series of posts, we will go through each step in detail. In this post, we will focus on
               computing the transformation given the perfectly matching pairs of points (correspondences).
-            </p>
-
-            <h2>Building From Scratch</h2>
-            <h3>Software Setup</h3>
-            <p>
-              We will use <b>ROS noetic</b> with <b>C++</b> language. Detailed setup tutorial can be found in
-              <a href="/study/ros1_tutorial/post1/join_the_ros1_revolution.html" target="_blank">my previous posts</a>.
-            </p>
-
-            <h3>Dataset</h3>
-            <p>
-              To keep things straightforward, we will utilize a basic handmade dataset for this post. We will create two
-              point clouds, each with a small number of points. It has been proven that a
-              <b>one-shot optimal solution exists</b> for this alignment problem, provided the
-              <b>correct correspondences</b> are identified. Let's see how it works.
-            </p>
-            <img class="half" src="/study/icp_algorithm/post1/img2.png" alt="Dataset" />
-            <p>
-              In our setup, the <span class="color-red">red dots</span> depict the initial 2D point cloud, while the
-              <span class="color-green">green dots</span> indicate the second point cloud. Our goal is to align these
-              two sets: we'll use the red dots as our reference and carefully adjust the position of the green dots so
-              they align perfectly with the red ones.
             </p>
 
             <h3>Key Terms and Parameters</h3>
@@ -159,7 +137,6 @@
               <li><b>Rotation matrix and translation vector</b>: $\mathbf{R}$ and $\mathbf{t}$</li>
               <li><b>Transformed point cloud</b>: $\bar{\mathbf{X}} = \{\bar{x}_1, \bar{x}_2, \cdots, \bar{x}_n\}$</li>
             </ul>
-            <img class="half" src="/study/icp_algorithm/post1/img3.png" alt="Dataset" />
             <p>
               Therefore, our dataset is defined as described above, consisting of corresponding points such as x1 and
               y1, x2 and y2, etc., which represent the same point observed from different locations. Note that the
@@ -262,6 +239,12 @@
             </div>
             <h2>Other posts in <a href="/study/icp_algorithm.html">ICP & Point Cloud Registration</a> series</h2>
             <ul>
+              <li>
+                <a href="/study/icp_algorithm/icp_3.html">
+                  <span>Part 3: Implementation of basic ICP algorithm</span>
+                  <time datetime="2023-09-10">September 10, 2023</time>
+                </a>
+              </li>
               <li>
                 <a href="/study/icp_algorithm/icp_2.html">
                   <span>Part 2: Unknown Data Association</span>

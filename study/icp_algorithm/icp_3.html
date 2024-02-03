@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Part 3: Implementation of basic ICP algorithm</title>
+    <meta name="description" content="Seongmin Jung's personal website" />
+    <meta name="keywords" content="Seongmin Jung, Robotics" />
+    <meta name="author" content="Seongmin Jung" />
+    <meta name="language" content="English" />
+    <link rel="shortcut icon" href="/favicon.png" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LL44K1WZ0G"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "G-LL44K1WZ0G");
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML" async></script>
+
+    <!-- Load an icon library to show a hamburger menu (bars) on small screens -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <!-- import css -->
+    <link rel="stylesheet" href="/css/index.css" />
+    <!-- import js -->
+    <script src="/js/script.js" defer></script>
+  </head>
+
+  <body>
+    <header>
+      <img class="cover" src="/asset/cover.jpg" alt="Seongmin Jung" />
+      <h1 class="title"><a href="/index.html">Seongmin Jung</a></h1>
+      <nav class="nav">
+        <a href="/index.html">Home</a>
+        <a href="/projects.html">Projects</a>
+        <a href="/study.html" class="bold">Study</a>
+        <a href="/blog.html">Blog</a>
+        <i id="nav-toggle" class="nav-toggle fa fa-bars" onclick="toggleNav()"></i>
+      </nav>
+    </header>
+
+    <div id="nav-modal-bg" onclick="toggleNav()"></div>
+    <nav id="nav-modal">
+      <a href="/index.html">Home</a>
+      <a href="/projects.html">Projects</a>
+      <a href="/study.html" class="bold">Study</a>
+      <a href="/blog.html">Blog</a>
+    </nav>
+
+    <main>
+      <div class="container">
+        <section id="post">
+          <a id="series-tag" href="/study/icp_algorithm.html"
+            ><i class="fa fa-book"></i> Iterative Closest Point (ICP) Algorithm</a
+          >
+          <h1>Part 3: Implementation of basic ICP algorithm</h1>
+          <p class="date">Posted on <time datetime="2023-09-10">September 10, 2023</time></p>
+          <div class="post-body">
+            <h2>Building From Scratch</h2>
+            <h3>Software Setup</h3>
+            <p>
+              We will use <b>ROS noetic</b> with <b>C++</b> language. Detailed setup tutorial can be found in
+              <a href="/study/ros1_tutorial/post1/join_the_ros1_revolution.html" target="_blank">my previous posts</a>.
+            </p>
+
+            <h3>Dataset</h3>
+            <p>
+              To keep things straightforward, we will utilize a basic handmade dataset for this post. We will create two
+              point clouds, each with a small number of points.
+            </p>
+            <img class="half" src="/study/icp_algorithm/post3/img1.png" alt="Dataset" />
+            <p>
+              In our setup, the <span class="color-red">red dots</span> depict the initial 2D point cloud, while the
+              <span class="color-green">green dots</span> indicate the second point cloud. Our goal is to align these
+              two sets: we'll use the red dots as our reference and carefully adjust the position of the green dots so
+              they align perfectly with the red ones.
+            </p>
+            
+            <h2>Computing Transformation</h2>
+            <p>
+              We will implement the basic ICP algorithm in C++. The function prototype is as follows:
+            </p>
+            <pre><code class="language-cpp">void FindAlignment(Eigen::MatrixXd &X, Eigen::MatrixXd &Y) {</code></pre>
+            <p>Here, X and Y are 2 x N matrices, where N is the number of points.</p>
+            <p class="math-center">$X = \begin{bmatrix} x_{1x} & x_{2x} & \cdots & x_{Nx} \\ x_{1y} & x_{2y} & \cdots & x_{Ny} \end{bmatrix}$</p>
+            <p class="math-center">$Y = \begin{bmatrix} y_{1x} & y_{2x} & \cdots & y_{Nx} \\ y_{1y} & y_{2y} & \cdots & y_{Ny} \end{bmatrix}$</p>
+            <p>Remember, here we assume that we know all the correspondences, e.g. $x_1$ corresponds to $y_1$, $x_2$ to $y_2$, and so on.</p>
+            <img class="half" src="/study/icp_algorithm/post3/img2.png" alt="Initial point clouds" />
+
+            <h3>Step 1: Center both point clouds to the origin</h3>
+            <p class="math-center">$x_0 = \frac{1}{n} \sum_{i=1}^{n} x_i$</p>
+            <p class="math-center">$y_0 = \frac{1}{n} \sum_{i=1}^{n} y_i$</p>
+            <p class="math-center">$x_i = x_i - x_0$</p>
+            <p class="math-center">$y_i = y_i - y_0$</p>
+            <pre><code class="language-cpp">  Eigen::Vector2d centroidX = X.rowwise().mean();
+  Eigen::Vector2d centroidY = Y.rowwise().mean();
+  X.colwise() -= centroidX;
+  Y.colwise() -= centroidY;</code></pre>
+            <p>
+              You can see that the point clouds are now centered at the origin. The red dot is the centroid of the
+              reference point cloud, while the green dot is the centroid of the second point cloud. However, in the picture below, the
+              center points overlap each other and seems like a single orange dot.
+            </p>
+            <img class="half" src="/study/icp_algorithm/post3/img3.png" alt="Initial point clouds" />
+
+            <h3>Step 2: Compute $\mathbf{R}$ and $\mathbf{t}$ using Singular Value Decomposition (SVD)</h3>
+            <p class="math-center">$\mathbf{H} = \sum_{i=1}^{n} (x_i - x_0)(y_i - y_0)$</p>
+            <p class="math-center">$\mathbf{H} = \mathbf{U} \mathbf{D} \mathbf{V}^T$</p>
+            <p class="math-center">$\mathbf{R} = \mathbf{V} \mathbf{U}^T$</p>
+            <p class="math-center">
+              $\mathbf{t} = \frac{1}{n} \sum_{i=1}^{n} (\bar{x}_i - x_i) = \frac{1}{n} \sum_{i=1}^{n} (\mathbf{R} x_i -
+              x_i)$
+            </p>
+            <pre><code class="language-cpp">  Eigen::Matrix2d H = X * Y.transpose();
+  Eigen::JacobiSVD&lt;Eigen::MatrixXd&gt; svd(H, Eigen::ComputeFullU | Eigen::ComputeFullV);
+  Eigen::Matrix2d U = svd.matrixU();
+  Eigen::Matrix2d V = svd.matrixV();
+  Eigen::Matrix2d R = V * U.transpose();
+  Eigen::Vector2d t = centroidY - R * centroidX;</code></pre>
+
+            <h3>Step 3: Apply the transformation to the incoming point cloud</h3>
+            <pre><code class="language-cpp">  X = R * X;
+  X.colwise() += t;
+}</code></pre>
+            <img class="half" src="/study/icp_algorithm/post3/img4.png" alt="Initial point clouds" />
+
+            <h2>Result</h2>
+            <p>The resulting rotation matrix $\mathbf{R}$ and translation vector $\mathbf{t}$ are:</p>
+            <pre><code class="language-cpp">R:
+-5.55112e-17            1
+          -1 -5.55112e-17
+
+t:
+  3
+  4</code></pre>
+
+            <h2>Conclusion</h2>
+            <p>
+              This is a very basic implementation of the ICP algorithm. But still, we could perfectly align the two point
+              clouds using this algorithm. In the next post, we will implement the ICP algorithm without knowing
+              the correspondences between the two point clouds using iterative optimization techniques. Stay tuned!
+            </p>
+          </div>
+          <div class="post-footer">
+            <div class="post-footer-profile">
+              <img src="/asset/cover.jpg" alt="Seongmin Jung" />
+              <h1>Seongmin Jung</h1>
+            </div>
+            <h2>Other posts in <a href="/study/icp_algorithm.html">ICP & Point Cloud Registration</a> series</h2>
+            <ul>
+              <li>
+                <a href="/study/icp_algorithm/icp_3.html">
+                  <span><b>Part 3: Implementation of basic ICP algorithm</b></span>
+                  <time datetime="2023-09-10">September 10, 2023</time>
+                </a>
+              </li>
+              <li>
+                <a href="/study/icp_algorithm/icp_2.html">
+                  <span>Part 2: Unknown Data Association</span>
+                  <time datetime="2023-09-10">September 10, 2023</time>
+                </a>
+              </li>
+              <li>
+                <a href="/study/icp_algorithm/icp_1.html">
+                  <span>Part 1: Known Data Association & SVD</span>
+                  <time datetime="2023-09-10">September 10, 2023</time>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2024 Seongmin Jung<br />Designed and developed by Seongmin Jung</p>
+    </footer>
+  </body>
+</html>
