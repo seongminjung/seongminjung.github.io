@@ -70,7 +70,7 @@
             <h3>Software Setup</h3>
             <p>
               We will use <b>ROS noetic</b> with <b>C++</b> language. Detailed setup tutorial can be found in
-              <a href="/study/ros1_tutorial/post1/join_the_ros1_revolution.html" target="_blank">my previous posts</a>.
+              <a href="/study/ros1_tutorial/ros_1.html" target="_blank">my previous posts</a>.
             </p>
 
             <h3>Dataset</h3>
@@ -78,7 +78,7 @@
               To keep things straightforward, we will utilize a basic handmade dataset for this post. We will create two
               point clouds, each with a small number of points.
             </p>
-            <img class="half" src="/study/icp_algorithm/post3/img1.png" alt="Dataset" />
+            <img class="half" src="/study/icp_algorithm/icp_3/img1.png" alt="Dataset" />
             <p>
               In our setup, the <span class="color-red">red dots</span> depict the initial 2D point cloud, while the
               <span class="color-green">green dots</span> indicate the second point cloud. Our goal is to align these
@@ -100,7 +100,7 @@
               Remember, here we assume that we know all the correspondences, e.g. $x_1$ corresponds to $y_1$, $x_2$ to
               $y_2$, and so on.
             </p>
-            <img class="half" src="/study/icp_algorithm/post3/img2.png" alt="Initial point clouds" />
+            <img class="half" src="/study/icp_algorithm/icp_3/img2.png" alt="Initial point clouds" />
 
             <h3>Step 1: Center both point clouds to the origin</h3>
             <p class="math-center">$x_0 = \frac{1}{n} \sum_{i=1}^{n} x_i$</p>
@@ -116,7 +116,7 @@
               reference point cloud, while the green dot is the centroid of the second point cloud. However, in the
               picture below, the center points overlap each other and seems like a single orange dot.
             </p>
-            <img class="half" src="/study/icp_algorithm/post3/img3.png" alt="Initial point clouds" />
+            <img class="half" src="/study/icp_algorithm/icp_3/img3.png" alt="Initial point clouds" />
 
             <h3>Step 2: Compute $\mathbf{R}$ and $\mathbf{t}$ using Singular Value Decomposition (SVD)</h3>
             <p class="math-center">$\mathbf{H} = \sum_{i=1}^{n} (x_i - x_0)(y_i - y_0)$</p>
@@ -137,7 +137,7 @@
             <pre><code class="language-cpp">  X = R * X;
   X.colwise() += t;
 }</code></pre>
-            <img class="half" src="/study/icp_algorithm/post3/img4.png" alt="Initial point clouds" />
+            <img class="half" src="/study/icp_algorithm/icp_3/img4.png" alt="Initial point clouds" />
 
             <h2>Result</h2>
             <p>The resulting rotation matrix $\mathbf{R}$ and translation vector $\mathbf{t}$ are:</p>

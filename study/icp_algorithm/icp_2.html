@@ -82,7 +82,7 @@
             <h2>We Can't Always Find the 'Right' Correspondences</h2>
             <img
               class="half"
-              src="/study/icp_algorithm/post2/img1.png"
+              src="/study/icp_algorithm/icp_2/img1.png"
               alt="We Can't Always Find the 'Right' Correspondences"
             />
             <p>
@@ -99,7 +99,7 @@
               This is the basic idea of the ICP algorithm. The following figure shows the process of the ICP algorithm
               with the closest point matching.
             </p>
-            <img class="half" src="/study/icp_algorithm/post2/img2.png" alt="ICP with the closest point matching" />
+            <img class="half" src="/study/icp_algorithm/icp_2/img2.png" alt="ICP with the closest point matching" />
 
             <h2>Outline of the Algorithm</h2>
             <p>
@@ -120,7 +120,7 @@
               certain threshold.
             </p>
             <p>The pseudo code of the ICP algorithm is as follows.</p>
-            <img class="half" src="/study/icp_algorithm/post2/img3.png" alt="Pseudo code of the ICP algorithm" />
+            <img class="half" src="/study/icp_algorithm/icp_2/img3.png" alt="Pseudo code of the ICP algorithm" />
             <p>
               $x_n$ and $y_n$ are the source and target point clouds, respectively. At line 1, we make an initial guess.
               $\bar{x_n}$ is the transformed source point cloud. Initially, $\bar{x_n}$ is the same as $x_n$. At line 2,
@@ -157,14 +157,14 @@
               <li>Random sampling</li>
             </ul>
             <p>The following figure illustrates the difference between uniform and normal-space sampling.</p>
-            <img class="half" src="/study/icp_algorithm/post2/img4.png" alt="Uniform and normal-space sampling" />
+            <img class="half" src="/study/icp_algorithm/icp_2/img4.png" alt="Uniform and normal-space sampling" />
             <p>
               In uniform sampling, we select points uniformly throughout the entire space. That is, we select less
               points from the dense area and more points from the sparse area. On the other hand, in normal-space
               sampling, we select points from the point cloud based on the normal vectors, so that the direction of the
               normal vectors is uniform. Therefore, the normal-space sampling is more robust to noise and outliers.
             </p>
-            <img class="half" src="/study/icp_algorithm/post2/img5.png" alt="Feature-based sampling" />
+            <img class="half" src="/study/icp_algorithm/icp_2/img5.png" alt="Feature-based sampling" />
             <p>
               Moreover, when we can extract reliable features from the point clouds, we can use the features to select
               point subsets. For example, we can select points from the feature points or points near the feature
@@ -194,18 +194,18 @@
               point cloud, we shoot a ray in the direction of the normal vector. Then, we find the closest point that
               the ray hits in the target point cloud. The following figure illustrates the normal shooting method.
             </p>
-            <img class="half" src="/study/icp_algorithm/post2/img6.png" alt="Normal shooting" />
+            <img class="half" src="/study/icp_algorithm/icp_2/img6.png" alt="Normal shooting" />
             <p>
               Normal shooting shows slightly better convergence results than closest point for smooth structures, but
               worse for noisy or complex structures.
             </p>
-            <img class="half" src="/study/icp_algorithm/post2/img7.png" alt="Projection-based approaches" />
+            <img class="half" src="/study/icp_algorithm/icp_2/img7.png" alt="Projection-based approaches" />
             <p>
               Projection-based approaches are similar to normal shooting, but shoots a ray in the direction from the
               sensor to the point, and choose the closest point that the ray hits.
             </p>
-            <img class="half" src="/study/icp_algorithm/post2/img8.png" alt="Point-to-plane" />
-            <img class="half" src="/study/icp_algorithm/post2/img9.png" alt="Point-to-plane" />
+            <img class="half" src="/study/icp_algorithm/icp_2/img8.png" alt="Point-to-plane" />
+            <img class="half" src="/study/icp_algorithm/icp_2/img9.png" alt="Point-to-plane" />
             <p>
               Point-to-plane is a most widely used method in practice. It calculates the distance from the point to the
               plane by adding only one more calculation. As you can see in the figure above, the point-to-point distance
@@ -220,14 +220,14 @@
               noises which are generally larger as the distance from the sensor increases, by applying less weight to
               the further points. The following figure illustrates the conceptual idea of this noise.
             </p>
-            <img class="half" src="/study/icp_algorithm/post2/img10.png" alt="Sensor noise" />
+            <img class="half" src="/study/icp_algorithm/icp_2/img10.png" alt="Sensor noise" />
 
             <h3>4. Reject Potential Outlier Point Pairs</h3>
             <p>
               In practice, the point clouds may contain outliers. To be simple, we can ignore the pairs of points with
               larger distances than a certain threshold. The following figure illustrates this method.
             </p>
-            <img class="half" src="/study/icp_algorithm/post2/img11.png" alt="Reject potential outlier point pairs" />
+            <img class="half" src="/study/icp_algorithm/icp_2/img11.png" alt="Reject potential outlier point pairs" />
 
             <h2>In a Nutshell</h2>
             <p>
