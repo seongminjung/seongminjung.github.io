@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>5. Setting up bashrc file</title>
+    <title>6. URDF file - Creating Your Own Robot</title>
     <meta name="description" content="Seongmin Jung's personal website" />
     <meta name="keywords" content="Seongmin Jung, Robotics" />
     <meta name="author" content="Seongmin Jung" />
@@ -54,67 +54,72 @@
       <div class="container">
         <section id="post">
           <a id="series-tag" href="/study/ros1_tutorial.html"><i class="fa fa-book"></i> ROS1 Tutorial</a>
-          <h1>5. Setting up bashrc file</h1>
-          <p class="date">Posted on <time datetime="2023-01-24">January 24, 2023</time></p>
+          <h1>6. URDF file - Creating Your Own Robot</h1>
+          <p class="date">Posted on <time datetime="2023-01-25">January 25, 2023</time></p>
           <div class="post-body">
             <h2>Introduction</h2>
-            <img class="half" src="/study/ros1_tutorial/ros_5/img1.png" alt="bashrc file" />
+            <img class="half" src="/study/ros1_tutorial/ros_6/img1.png" alt="bashrc file" />
             <p>
-              When working with ROS, you may find yourself frequently needing to source the setup files in order to use
-              ROS commands in the terminal. This can become tedious and time-consuming, especially if you are constantly
-              switching between terminals or starting new terminals. To avoid having to manually source the setup files
-              every time, you can set up the bashrc file to automatically source the files when you open a new terminal.
+              URDF, or Unified Robot Description Format, is an XML file format used in ROS to describe the physical
+              structure of a robot, including its links, joints, and sensors. URDF files are used by ROS to understand
+              the structure of a robot and its movements, allowing ROS to control and visualize the robot. In this
+              article, we will cover the basics of URDF files and how to define a robot model using an URDF file.
             </p>
 
-            <h2>Editing the bashrc file</h2>
+            <h2>Create a new package</h2>
+            <p>Create a new ROS package that depends on rviz, urdf, xacro, sensor_msgs, and geometry_msgs.</p>
+            <pre><code class="language-bash">cd ~/blog_ws/src
+catkin_create_pkg my_robot rviz urdf xacro sensor_msgs geometry_msgs
+cd my_robot
+mkdir urdf
+gedit urdf/&lt;filename&gt;.urdf</code></pre>
             <p>
-              The bashrc file is a script that is run every time you start a new terminal. It is used to set up various
-              environment variables and run commands. To edit the bashrc file, you can use a text editor such as nano or
-              vim.
+              Save your URDF file inside urdf subdirectory. Yon can name the subdirectory as you want. The path should
+              be like this: '~/workspace_name/src/package_name/urdf/filename.urdf'
             </p>
-            <p>First, open the bashrc file by running the following command:</p>
-            <pre><code class="language-bash">nano ~/.bashrc</code></pre>
+
+            <h2>How to define a robot model using an URDF file</h2>
             <p>
-              This will open the bashrc file in the nano text editor. You can also use vi or vim if you're more
-              comfortable with it.
-            </p>
-            <p>At the end of the file, add the following line:</p>
-            <pre><code class="language-cpp">source /opt/ros/&lt;distro&gt;/setup.bash</code></pre>
-            <p>Replace &lt;distro&gt; with your ROS distribution, for example noetic or melodic.</p>
-            <p>
-              Additionally, when working with workspaces, you may also need to source the setup file located in the
-              “devel” folder of your workspace. The command for this is:
-            </p>
-            <pre><code class="language-bash">source ~/blog_ws/devel/setup.bash</code></pre>
-            <p>Replace "blog_ws" with the name of your workspace.</p>
-            <p>Save and close the file by pressing CTRL+X, then Y, then ENTER.</p>
-            <p>
-              The next time you open a new terminal, the setup files will be automatically sourced and you will be able
-              to use ROS commands without having to manually source the files.
+              Defining a robot model using an URDF file involves creating an XML file that describes the robot's
+              structure, including its links, joints, and sensors. It is important to have a good understanding of the
+              structure of your robot, including the link and joint relationships, to create an accurate URDF file.
             </p>
             <p>
-              Alternatively, you can also add the above command to your .bash_profile in case you are working on a macOS
-              or Linux system that uses this file instead of .bashrc
+              Here is an example of a simple URDF file for a robot with two links (base_link and end_effector) and one
+              joint (joint1) connecting them:
             </p>
+            <pre><code class="language-xml">&lt;?xml version="1.0"?&gt;
+&lt;robot name="my_robot"&gt;
+  &lt;link name="base_link"/&gt;
+  &lt;link name="head"/&gt;
+  &lt;joint name="base_link_head_joint" type="fixed"&gt;
+    &lt;parent link="base_link"/&gt;
+    &lt;child link="head"/&gt;
+  &lt;/joint&gt;
+&lt;/robot&gt;</code></pre>
             <p>
-              It is also worth noting that if you are working on a Windows system, you will have to add the above
-              command to your .bashrc file in your Windows subsystem Linux (WSL) home directory, usually
-              /home/&lt;username&gt;/.bashrc
+              In this example, the URDF file defines a robot with two links, "base_link" and "end_effector", and one
+              joint, "joint1". The joint is defined as a continuous joint, meaning that it can rotate indefinitely. The
+              parent link is set as "base_link" and the child link is set as "end_effector", connecting the two links
+              together.
             </p>
+            <p>Once you have created the URDF file, you can validate it by running the command:</p>
+            <pre><code class="language-bash">check_urdf &lt;path-to-urdf-file&gt;</code></pre>
             <p>
-              To build and run the node, navigate to the root of your catkin workspace and run the following command:
+              This command will check for the consistency and the errors in your URDF file and if there are no errors,
+              you are good to go. If check_urdf is not installed, use the following command to install it.
             </p>
+            <pre><code class="language-bash">sudo apt install liburdfdom-dev liburdfdom-tools ros-noetic-urdfdom-py</code></pre>
 
             <h2>Conclusion</h2>
             <p>
-              In conclusion, setting up the bashrc file can automate the process of sourcing the ROS setup files and
-              streamline your workflow when working with ROS. Additionally, when working with catkin workspaces, it is
-              important to also source the setup file located in the "devel" folder. By properly configuring the bashrc
-              file, you can ensure a smooth and efficient experience when working with ROS.
+              URDF files are an essential part of ROS, as they allow ROS to understand the structure of a robot and its
+              movements. By understanding how to define a robot model using an URDF file, you will be able to more
+              effectively work with ROS and control and visualize your robot.
             </p>
             <p>
-              Check out my next article about creating and designing your own robot's appearance
-              <a href="/study/ros1_tutorial/ros_6.html">HERE</a>.
+              Check my next article about customizing and visualizing your robot
+              <a href="/study/ros1_tutorial/ros_7.html">HERE</a>.
             </p>
           </div>
           <div class="post-footer">
@@ -131,14 +136,14 @@
                 </a>
               </li>
               <li>
-                <a href="/study/ros1_tutorial/ros_6.html">
-                  <span>6. URDF file - Creating Your Own Robot</span>
+                <a href="/study/icp_algorithm/ros_6.html">
+                  <span><b>6. URDF file - Creating Your Own Robot</b></span>
                   <time datetime="2023-01-25">January 25, 2023</time>
                 </a>
               </li>
               <li>
-                <a href="/study/ros1_tutorial/ros_5.html">
-                  <span><b>5. Setting up bashrc file</b></span>
+                <a href="/study/icp_algorithm/ros_5.html">
+                  <span>5. Setting up bashrc file</span>
                   <time datetime="2023-01-24">January 24, 2023</time>
                 </a>
               </li>
