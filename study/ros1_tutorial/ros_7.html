@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>7. Adding Dimensions and Positions</title>
+    <meta name="description" content="Seongmin Jung's personal website" />
+    <meta name="keywords" content="Seongmin Jung, Robotics" />
+    <meta name="author" content="Seongmin Jung" />
+    <meta name="language" content="English" />
+    <link rel="shortcut icon" href="/favicon.png" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LL44K1WZ0G"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "G-LL44K1WZ0G");
+    </script>
+
+    <!-- Load an icon library to show a hamburger menu (bars) on small screens -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <!-- import css -->
+    <link rel="stylesheet" href="/css/index.css" />
+    <!-- import js -->
+    <script src="/js/script.js" defer></script>
+  </head>
+
+  <body>
+    <header>
+      <img class="cover" src="/asset/cover.jpg" alt="Seongmin Jung" />
+      <h1 class="title"><a href="/index.html">Seongmin Jung</a></h1>
+      <nav class="nav">
+        <a href="/index.html">Home</a>
+        <a href="/projects.html">Projects</a>
+        <a href="/study.html" class="bold">Study</a>
+        <a href="/blog.html">Blog</a>
+        <i id="nav-toggle" class="nav-toggle fa fa-bars" onclick="toggleNav()"></i>
+      </nav>
+    </header>
+
+    <div id="nav-modal-bg" onclick="toggleNav()"></div>
+    <nav id="nav-modal">
+      <a href="/index.html">Home</a>
+      <a href="/projects.html">Projects</a>
+      <a href="/study.html" class="bold">Study</a>
+      <a href="/blog.html">Blog</a>
+    </nav>
+
+    <main>
+      <div class="container">
+        <section id="post">
+          <a id="series-tag" href="/study/ros1_tutorial.html"><i class="fa fa-book"></i> ROS1 Tutorial</a>
+          <h1>7. Adding Dimensions and Positions</h1>
+          <p class="date">Posted on <time datetime="2023-01-26">January 26, 2023</time></p>
+          <div class="post-body">
+            <h2>Introduction</h2>
+            <img class="half" src="/study/ros1_tutorial/ros_7/img1.webp" alt="Introduction" />
+            <p>
+              Creating a URDF file for your robot is an essential step in allowing ROS to understand the structure of
+              your robot. However, it's not enough to simply define the links and joints of your robot; you also need to
+              add dimensions and sizes to the links to accurately represent your robot in simulation. In this article,
+              we will cover how to add dimensions and sizes to your URDF links and view your robot in RViz.
+            </p>
+
+            <h2>Adding Dimensions and Positions to URDF Links</h2>
+            <pre><code class="language-xml">&lt;robot name="my_robot"&gt;
+  &lt;link name="base_link"&gt;
+    &lt;visual&gt;
+      &lt;!-- Defining the position. !--&gt;
+      &lt;origin xyz="0.0 0.0 1.0" rpy="0.0 0.0 0.0" /&gt;
+      &lt;!-- Defining the dimensions. !--&gt;
+      &lt;geometry&gt;
+        &lt;box size="0.45 0.78 2.0" /&gt;
+      &lt;/geometry&gt;
+    &lt;/visual&gt;
+  &lt;/link&gt;
+
+  &lt;link name="head"&gt;
+    &lt;visual&gt;
+      &lt;!-- Defining the relative position from the joint. !--&gt;
+      &lt;origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0" /&gt;
+      &lt;!-- Defining the dimensions. !--&gt;
+      &lt;geometry&gt;
+        &lt;sphere radius="0.3" /&gt;
+      &lt;/geometry&gt;
+    &lt;/visual&gt;
+  &lt;/link&gt;
+
+  &lt;joint name="base_link_head_joint" type="fixed"&gt;
+    &lt;parent link="base_link" /&gt;
+    &lt;child link="head" /&gt;
+    &lt;!-- Defining the position of the joint. !--&gt;
+    &lt;origin xyz="0.0 0.0 2.0" rpy="0.0 0.0 0.0" /&gt;
+  &lt;/joint&gt;
+&lt;/robot&gt;</code></pre>
+            <p>
+              To add dimensions to your URDF links, you will need to edit the URDF file and include the appropriate
+              measurements. To define the dimensions, the most common way to do this is to add a "visual" element to
+              each link, and within that element, add a "geometry" element. The "geometry" element can be either a
+              "box", "cylinder", "sphere", or "mesh" depending on the shape of the link.
+            </p>
+            <p>You can add size of the each link in the same way.</p>
+            <p>
+              In addition to adding dimensions and sizes, it is also important to define the positions of each link.
+              This can be done using the "origin" tag within the "visual" elements of the URDF file. The "origin" tag
+              allows you to specify the position and orientation of the link relative to its parent link.
+            </p>
+            <p>
+              The "xyz" attribute is used to specify the position of the link in the x, y, and z coordinates and the
+              "rpy" attribute is used to specify the orientation of the link in roll, pitch, and yaw angles.
+            </p>
+            <img class="half" src="/study/ros1_tutorial/ros_7/img2.webp" alt="roll, pitch, and yaw angles" />
+            <p>
+              The official reference for the XML elements and attributes used in URDF can be found
+              <a href="https://wiki.ros.org/urdf/XML" target="_blank">HERE</a>.
+            </p>
+
+            <h2>Viewing Your Robot in RViz</h2>
+            <p>
+              Once you have added dimensions, sizes, and positions to your URDF links, you can view your robot in RViz.
+              RViz is a 3D visualization tool that allows you to visualize your robot and test its movements in a
+              virtual environment.
+            </p>
+            <p>
+              To view your robot in RViz, you will first need to load your URDF file into RViz by running the following
+              command:
+            </p>
+            <pre><code class="language-bash">roslaunch urdf_tutorial display.launch model:=&lt;path-to-urdf-file&gt;</code></pre>
+            <p>For example, "roslaunch urdf_tutorial display.launch model:=my_robot.urdf"</p>
+            <p>
+              You should now see your robot displayed in RViz. You can use the RViz interface to move the robot and see
+              its movements in the virtual environment.
+            </p>
+            <img src="/study/ros1_tutorial/ros_7/img3.webp" alt="RViz visualization" />
+
+            <h2>Conclusion</h2>
+            <p>
+              Creating an accurate URDF file for your robot is essential for representing it in ROS. Adding dimensions
+              and positions to your URDF links is an important step in creating an accurate representation of your robot
+              in the simulation environment. With this knowledge, you can now create a more realistic and accurate
+              simulation of your robot and test it in RViz. Using RViz, you can visualize your robot in a 3D
+              environment, which can help you better understand how your robot will move and interact with its
+              environment.
+            </p>
+          </div>
+          <div class="post-footer">
+            <div class="post-footer-profile">
+              <img src="/asset/cover.jpg" alt="Seongmin Jung" />
+              <h1>Seongmin Jung</h1>
+            </div>
+            <h2>Other posts in <a href="/study/ros1_tutorial.html">ROS1 Tutorial</a> series</h2>
+            <ul>
+              <li>
+                <a href="/study/ros1_tutorial/ros_7.html">
+                  <span><b>7. Adding Dimensions and Positions</b></span>
+                  <time datetime="2023-01-26">January 26, 2023</time>
+                </a>
+              </li>
+              <li>
+                <a href="/study/ros1_tutorial/ros_6.html">
+                  <span>6. URDF file - Creating Your Own Robot</span>
+                  <time datetime="2023-01-25">January 25, 2023</time>
+                </a>
+              </li>
+              <li>
+                <a href="/study/ros1_tutorial/ros_5.html">
+                  <span>5. Setting up bashrc file</span>
+                  <time datetime="2023-01-24">January 24, 2023</time>
+                </a>
+              </li>
+              <li>
+                <a href="/study/ros1_tutorial/ros_4.html">
+                  <span>4. Publisher and Subscriber</span>
+                  <time datetime="2023-01-24">January 24, 2023</time>
+                </a>
+              </li>
+              <li>
+                <a href="/study/ros1_tutorial/ros_3.html">
+                  <span>3. Topic, Node, Message, and Service</span>
+                  <time datetime="2023-01-23">January 23, 2023</time>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2024 Seongmin Jung<br />Designed and developed by Seongmin Jung</p>
+    </footer>
+  </body>
+</html>
