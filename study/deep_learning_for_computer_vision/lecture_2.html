@@ -60,7 +60,9 @@
     <main>
       <div class="container">
         <section id="post">
-          <a id="series-tag" href="/study/cs231n_recap.html"><i class="fa fa-book"></i> CS231n Recap</a>
+          <a id="series-tag" href="/study/deep_learning_for_computer_vision.html"
+            ><i class="fa fa-book"></i> Deep Learning for Computer Vision</a
+          >
           <h1>Lecture 2 | Image Classification</h1>
           <p class="date">Posted on <time datetime="2024-03-26">March 26, 2024</time></p>
           <div class="post-body">
@@ -74,10 +76,14 @@
               가장 직관적이고 단순한 방법은 단순히 픽셀 밝기 값들의 차이를 구해서 차이가 가장 작은 이미지의 클래스를
               따라가는 것이다. 그림으로 표현하면 다음과 같다.
             </p>
-            <img src="/study/cs231n_recap/lecture_2/img1.png" alt="Pixel value subtraction" />
+            <img src="/study/deep_learning_for_computer_vision/lecture_2/img1.png" alt="Pixel value subtraction" />
             <p>위 그림처럼 차의 절댓값을 모두 합한 것을 L1 distance라 한다. L1 norm과 같은 개념.</p>
             <p>이와 유사하게 L2 distance는 차의 제곱을 모두 합한 뒤 제곱근을 씌운 것이다. L2 norm과 같은 개념.</p>
-            <img class="half" src="/study/cs231n_recap/lecture_2/img2.png" alt="L1 distance and L2 distance" />
+            <img
+              class="half"
+              src="/study/deep_learning_for_computer_vision/lecture_2/img2.png"
+              alt="L1 distance and L2 distance"
+            />
             <p>
               세상의 모든 이미지를 한 군데에 모아 놓고, 위 식을 이용해서 주어진 이미지와 픽셀값이 가장 유사한 이미지를
               찾으면 그 두 이미지에는 같은 물체가 있지 않을까?
@@ -88,7 +94,11 @@
               이 단순한 발상을 알고리즘으로 옮긴 것이 바로 Nearest Neighbor다. 여러 이미지들 중 주어진 이미지와 가장
               유사한 이미지를 찾고, 그 이미지와 같은 클래스를 부여하는 것이다. 이 알고리즘을 시각화해 보면 다음과 같다.
             </p>
-            <img class="half" src="/study/cs231n_recap/lecture_2/img3.png" alt="Nearest Neighbor visualization" />
+            <img
+              class="half"
+              src="/study/deep_learning_for_computer_vision/lecture_2/img3.png"
+              alt="Nearest Neighbor visualization"
+            />
             <p>
               위 사진은 2차원 평면 상 점들을 이미지라고 가정하고 decision boundary를 그린 것이다. 각 색깔은 서로 다른
               클래스를 나타낸다. 이 상태에서 새로운 점이 들어온다면, 그 점과 가장 거리가 가까운 점과 같은 색을 가질
@@ -103,7 +113,7 @@
               가장 유사한 3개 이미지를 뽑아 셋 중 가장 많은 수가 나온 클래스를 따라가는 식이다. 아래 사진을 통해 k가
               증가할수록 가운데 노란색 점과 같은 outlier에 강인해지는 모습을 확인할 수 있다.
             </p>
-            <img src="/study/cs231n_recap/lecture_2/img4.png" alt="kNN visualization" />
+            <img src="/study/deep_learning_for_computer_vision/lecture_2/img4.png" alt="kNN visualization" />
             <p>아래 웹사이트를 통해 여러 파라미터를 바꾸어 보며 kNN 알고리즘을 시각적으로 확인할 수 있다.</p>
             <p>
               <a href="http://vision.stanford.edu/teaching/cs231n-demos/knn/"
@@ -124,7 +134,7 @@
               본격적으로 뉴럴 네트워크를 이용한 이미지 분류에 들어가기 앞서, 데이터셋을 어떻게 분류하고 모델을 훈련시킬
               수 있을지 알아보자.
             </p>
-            <img src="/study/cs231n_recap/lecture_2/img5.png" alt="Data splitting" />
+            <img src="/study/deep_learning_for_computer_vision/lecture_2/img5.png" alt="Data splitting" />
             <p>
               첫 번째 아이디어로, 우리가 가진 모든 데이터를 모델 훈련에 사용할 수 있다. 우리의 모델은 훈련된 이미지에는
               이미 완벽히 동작할 것이다. 훈련 시에는 이미지와 정답(라벨)을 주고 훈련시키기 때문이다. 그렇기 때문에 여러
@@ -141,7 +151,7 @@
               모델의 성능을 최종적으로 측정하는 것이다. 이 성능이 논문이나 보고서에 실리게 되는 숫자이다. 즉, 모델의
               훈련뿐만 아니라 hyperparameter tuning에도 test set이 영향을 미치지 않도록 해야 한다.
             </p>
-            <img src="/study/cs231n_recap/lecture_2/img6.png" alt="Cross-validation" />
+            <img src="/study/deep_learning_for_computer_vision/lecture_2/img6.png" alt="Cross-validation" />
             <p>
               마지막으로, 데이터셋의 크기가 작을 때 주로 사용하는 Cross-Validation이라는 방법이 있다. 이 방법은 우선
               training set을 fold라는 단위로 균등하게 나눈 후, 각 fold를 돌아가면서 한 번씩 validation set으로 사용하는
@@ -150,7 +160,7 @@
             </p>
 
             <h2>Linear Classifier</h2>
-            <img src="/study/cs231n_recap/lecture_2/img7.png" alt="Linear classifier equation" />
+            <img src="/study/deep_learning_for_computer_vision/lecture_2/img7.png" alt="Linear classifier equation" />
             <p>
               kNN에서는 단순히 이미지 자체를 비교해서 분류를 수행하였다. 즉, 데이터셋 자체가 분류 모델이었다. 하지만
               앞으로 살펴볼 'parametric model'에서는 데이터셋에 대한 정보를 함축하여, 데이터셋 전체를 기억하지 않고도
@@ -170,7 +180,7 @@
               이처럼 단순한 linear classifier는 대부분의 딥러닝 모델의 가장 기본적인 building block이 된다.
             </p>
             <p class="math-center">$f(\mathbf{x}, \mathbf{W}) = \mathbf{W} \cdot \mathbf{x} + \mathbf{b}$</p>
-            <img src="/study/cs231n_recap/lecture_2/img8.png" alt="Linear classifier visualized" />
+            <img src="/study/deep_learning_for_computer_vision/lecture_2/img8.png" alt="Linear classifier visualized" />
             <p>
               위 그림은 2x2 크기의 이미지를 3개의 클래스 중 하나로 분류하는 과정을 나타낸 것이다. 먼저 2x2 픽셀인
               이미지를 4x1의 1차원 벡터 $\mathbf{x}$로 펼친다. 이후 3x4의 weight matrix $\mathbf{W}$와 입력 벡터
@@ -185,7 +195,7 @@
               번째 row는 cat, 두 번째 row는 dog, 세 번째 row는 ship에 대한 점수를 만들어내는 식이다. 그렇다면 각 row가
               어떨 때 점수가 가장 높을까?
             </p>
-            <img src="/study/cs231n_recap/lecture_2/img9.jpg" alt="Template matching" />
+            <img src="/study/deep_learning_for_computer_vision/lecture_2/img9.jpg" alt="Template matching" />
             <p>
               우선 첫 번째 경우를 보면, $\mathbf{W}$의 한 row와 $\mathbf{x}$의 부호가 항상 반대이기 때문에 곱은 항상
               음수가 나온다. 따라서 쌍을 이루는 원소들의 부호가 같아야 점수가 높아짐을 알 수 있다. 두 번째 경우를 보면,
@@ -200,7 +210,7 @@
               이미지들을 한데 모아놓은 것 같은 형태가 된다. 실제로 CIFAR-10 데이터셋으로 학습시킨 $\mathbf{W}$의 각
               row를 이미지로 변환해보면 아래 그림과 같다.
             </p>
-            <img src="/study/cs231n_recap/lecture_2/img10.png" alt="W visualization" />
+            <img src="/study/deep_learning_for_computer_vision/lecture_2/img10.png" alt="W visualization" />
             <p>
               car 클래스의 경우 자동차의 정면 형상이 보이며 deer 클래스의 경우 연두색 배경에 갈색 물체가 있는 등 각
               클래스에 해당하는 물체를 뭉뚱그려 놓은 듯한 형체가 보인다. 이때 중요한 것은 horse 클래스의 경우 말의
@@ -208,14 +218,21 @@
               classifier의 경우 한 클래스당 하나의 템플릿밖에 가지지 못하기 때문에 그 물체가 보여질 수 있는 모든 경우를
               뭉뚱그려 놓은 형태의 템플릿이 된다.
             </p>
-            <img class="half" src="/study/cs231n_recap/lecture_2/img11.png" alt="Decision boundary" />
+            <img
+              class="half"
+              src="/study/deep_learning_for_computer_vision/lecture_2/img11.png"
+              alt="Decision boundary"
+            />
             <p>
               Linear classifier에 대한 또 다른 해석으로는 decision boundary가 있다. 대부분의 인공지능 교재에 많이 보이는
               그림인데, 이미지들을 고차원 평면상에 놓고 그 사이에 구분선을 그어 한 클래스와 다른 클래스들을 구분하는
               것이다. 즉, $f(\mathbf{x}, \mathbf{W})$의 결과가 특정 값보다 크면 그 클래스에 포함, 아니면 포함하지 않는
               것으로 보는 것이다. 이러한 해석을 통해 linear classification의 한계점을 파악할 수 있다.
             </p>
-            <img src="/study/cs231n_recap/lecture_2/img12.png" alt="Decision boundary visualization" />
+            <img
+              src="/study/deep_learning_for_computer_vision/lecture_2/img12.png"
+              alt="Decision boundary visualization"
+            />
             <p>
               위 그림을 보면, 두 클래스의 하나의 직선으로 완전히 구분하는 것이 불가능하다. 왼쪽 경우처럼 픽셀의 수뿐만
               아니라 이미지 내 사람의 수를 홀수와 짝수로 분류하는 문제 등은 linear classifier로 해결하기 어렵다. 오른쪽
@@ -226,7 +243,11 @@
             </p>
 
             <h2>Summary</h2>
-            <img class="half" src="/study/cs231n_recap/lecture_2/img13.png" alt="Linear classifier summary" />
+            <img
+              class="half"
+              src="/study/deep_learning_for_computer_vision/lecture_2/img13.png"
+              alt="Linear classifier summary"
+            />
             <p>
               이번 강의에서는 linear classifier가 어떻게 작동하는지, $\mathbf{W}$는 어떤 의미를 가지고 있는지
               살펴보았다. 다음 강의에서는 loss function과 optimization을 통해 어떻게 최적의 $\mathbf{W}$를 찾을 수
@@ -239,16 +260,19 @@
               <img src="/asset/cover.jpg" alt="Seongmin Jung" />
               <h1>Seongmin Jung</h1>
             </div>
-            <h2>Other posts in <a href="/study/cs231n_recap.html">CS231n Recap</a> series</h2>
+            <h2>
+              Other posts in
+              <a href="/study/deep_learning_for_computer_vision.html">Deep Learning for Computer Vision</a> series
+            </h2>
             <ul>
               <li>
-                <a href="/study/cs231n_recap/lecture_2.html">
+                <a href="/study/deep_learning_for_computer_vision/lecture_2.html">
                   <span><b>Lecture 2 | Image Classification</b></span>
                   <time datetime="2024-03-26">March 26, 2024</time>
                 </a>
               </li>
               <li>
-                <a href="/study/cs231n_recap/lecture_1.html">
+                <a href="/study/deep_learning_for_computer_vision/lecture_1.html">
                   <span>Lecture 1 | Introduction to Convolutional Neural Networks for Visual Recognition</span>
                   <time datetime="2024-03-26">March 26, 2024</time>
                 </a>
