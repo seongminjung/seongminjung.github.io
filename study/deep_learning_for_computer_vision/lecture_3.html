@@ -81,10 +81,10 @@
               기억할 필요 없이 올바른 $\mathbf{W}$만을 갖고 있으면 쉽고 빠르게 분류를 수행할 수 있다.
             </p>
             <p>
-              올바른 $\mathbf{W}$를 찾는 법은 다음 강의에서부터 살펴보기로 하고, $\mathbf{W}$가 있을 때 $\mathbf{x}$와
-              $\mathbf{W}$를 어떻게 연산해야 할까? 가장 간단한 방법은 아래와 같이 단순히 픽셀값과 그에 해당하는 가중치를
-              곱한 후 모두 더하는 것이다. 사칙연산만으로 이루어져 있기 때문에 linear classifier라는 명칭이 붙었다.
-              이처럼 단순한 linear classifier는 대부분의 딥러닝 모델의 가장 기본적인 building block이 된다.
+              올바른 $\mathbf{W}$를 찾는 법은 아래쪽에서 살펴보기로 하고, 우선 $\mathbf{W}$가 있을 때 $\mathbf{x}$와
+              $\mathbf{W}$를 어떻게 연산해야 할지 살펴보자. 가장 간단한 방법은 아래와 같이 단순히 픽셀값과 그에 해당하는
+              가중치를 곱한 후 모두 더하는 것이다. 사칙연산만으로 이루어져 있기 때문에 linear classifier라는 명칭이
+              붙었다. 이처럼 단순한 linear classifier는 대부분의 딥러닝 모델의 가장 기본적인 building block이 된다.
             </p>
             <p class="math-center">$f(\mathbf{x}, \mathbf{W}) = \mathbf{W} \cdot \mathbf{x} + \mathbf{b}$</p>
             <img src="/study/deep_learning_for_computer_vision/lecture_3/img2.png" alt="Linear classifier visualized" />
@@ -149,6 +149,12 @@
               예정이다.
             </p>
 
+            <h2>Loss Function</h2>
+            <p>
+              그렇다면 올바른 $\mathbf{W}$를 어떻게 찾을 수 있을까? 이를 위해서는 $\mathbf{W}$가 얼마나 좋고 나쁜지를
+              수치화해야 한다. 이를 loss function이라고 한다.
+            </p>
+
             <h2>Summary</h2>
             <img
               class="half"
@@ -179,14 +185,14 @@
                 </a>
               </li>
               <li>
-                <a href="/study/deep_learning_for_computer_vision/lecture_1.html">
-                  <span>Lecture 1 | Introduction to Convolutional Neural Networks for Visual Recognition</span>
+                <a href="/study/deep_learning_for_computer_vision/lecture_2.html">
+                  <span>Lecture 2: Image Classification</span>
                   <time datetime="2024-03-26">March 26, 2024</time>
                 </a>
               </li>
               <li>
-                <a href="/study/deep_learning_for_computer_vision/lecture_3.html">
-                  <span>Lecture 2 | Image Classification</span>
+                <a href="/study/deep_learning_for_computer_vision/lecture_1.html">
+                  <span>Lecture 1: Introduction to Deep Learning for Computer Vision</span>
                   <time datetime="2024-03-26">March 26, 2024</time>
                 </a>
               </li>
