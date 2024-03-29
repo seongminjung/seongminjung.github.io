@@ -113,9 +113,11 @@
               월드 좌표계 등을 이용하여 종합적인 로봇 알고리즘을 짜려면, 한 좌표계에서 다른 좌표계로의 변환 과정을
               알아야 한다. 그리고 이 변환을 하나의 transform matrix $\mathbf{T}$로 표현할 수 있다.
             </p>
+
+            <h3>Rotation Matrix</h3>
             <p>
               직관적으로, 한 좌표계에서 다른 좌표계로의 변환은 rotation과 translation으로 나눌 수 있다. 변환 과정에서
-              벡터의 크기나 벡터 간의 각도는 변하지 않는다.
+              벡터의 크기나 벡터 간의 각도는 변하지 않는다. 우선 rotation에 대해 살펴보자.
             </p>
             <img class="half" src="/study/visual_slam/vslam_2/img2.png" alt="Rotation" />
             <p>
@@ -144,19 +146,72 @@
               \mathbf{e}_3^T\mathbf{e}_2' & \mathbf{e}_3^T\mathbf{e}_3' \end{bmatrix} \begin{bmatrix} a_1' \\ a_2' \\
               a_3' \end{bmatrix}$
             </p>
-            <p>가 된다. 이때 우변의 3x3 행렬을 rotation matrix $\mathbf{R}$이라고 정의할수 있다.</p>
+            <p>가 된다. 이때 우변의 3x3 행렬을 rotation matrix $\mathbf{R}^T$이라고 정의할수 있다.</p>
             <p class="math-center">
-              $\mathbf{R} = \begin{bmatrix} \mathbf{e}_1^T\mathbf{e}_1' & \mathbf{e}_1^T\mathbf{e}_2' &
+              $\mathbf{R}^T = \begin{bmatrix} \mathbf{e}_1^T\mathbf{e}_1' & \mathbf{e}_1^T\mathbf{e}_2' &
               \mathbf{e}_1^T\mathbf{e}_3' \\ \mathbf{e}_2^T\mathbf{e}_1' & \mathbf{e}_2^T\mathbf{e}_2' &
               \mathbf{e}_2^T\mathbf{e}_3' \\ \mathbf{e}_3^T\mathbf{e}_1' & \mathbf{e}_3^T\mathbf{e}_2' &
               \mathbf{e}_3^T\mathbf{e}_3' \end{bmatrix}$<br />
-              $\begin{bmatrix} a_1 \\ a_2 \\ a_3 \end{bmatrix} = \mathbf{R} \begin{bmatrix} a_1' \\ a_2' \\ a_3'
+              $\begin{bmatrix} a_1 \\ a_2 \\ a_3 \end{bmatrix} = \mathbf{R}^T \begin{bmatrix} a_1' \\ a_2' \\ a_3'
               \end{bmatrix}$
             </p>
             <p>
               즉, rotation matrix는 기존 좌표계의 base와 새로운 좌표계의 base 사이의 관계를 나타낸다. 제3자의 시점에서
               동일한 벡터를 표현할 때, 변환된 좌표계에서의 벡터 좌표에 rotation matrix를 곱하면 기존 좌표계에서의 벡터
               좌표를 얻을 수 있다.
+            </p>
+            <p>rotation matrix는 다음과 같은 특성을 가진다.</p>
+            <ul>
+              <li>orthogonal: $\mathbf{R}^T\mathbf{R} = \mathbf{R}\mathbf{R}^T = \mathbf{I}$</li>
+              <li>det($\mathbf{R}$) = 1</li>
+            </ul>
+            <p>즉, $\mathbf{R}^T$는 $\mathbf{R}$과 방향이 반대인 회전을 나타낸다.</p>
+
+            <h3>Translation Vector</h3>
+            <p>Translation vector $\mathbf{t}$를 이용하여 벡터의 위치를 변화시킬 수 있다.</p>
+            <p class="math-center">
+              $\begin{bmatrix} a_1' \\ a_2' \\ a_3' \end{bmatrix} = \mathbf{R} \begin{bmatrix} a_1 \\ a_2 \\ a_3
+              \end{bmatrix} + \mathbf{t}$
+            </p>
+
+            <h3>Notation</h3>
+            <p>
+              좌표계 1과 2가 있고, 하나의 벡터 $\mathbf{a}$를 각 좌표계에서 본 벡터를 $\mathbf{a}_1$, $\mathbf{a}_2$라
+              하자. 이때 $\mathbf{a}_1$과 $\mathbf{a}_2$ 사이의 변환은 아래의 수식으로 표현된다.
+            </p>
+            <p class="math-center">$\mathbf{a}_1 = \mathbf{R}_{12}\mathbf{a}_2 + \mathbf{t}_{12}$</p>
+            <p>
+              즉, 좌표계 2에서의 벡터를 좌표계 1로 변환하기 때문에 $\mathbf{R}_{12}$의 아래 첨자 12는 오른쪽에서
+              왼쪽으로 읽어서 좌표계 2에서 좌표계 1로 변환한다는 것을 의미한다.
+            </p>
+
+            <h2>Transform Matrix and Homogeneous Coordinates</h2>
+            <p>
+              3D 벡터의 끝에 1을 추가하여 4차원 벡터로 만들면, rotation과 translation을 하나의 행렬로 표현할 수 있다.
+              이처럼 1이 추가되어 4차원 벡터로 만들어진 좌표를 homogeneous coordinates라고 하고, 이를 이용하여
+              rotation과 translation이 결합된 행렬을 transform matrix $\mathbf{T}$라고 한다.
+            </p>
+            <p class="math-center">
+              $\begin{bmatrix} \mathbf{a}' \\ 1 \end{bmatrix} = \begin{bmatrix} \mathbf{R} & \mathbf{t} \\ \mathbf{0}^T
+              & 1 \end{bmatrix} \begin{bmatrix} \mathbf{a} \\ 1 \end{bmatrix} = \mathbf{T} \begin{bmatrix} \mathbf{a} \\
+              1 \end{bmatrix}$
+            </p>
+            <p>
+              이처럼 homogeneous coordinates를 이용하면 transformation 계산을 간편하게 할 수 있다. 이뿐만 아니라, 두 개
+              이상의 transformation을 결합할 때도 편리하다.
+            </p>
+            <p class="math-center">
+              $\mathbf{b} = \mathbf{T}_1\mathbf{a}, \mathbf{c} = \mathbf{T}_2\mathbf{b} \Rightarrow \mathbf{c} =
+              \mathbf{T}_2\mathbf{T}_1\mathbf{a}$
+            </p>
+            <p>Transform matrix는 그 역행렬이 역방향의 transformation을 나타낸다는 특성이 있다.</p>
+            <p class="math-center">
+              $\mathbf{T}^{-1} = \begin{bmatrix} \mathbf{R}^T & -\mathbf{R}^T\mathbf{t} \\ \mathbf{0}^T & 1
+              \end{bmatrix}$
+            </p>
+            <p>
+              또한, rotation matrix와 마찬가지로 $\mathbf{T}_{12}$의 아래 첨자 12는 오른쪽에서 왼쪽으로 읽어서 좌표계
+              2에서 좌표계 1로 변환한다는 것을 의미한다.
             </p>
           </div>
           <div class="post-footer">
