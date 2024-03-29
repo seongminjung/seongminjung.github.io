@@ -150,21 +150,65 @@
             </p>
 
             <h2>Loss Function</h2>
-            <p>
-              그렇다면 올바른 $\mathbf{W}$를 어떻게 찾을 수 있을까? 이를 위해서는 $\mathbf{W}$가 얼마나 좋고 나쁜지를
-              수치화해야 한다. 이를 loss function이라고 한다.
-            </p>
-
-            <h2>Summary</h2>
             <img
               class="half"
               src="/study/deep_learning_for_computer_vision/lecture_3/img7.png"
               alt="Linear classifier summary"
             />
             <p>
-              이번 강의에서는 linear classifier가 어떻게 작동하는지, $\mathbf{W}$는 어떤 의미를 가지고 있는지
-              살펴보았다. 다음 강의에서는 loss function과 optimization을 통해 어떻게 최적의 $\mathbf{W}$를 찾을 수
-              있는지 알아본다.
+              지금까지 linear classifier가 어떻게 작동하는지, $\mathbf{W}$는 어떤 의미를 가지고 있는지 살펴보았다.
+              그렇다면 최적의 $\mathbf{W}$를 어떻게 찾을 수 있을까? 이를 위해서는 먼저 $\mathbf{W}$가 얼마나 좋고
+              나쁜지를 수치화해야 한다. 이를 loss function이라고 한다. 이미지 한 개에 대한 loss function은 아래와 같이
+              정의할 수 있다.
+            </p>
+            <p class="math-center">$L_i(f(\mathbf{x}_i, \mathbf{W}), y_i)$</p>
+            <p>
+              즉, 특정 입력값에 대한 예측값과 정답을 비교하여 얼마나 잘못 예측했는지를 수치화한 것이다. 이를 모든
+              데이터셋에 대해 적용한 전체 loss function은 아래와 같이 정의할 수 있다.
+            </p>
+            <p class="math-center">
+              $L(\mathbf{W}) = \frac{1}{N} \sum_{i=1}^{N} L_i(f(\mathbf{x}_i, \mathbf{W}), y_i)$
+            </p>
+
+            <h3>Multiclass SVM Loss</h3>
+            <p>
+              Multiclass SVM Loss의 개념은, 단순하게 정답인 클래스의 점수가 다른 모든 클래스의 점수보다도 어느 정도
+              높아야 한다는 것이다. 이를 수식으로 나타내면 아래와 같다.
+            </p>
+            <p class="math-center">$L_i = \sum_{j \neq y_i} \max(0, s_j - s_{y_i} + 1)$</p>
+            <img
+              class="half"
+              src="/study/deep_learning_for_computer_vision/lecture_3/img8.png"
+              alt="Multiclass SVM Loss"
+            />
+            <p>
+              정답 클래스의 점수가 다른 한 클래스의 점수보다 1 이상 높다면 loss는 0이 된다. 반면 정답 클래스의 점수가
+              다른 클래스의 점수 + 1보다 낮다면, 그 둘의 차이가 그 클래스에 대한 loss 성분이 된다. 이를 정답 클래스를
+              제외한 모든 클래스에 대해 수행하고 모두 더하면 해당 이미지에 대한 loss가 된다.
+            </p>
+            <img
+              class="half"
+              src="/study/deep_learning_for_computer_vision/lecture_3/img9.png"
+              alt="Multiclass SVM Loss calaulation"
+            />
+            <p>
+              예를 들어, 위 그림과 같이 3개의 인풋 이미지와 3개의 클래스가 있을 때 고양이 이미지에 대한 SVM loss를
+              계산해 보자.
+            </p>
+            <p class="math-center">
+              $L_i = \sum_{j \neq y_i} \max(0, s_j - s_{y_i} + 1) = \max(0, 5.1 - 3.2 + 1) + \max(0, -1.7 - 3.2 + 1) =
+              2.9$
+            </p>
+            <p>Q: 자동차 이미지에 대한 점수들을 아주 약간씩 조절하면 loss에는 어떤 변화가 생길까?</p>
+            <p>
+              A: 정답 클래스의 점수가 다른 클래스의 점수보다 1 이상 높기 때문에 loss에는 변화가 없다. 이는 SVM loss의
+              경우 정답 클래스를 맞추기만 하면 점수 자체에는 큰 의미가 없다는 것을 뜻한다.
+            </p>
+            <p>Q: 가능한 loss의 최댓값과 최솟값은?</p>
+            <p>A: 최댓값은 무한대이고, 최솟값은 정답 클래스의 점수가 다른 클래스의 점수보다 1 이상 높을 때 0이다.</p>
+            <p>Q: Training 초기, 모든 점수가 작은 random 값일 때 loss는?</p>
+            <p>
+              A: 모든 클래스의 점수 차가 0에 가까울 것이기 때문에 모든 loss 성분이 1이 된다. 따라서 총 loss는 C - 1이다.
             </p>
           </div>
 
