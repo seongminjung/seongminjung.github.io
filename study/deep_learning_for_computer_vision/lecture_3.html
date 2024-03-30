@@ -149,7 +149,7 @@
               예정이다.
             </p>
 
-            <h2>Loss Function</h2>
+            <h2>Loss Function - Multiclass SVM Loss</h2>
             <img
               class="half"
               src="/study/deep_learning_for_computer_vision/lecture_3/img7.png"
@@ -169,8 +169,6 @@
             <p class="math-center">
               $L(\mathbf{W}) = \frac{1}{N} \sum_{i=1}^{N} L_i(f(\mathbf{x}_i, \mathbf{W}), y_i)$
             </p>
-
-            <h3>Multiclass SVM Loss</h3>
             <p>
               Multiclass SVM Loss의 개념은, 단순하게 정답인 클래스의 점수가 다른 모든 클래스의 점수보다도 어느 정도
               높아야 한다는 것이다. 이를 수식으로 나타내면 아래와 같다.
@@ -199,16 +197,162 @@
               $L_i = \sum_{j \neq y_i} \max(0, s_j - s_{y_i} + 1) = \max(0, 5.1 - 3.2 + 1) + \max(0, -1.7 - 3.2 + 1) =
               2.9$
             </p>
-            <p>Q: 자동차 이미지에 대한 점수들을 아주 약간씩 조절하면 loss에는 어떤 변화가 생길까?</p>
+            <p>Q1: 자동차 이미지에 대한 점수들을 아주 약간씩 조절하면 loss에는 어떤 변화가 생길까?</p>
             <p>
-              A: 정답 클래스의 점수가 다른 클래스의 점수보다 1 이상 높기 때문에 loss에는 변화가 없다. 이는 SVM loss의
+              A1: 정답 클래스의 점수가 다른 클래스의 점수보다 1 이상 높기 때문에 loss에는 변화가 없다. 이는 SVM loss의
               경우 정답 클래스를 맞추기만 하면 점수 자체에는 큰 의미가 없다는 것을 뜻한다.
             </p>
-            <p>Q: 가능한 loss의 최댓값과 최솟값은?</p>
-            <p>A: 최댓값은 무한대이고, 최솟값은 정답 클래스의 점수가 다른 클래스의 점수보다 1 이상 높을 때 0이다.</p>
-            <p>Q: Training 초기, 모든 점수가 작은 random 값일 때 loss는?</p>
+            <p>Q2: 가능한 loss의 최댓값과 최솟값은?</p>
+            <p>A2: 최댓값은 무한대이고, 최솟값은 정답 클래스의 점수가 다른 클래스의 점수보다 1 이상 높을 때 0이다.</p>
+            <p>Q3: Training 초기, 모든 점수가 작은 random 값으로 initialization되었을 때 loss는?</p>
             <p>
-              A: 모든 클래스의 점수 차가 0에 가까울 것이기 때문에 모든 loss 성분이 1이 된다. 따라서 총 loss는 C - 1이다.
+              A3: 모든 클래스의 점수 차가 0에 가까울 것이기 때문에 모든 loss 성분이 1이 된다. 따라서 총 loss는 C -
+              1이다.
+            </p>
+            <p>Q4: 정답 클래스까지 포함하여 합하면 어떻게 될까?</p>
+            <p>
+              A4: 정답 클래스의 loss 성분은 항상 1이므로, 총 loss는 1만큼 커진다. 모든 인풋 이미지에 대해 이 현상이
+              발생하므로 classifier의 동작에는 변화가 없다.
+            </p>
+            <p>Q5: loss 성분을 단순히 모두 합하는 것이 아닌 평균을 취하면 어떻게 될까?</p>
+            <p>
+              A5: loss 성분을 모두 합하면 데이터셋의 크기에 따라 loss가 커지거나 작아질 수 있지만, 평균을 취하면
+              데이터셋 분모가 항상 C - 1이므로 모든 인풋 이미지에 대해 동일한 계산이 적용되고, loss의 상대적 비율은
+              동일하다.
+            </p>
+            <p>Q6: 기존의 식 대신 아래의 식을 이용한다면 어떻게 될까?</p>
+            <p class="math-center">$L_i = \sum_{j \neq y_i} \max(0, s_j - s_{y_i} + 1)^2$</p>
+            <p>
+              A6: Loss 함수의 동작이 달라진다. Loss가 클 때를 더 크게 penalize하게 되어, loss가 상대적으로 큰 경우에 더
+              큰 gradient를 주게 된다.
+            </p>
+
+            <h2>Regularization</h2>
+            <p>
+              위의 Multiclass SVM Loss에서, loss=0으로 만드는 $\mathbf{W}$를 찾았다고 가정해 보자. 이 $\mathbf{W}$는
+              유일할까?
+            </p>
+            <p>
+              아니다. $\mathbf{W}$의 상수배에 해당하는 모든 행렬은 동일하게 loss를 0으로 만들 것이다. 그렇다면 수많은
+              상수배들 중에서 어떤 것을 선택해야 할까?
+            </p>
+            <p>
+              이러한 문제를 해결하기 위해 regularization을 사용한다. Regularization은 loss function에 모델의 복잡도에
+              대한 term을 추가하여 비슷한 성능의 모델 중 '간단한' 모델을 선택할 수 있도록 한다. 이를 통해 모델의
+              overfitting을 방지할 수 있으며, gradient를 변화시킴으로써 optimization 성능을 향상시킬 수도 있다.
+            </p>
+            <p class="math-center">
+              $L(\mathbf{W}) = \frac{1}{N} \sum_{i=1}^{N} L_i(f(\mathbf{x}_i, \mathbf{W}), y_i) + \lambda R(\mathbf{W})$
+            </p>
+            <p>
+              여기서 $R(\mathbf{W})$가 regularization을 수행한다. Regularization strength를 나타내는 $\lambda$는
+              hyperparameter이다. 주로 사용되는 방식은 L1 regularization과 L2 regularization 등이 있고, Neural
+              network에서는 Dropout, Batch normalization 등 더 복잡한 방식도 사용된다. 어떤 regularization 방식을
+              사용할지는 우리가 원하는 '간단함'의 정의에 따라 달라진다.
+            </p>
+            <p>예시를 통해 regularization의 효과를 살펴보자.</p>
+            <p class="math-center">
+              $\begin{gather} x = \begin{bmatrix} 1 & 1 & 1 & 1 \end{bmatrix} \\ w_1 = \begin{bmatrix} 1 & 0 & 0 & 0
+              \end{bmatrix} \quad w_2 = \begin{bmatrix} 0.25 & 0.25 & 0.25 & 0.25 \end{bmatrix} \end{gather}$
+            </p>
+            <p>
+              위 상황에서, $w_1^Tx$와 $w_2^Tx$는 똑같이 1이기 때문에 두 모델 중 하나를 선택할 수 없다. 이때
+              Regularization을 적용하면 이 문제를 해결할 수 있다. L1과 L2 Regularization 식은 아래와 같다.
+            </p>
+            <p class="math-center">
+              $\begin{gather} L1: R(\mathbf{W}) = \sum_{i} \sum_{j} |W_{ij}| \\ L2: R(\mathbf{W}) = \sum_{i} \sum_{j}
+              W_{ij}^2 \end{gather}$
+            </p>
+            <p>
+              L1 Regularization은 가능한 한 적은 수의 원소에 가중치를 집중된 weight를 선호하는 특성이 있다. 즉, weight
+              matrix의 sparsity를 증가시키는 효과가 있어, 불필요한 feature를 제거하는 데 도움을 준다. 위 예시에서 L1
+              Regularization은 $w_1$을 더 선호한다. 반면 L2 Regularization은 모든 원소에 가중치가 고르게 분포된 weight를
+              선호한다. 즉, matrix의 모든 원소를 고르게 감소시키는 효과가 있어, 모든 feature를 고르게 사용하도록 하는 데
+              도움을 준다. 위 예시에서 L2 Regularization은 $w_2$를 더 선호한다.
+            </p>
+            <p>
+              따라서 regularization 방식은 인풋 데이터의 특성을 보고 직접 선택해야 한다. 인풋 데이터 중 outlier가 많은
+              경우 L1 Regularization을 사용하면 outlier에 덜 민감한 모델을 얻을 수 있고, 픽셀 하나하나에 noise가 많아
+              데이터 전체의 흐름을 파악해야 하는 경우 L2 Regularization을 사용하면 더 좋은 성능을 얻을 수 있다.
+              Regularization은 머신러닝 모델을 구축하는 데 매우 중요하고 필수적으로 고려해야 하는 요소이다.
+            </p>
+
+            <h2>Softmax Classifier and Cross-Entropy Loss</h2>
+            <h3>Softmax Classifier</h3>
+            <p>
+              지금까지 Linear classifier와 이에 해당하는 loss function인 Multiclass SVM Loss에 대해 살펴보았다. 그러나
+              Multiclass SVM Loss는 정답 클래스의 점수가 다른 클래스의 점수보다 높기만 하면 점수 자체에는 큰 의미가
+              없다는 단점이 있다. Softmax Classifier는 점수를 확률 형태로 변환하여 이러한 단점을 보완한다. 아래는 변환
+              과정을 나타낸 그림이다.
+            </p>
+            <img src="/study/deep_learning_for_computer_vision/lecture_3/img10.png" alt="Softmax Classifier" />
+            <p>
+              우선 각 클래스별 점수에 softmax 함수를 취한다. softmax 함수는 Softmax 함수는 max 함수의 미분가능한
+              approximation이라고 볼 수 있다. max 함수가 가장 큰 값을 1로 만들고 나머지는 0으로 만든다면, softmax 함수는
+              이를 연속적인 확률 분포로 나타내는 것이다. $f(\mathbf{x}_i, \mathbf{W})$의 결과로 나온 점수값(파란색
+              박스)에 exponential을 취하여 unnormalized probabilities(빨간색 박스)를 구한 뒤, 이를 모두 더한 값으로
+              나누어 normalized probabilities(초록색 박스)를 구한다. softmax 함수를 수식으로 나타내면 아래와 같다.
+            </p>
+            <p class="math-center">
+              $P(j = \text{cat} | \mathbf{x}_i, \mathbf{W}) = e^{s_j} / \sum_{k \in \{\text{cat, car, frog}\}} e^{s_k}$
+            </p>
+            <p>
+              즉, cat 클래스를 예로 들면 $e^{3.2} = 24.5$가 되고, $\frac {24.5}{24.5 + 164.0 + 0.18} = 0.13$이 된다.
+            </p>
+
+            <h3>Cross-Entropy Loss</h3>
+            <p>
+              이후 우리가 원하는 이상적인 확률 분포와 비교하는데, 이 확률 분포는 위에서 언급한 max 함수 또는 one-hot
+              encoding 형태와 동일하게 정답 클래스의 확률은 1, 나머지는 0인 분포이다. 두 확률 분포의 차이가 클수록
+              loss가 커지도록 loss function을 정의한다.
+            </p>
+            <p>
+              이때 두 확률 분포를 비교하는 방법은 Kullback-Leibler divergence(KL divergence)인데, 이는 머신러닝에서 매우
+              흔하게 사용되는 loss function인 Cross-Entropy Loss의 기본이 된다. KL divergence의 수식은 아래와 같다.
+            </p>
+            <p class="math-center">
+              $D_{KL}(P||Q) = \sum_y P(y) \log \frac{P(y)}{Q(y)}, \quad y \in \{\text{cat, car, frog}\}$
+            </p>
+            <p>
+              $D_{KL}(P||Q)$ 값이 작을수록 두 확률 분포가 비슷하다는 것을 의미한다. 이때 $Q(y)$는 모델이 예측한 확률
+              분포(그림에서 초록색 박스), $P(y)$는 비교 대상이 되는 정답 확률 분포(그림에서 보라색 박스)이다.
+            </p>
+            <p>
+              이때 오답 클래스에 대해서는 $P(y)$가 어차피 0이기 때문에 더하는 것이 의미가 없다. 따라서 정답 클래스에
+              대해서만 비교를 진행한다. 위 수식에서 $P(y) = 1$, $Q(y) = 0.13$이 되어 KL divergence 값은
+            </p>
+            <p class="math-center">$D_{KL}(P||Q) = 1 \times \log \frac{1}{0.13} = 2.04$</p>
+            <p>이 된다.</p>
+            <p>여기서 $P(y) = 1$이라는 것이 KL divergence와 Cross-Entropy Loss의 연결고리가 된다.</p>
+            <p>Cross-Entropy의 수식은 아래와 같다.</p>
+            <p class="math-center">$H(P, Q) = -\sum_y P(y) \log Q(y)$</p>
+            <p>즉, $P(y) = 1$이기 때문에 KL divergence와 Cross-Entropy는 결국 같은 식이 된다.</p>
+            <p>
+              (사실 KL divergence에서 $P(y) = 1$이 아니라 어떤 상수여도 된다. 결국 우리의 관심은 $Q(y)$를 최대한 1에
+              가깝게 만드는 것이기 때문에 변수가 없는 $P(y)$는 무시할 수 있다.)
+            </p>
+            <p>최종적인 Cross-Entropy Loss는 아래와 같다.</p>
+            <p class="math-center">
+              $L_i = -\log Q(y) = -\log (softmax(s)) = -\log (softmax(f(\mathbf{x}_i, \mathbf{W})))$
+            </p>
+            <p>
+              이때 확률밀도함수에 $-\log$를 취하면 negative log likelihood가 되기 때문에 이를 최소화하는 것은 Maximum
+              Likelihood Estimation(MLE)과 같으며, 이 또한 결국 우리가 원하는 확률 분포와 최대한 같아지도록 하는 것이다.
+            </p>
+            <p>Cross-Entropy Loss를 그래프로 나타내면 아래와 같다.</p>
+            <img
+              class="half"
+              src="/study/deep_learning_for_computer_vision/lecture_3/img11.png"
+              alt="Cross-Entropy Loss"
+            />
+            <p>
+              정답 클래스의 확률이 0에 가까울수록 loss는 무한대로 커지고, 1에 가까울수록 loss는 0에 가까워지는 것을 볼
+              수 있다. 이때 Cross-Entropy Loss의 경우 loss=0에 절대 도달할 수 없다는 특징이 있다.
+            </p>
+            <p>Q: Training 초기, 모든 점수가 작은 random 값으로 initialization되었을 때 loss는?</p>
+            <p>
+              A: 모든 클래스의 점수가 유사하므로 uniform distribution의 형태가 되어 softmax 함수의 결과는 1/C가 된다.
+              따라서 loss는 log(C)가 된다.
             </p>
           </div>
 
