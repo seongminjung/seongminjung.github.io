@@ -252,16 +252,17 @@
             </p>
             <p>예시를 통해 regularization의 효과를 살펴보자.</p>
             <p class="math-center">
-              $\begin{gather} x = \begin{bmatrix} 1 & 1 & 1 & 1 \end{bmatrix} \\ w_1 = \begin{bmatrix} 1 & 0 & 0 & 0
-              \end{bmatrix} \quad w_2 = \begin{bmatrix} 0.25 & 0.25 & 0.25 & 0.25 \end{bmatrix} \end{gather}$
+              $x = \begin{bmatrix} 1 & 1 & 1 & 1 \end{bmatrix}$<br />
+              $w_1 = \begin{bmatrix} 1 & 0 & 0 & 0 \end{bmatrix} \quad w_2 = \begin{bmatrix} 0.25 & 0.25 & 0.25 & 0.25
+              \end{bmatrix}$
             </p>
             <p>
               위 상황에서, $w_1^Tx$와 $w_2^Tx$는 똑같이 1이기 때문에 두 모델 중 하나를 선택할 수 없다. 이때
               Regularization을 적용하면 이 문제를 해결할 수 있다. L1과 L2 Regularization 식은 아래와 같다.
             </p>
             <p class="math-center">
-              $\begin{gather} L1: R(\mathbf{W}) = \sum_{i} \sum_{j} |W_{ij}| \\ L2: R(\mathbf{W}) = \sum_{i} \sum_{j}
-              W_{ij}^2 \end{gather}$
+              $L1: R(\mathbf{W}) = \sum_{i} \sum_{j} |W_{ij}|$<br />
+              $L2: R(\mathbf{W}) = \sum_{i} \sum_{j} W_{ij}^2$
             </p>
             <p>
               L1 Regularization은 가능한 한 적은 수의 원소에 가중치를 집중된 weight를 선호하는 특성이 있다. 즉, weight
@@ -355,7 +356,6 @@
               따라서 loss는 log(C)가 된다.
             </p>
           </div>
-
           <div class="post-footer">
             <div class="post-footer-profile">
               <img src="/asset/cover.jpg" alt="Seongmin Jung" />
@@ -366,6 +366,12 @@
               <a href="/study/deep_learning_for_computer_vision.html">Deep Learning for Computer Vision</a> series
             </h2>
             <ul>
+              <li>
+                <a href="/study/deep_learning_for_computer_vision/lecture_4.html">
+                  <span>Lecture 4: Optimization</span>
+                  <time datetime="2024-04-02">April 2, 2024</time>
+                </a>
+              </li>
               <li>
                 <a href="/study/deep_learning_for_computer_vision/lecture_3.html">
                   <span><b>Lecture 3: Linear Classifiers</b></span>
