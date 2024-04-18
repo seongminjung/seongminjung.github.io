@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lecture 5: Neural Networks</title>
+    <meta name="description" content="Seongmin Jung's personal website" />
+    <meta name="keywords" content="Seongmin Jung, Robotics" />
+    <meta name="author" content="Seongmin Jung" />
+    <meta name="language" content="English" />
+    <link rel="shortcut icon" href="/favicon.png" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LL44K1WZ0G"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "G-LL44K1WZ0G");
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML" async></script>
+
+    <!-- Load an icon library to show a hamburger menu (bars) on small screens -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <!-- import css -->
+    <link rel="stylesheet" href="/css/index.css" />
+    <!-- import js -->
+    <script src="/js/script.js" defer></script>
+  </head>
+
+  <body>
+    <header>
+      <img class="cover" src="/asset/cover.jpg" alt="Seongmin Jung" />
+      <h1 class="title"><a href="/index.html">Seongmin Jung</a></h1>
+      <nav class="nav">
+        <a href="/index.html">Home</a>
+        <a href="/projects.html">Projects</a>
+        <a href="/study.html" class="bold">Study</a>
+        <a href="/blog.html">Blog</a>
+        <i id="nav-toggle" class="nav-toggle fa fa-bars" onclick="toggleNav()"></i>
+      </nav>
+    </header>
+
+    <div id="nav-modal-bg" onclick="toggleNav()"></div>
+    <nav id="nav-modal">
+      <a href="/index.html">Home</a>
+      <a href="/projects.html">Projects</a>
+      <a href="/study.html" class="bold">Study</a>
+      <a href="/blog.html">Blog</a>
+    </nav>
+
+    <main>
+      <div class="container">
+        <section id="post">
+          <a id="series-tag" href="/study/deep_learning_for_computer_vision.html"
+            ><i class="fa fa-book"></i> Deep Learning for Computer Vision</a
+          >
+          <h1>Lecture 5: Neural Networks</h1>
+          <p class="date">Posted on <time datetime="2024-04-18">April 18, 2024</time></p>
+          <div class="post-body">
+            <h2>Feature Transforms</h2>
+            <p>
+              이번 강의부터는 단순한 Linear classifier를 벗어나 Neural Networks에 대해 배울 것이다. Neural Networks는
+              Linear classifier가 해결할 수 없는 문제들을 여럿 해결할 수 있다.
+            </p>
+            <img src="/study/deep_learning_for_computer_vision/lecture_5/img1.png" alt="Neural Networks" />
+            <p>
+              위 그림과 같이 선형으로 분류할 수 없는 두 클래스를 분류하는 문제를 해결할 수 있고, template matching의
+              관점에서는 하나의 클래스가 여러 개의 template을 가질 수 있게 해 준다.
+            </p>
+            <p>
+              Neural network에 대한 하나의 직관적인 이해는 인풋 데이터를 feature space로 매핑하는 것이다. 그 말은, 인풋
+              데이터 자체를 가지고 분류를 수행하는 것이 아니라, 데이터에서 먼저 feature들을 추출한 뒤 feature값을 축으로
+              하는 좌표공간상에 점을 찍고, 그 점들로 분류를 수행하는 것이다.
+            </p>
+            <img src="/study/deep_learning_for_computer_vision/lecture_5/img2.png" alt="Feature Transforms" />
+            <p>
+              위 그림의 경우 왼쪽 이미지에서는 선형 분류가 불가능한 반면 feature를 추출한 후에는 선형 분류가 가능해진다.
+              위 경우 제곱, 제곱근, 역탄젠트 함수 등 specific한 함수들을 사용했는데, 만약 뉴럴 네트워크로 이러한
+              함수들을 approximation할 수 있다면, 어떤 데이터 분포든 간에 선형 분류가 가능하지 않을까? 이것이 뉴럴
+              네트워크의 핵심 아이디어이다.
+            </p>
+            <img class="half" src="/study/deep_learning_for_computer_vision/lecture_5/img3.png" alt="Color Histogram" />
+            <img
+              class="half"
+              src="/study/deep_learning_for_computer_vision/lecture_5/img4.png"
+              alt="Histogram of Oriented Gradients (HoG)"
+            />
+            <p>
+              다른 종류의 Feature Transform으로는 Color Histogram과 Histogram of Oriented Gradients (HoG)가 있다. Color
+              histogram은 이미지의 색상 분포를 히스토그램으로 나타낸 것인데, 각 픽셀이 어디에 위치해 있는지에 대한
+              정보는 버리고 색상의 분포만을 이용한다. 반면 HoG는 색상 정보는 버리고 각 픽셀별 edge의 방향과 강도 정보를
+              추출한다. 이를 통해 동일한 물체가 이미지 내에서 어디에 위치하든 비슷한 분류를 수행할 수 있다.
+            </p>
+            <img src="/study/deep_learning_for_computer_vision/lecture_5/img5.png" alt="Bag of Words" />
+            <p>
+              알고리즘적인 방법 외에 데이터에 기반한 방법으로 Bag of Words라는 방법도 있다. Bag of Words는 문서 분류에
+              주로 사용되는 방법으로, training image에서 랜덤하게 조각들을 잘라낸 다음 한데 모아 Codebook을 만들고,
+              Codebook 안의 각 이미지 조각들이 전체 데이터셋에서 얼마나 많이 등장하는지를 바탕으로 Feature를 추출하게
+              된다.
+            </p>
+            <p>
+              실제로 AlexNet이 등장하기 1년 전인 2011년 ImageNet challenge에서 우승한 모델의 경우 사람이 직접 만든
+              feature transform을 사용했는데, 성능이 꽤 나쁘지 않았다고 한다.
+            </p>
+            <p>
+              <u
+                >결국 Feature Transform의 의미는, raw 데이터가 아닌 데이터의 특징을 추출하여 그 특징을 이용해 분류를
+                수행한다면 그 성능을 더욱 개선할 수 있다는 것이다.</u
+              >
+              그리고 뉴럴 네트워크를 사용함으로써 분류 그 자체뿐만 아니라 Feature Transform까지도 한번에 수행할 수 있게
+              되고, Feature Transform에 해당하는 파라미터들까지 학습이 가능해지면서 전체적인 성능을 향상시킬 수 있다.
+            </p>
+
+            <h2>2-Layer Neural Network</h2>
+            <img
+              class="half"
+              src="/study/deep_learning_for_computer_vision/lecture_5/img6.png"
+              alt="2-Layer Neural Network"
+            />
+            <p>
+              가장 간단한 형태의 Neural Network는 2-Layer Neural Network이다. 아래 그림과 같이 input layer, hidden
+              layer, output layer로 구성되어 있다. 이는 단순히 Linear classifier를 두 개 연결한 형태인데, 그 사이에
+              비선형 함수를 끼워 넣은 것이다.
+            </p>
+            <p class="math-center">$f(x) = W_2 \cdot \max(0, W_1 \cdot x)$</p>
+            <p>
+              직관적으로 살펴보면, 인풋 데이터에 첫 번째 weight matrix를 곱해 score를 구하고, 그 score에 max(0, x)
+              함수를 적용해 약간의 변형을 가한다. 이를 두 번째 weight matrix에 곱해 각 클래스에 대한 최종적인 score를
+              구하게 된다. 이때 첫 번째 layer를 통해 구한 score가 위에서 언급한 feature 역할을 하고, 두 번째 layer에서
+              그 feature를 이용해 분류를 수행할 수 있다.
+            </p>
+            <p>
+              이러한 형태의 Neural Network의 경우, 각 layer의 모든 element는 다음 layer의 모든 element와 연결되어 있다.
+              이 때문에 이를 Fully Connected Layer, Dense Layer, 또는 Multi-Layer Perceptron (MLP)이라고 부른다.
+            </p>
+          </div>
+
+          <div class="post-footer">
+            <div class="post-footer-profile">
+              <img src="/asset/cover.jpg" alt="Seongmin Jung" />
+              <h1>Seongmin Jung</h1>
+            </div>
+            <h2>
+              Other posts in
+              <a href="/study/deep_learning_for_computer_vision.html">Deep Learning for Computer Vision</a> series
+            </h2>
+            <ul>
+              <li>
+                <a href="/study/deep_learning_for_computer_vision/lecture_5.html">
+                  <span><b>Lecture 5: Neural Networks</b></span>
+                  <time datetime="2024-04-18">April 18, 2024</time>
+                </a>
+              </li>
+              <li>
+                <a href="/study/deep_learning_for_computer_vision/lecture_4.html">
+                  <span>Lecture 4: Optimization</span>
+                  <time datetime="2024-04-02">April 2, 2024</time>
+                </a>
+              </li>
+              <li>
+                <a href="/study/deep_learning_for_computer_vision/lecture_3.html">
+                  <span>Lecture 3: Linear Classifiers</span>
+                  <time datetime="2024-03-28">March 28, 2024</time>
+                </a>
+              </li>
+              <li>
+                <a href="/study/deep_learning_for_computer_vision/lecture_2.html">
+                  <span>Lecture 2: Image Classification</span>
+                  <time datetime="2024-03-26">March 26, 2024</time>
+                </a>
+              </li>
+              <li>
+                <a href="/study/deep_learning_for_computer_vision/lecture_1.html">
+                  <span>Lecture 1: Introduction to Deep Learning for Computer Vision</span>
+                  <time datetime="2024-03-26">March 26, 2024</time>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2024 Seongmin Jung<br />Designed and developed by Seongmin Jung</p>
+    </footer>
+  </body>
+</html>
