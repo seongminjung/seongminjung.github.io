@@ -128,22 +128,94 @@
             />
             <p>
               가장 간단한 형태의 Neural Network는 2-Layer Neural Network이다. 아래 그림과 같이 input layer, hidden
-              layer, output layer로 구성되어 있다. 이는 단순히 Linear classifier를 두 개 연결한 형태인데, 그 사이에
-              비선형 함수를 끼워 넣은 것이다.
+              layer, output layer로 구성되어 있고, 각 layer의 모든 element는 다음 layer의 모든 element와 연결되어 있다.
+              이 때문에 이를 Fully Connected Layer, Dense Layer, 또는 Multi-Layer Perceptron (MLP)이라고 부르기도 한다.
+              형태는 단순히 Linear classifier를 두 개 연결하고 그 사이에 비선형 함수를 끼워 넣은 것이다.
             </p>
             <p class="math-center">$f(x) = W_2 \cdot \max(0, W_1 \cdot x)$</p>
             <p>
-              직관적으로 살펴보면, 인풋 데이터에 첫 번째 weight matrix를 곱해 score를 구하고, 그 score에 max(0, x)
+              직관적으로 살펴보면, 인풋 데이터에 첫 번째 weight matrix를 곱해 score를 구하고, 그 score에 $\max(0, x)$
               함수를 적용해 약간의 변형을 가한다. 이를 두 번째 weight matrix에 곱해 각 클래스에 대한 최종적인 score를
               구하게 된다. 이때 첫 번째 layer를 통해 구한 score가 위에서 언급한 feature 역할을 하고, 두 번째 layer에서
               그 feature를 이용해 분류를 수행할 수 있다.
             </p>
+            <img src="/study/deep_learning_for_computer_vision/lecture_5/img7.png" alt="Template Matching" />
+            <img
+              class="half"
+              src="/study/deep_learning_for_computer_vision/lecture_5/img8.png"
+              alt="Template Matching"
+            />
             <p>
-              이러한 형태의 Neural Network의 경우, 각 layer의 모든 element는 다음 layer의 모든 element와 연결되어 있다.
-              이 때문에 이를 Fully Connected Layer, Dense Layer, 또는 Multi-Layer Perceptron (MLP)이라고 부른다.
+              Template Matching의 관점으로도 2-Layer Neural Network를 살펴볼 수 있다. 첫 번째 weight matrix $W_1$을
+              템플릿으로 보고, 두 번째 weight matrix $W_2$를 통해 템플릿들을 조합하여 최종 score를 만드는 것이라 볼 수
+              있다. 상단의 그림은 Lecture 3에서 Single Layer일 때의 $W$를 시각화한 것이고 하단은 2-Layer일 때의 $W_1$를
+              시각화한 것이다. 2-Layer일 경우에 템플릿이 조금 더 추상적으로 표현되는 것을 볼 수 있다. 이때 둘째 줄 4번째
+              사진의 경우 명확히 오른쪽을 보고 있는 말 그림이 있는 것을 보아 Single Layer에서 하나의 템플릿으로 여러
+              경우의 수를 표현할 수 없는 문제가 해결된 것을 볼 수 있다.
             </p>
-          </div>
 
+            <h2>Activation Function</h2>
+            <p class="math-center">$f(x) = W_2 \cdot \max(0, W_1 \cdot x)$</p>
+            <p>
+              위 수식에서 $\max(0, x)$ 함수를 Activation Function이라고 부른다. Activation Function은 Neural Network가
+              비선형 함수에도 approximation할 수 있도록 하는 핵심적인 역할을 한다.
+            </p>
+            <p class="math-center">$f(x) = W_2 \cdot (W_1 \cdot x) = (W_2 \cdot W_1) \cdot x = W_3 \cdot x$</p>
+            <p>
+              Activation Function이 없다면 위 수식과 같이 Linear classifier와 다를 것이 없다. 하단의 Universal
+              Approximation Theorem에서도 살펴보겠지만, Activation Function이 존재함으로써 Neural Network가 세상에
+              존재하는 어떤 함수든 근사할 수 있게 된다. 이는 위의 Feature Transform에서 언급한 것처럼 Neural Network가
+              인풋 데이터로부터 복잡한 feature들을 추출할 수 있도록 하는 핵심 요소가 된다.
+            </p>
+            <img src="/study/deep_learning_for_computer_vision/lecture_5/img9.png" alt="Activation Function" />
+            <p>
+              위 그림과 같이 여러 종류의 Activation Function이 존재하는데, ReLU (Rectified Linear Unit)가 대부분의
+              Neural Network에서 준수한 성능을 낸다고 알려져 있다. 딥러닝 모델을 처음 구축할 때 ReLU를 시도해 보는 것이
+              좋다. 각 Activation Function에 대해서는
+              <a href="/study/deep_learning_for_computer_vision/lecture_10.html">Lecture 10</a>에서 자세히 다룰 것이다.
+            </p>
+
+            <h2>Visualization of Intuitions</h2>
+            <p>잠깐 딴 길로 새서, Feature transform과 Activation Function의 역할을 시각적으로 표현한 그림이 있다.</p>
+            <img src="/study/deep_learning_for_computer_vision/lecture_5/img10.png" alt="Visualization of Intuitions" />
+            <p>왼쪽 그림에서 초록색 선과 빨간색 선을 각각 새로운 좌표축으로 하여 좌표평면을 변형시킨 것이다.</p>
+            <img src="/study/deep_learning_for_computer_vision/lecture_5/img11.png" alt="Visualization of Intuitions" />
+            <p>
+              이때 공간을 단순히 선형적으로 변환한다면, 위 그림과 같이 Feature Space를 어떤 방식으로 구성하더라도 두
+              클래스를 구분할 직선을 그을 수 없다.
+            </p>
+            <img src="/study/deep_learning_for_computer_vision/lecture_5/img12.png" alt="Visualization of Intuitions" />
+            <p>
+              ReLU 함수를 함께 사용하면 좌표평면을 비선형적으로 변형시킬 수 있게 된다. 위 그림에서 A사분면의 경우 초록색
+              선과 빨간색 선을 기준으로 모두 양수인 영역이므로 점이 그대로 유지되지만, B사분면이나 D사분면의 경우 한쪽은
+              양수, 한쪽은 음수인 영역이므로 ReLU 함수를 거치며 점이 축으로 이동하게 된다. C사분면의 경우 둘 모두 음수인
+              영역이므로 점이 원점으로 모이게 된다.
+            </p>
+            <img src="/study/deep_learning_for_computer_vision/lecture_5/img13.png" alt="Visualization of Intuitions" />
+            <p>
+              이를 그림으로 나타내면 위 그림과 같다. 비선형 함수로 인해 점이 모이는 경향성이 달라지고, Feature
+              Space에서는 직선을 그을 수 있게 된다. 이때 이 직선을 원래의 x1, x2 좌표평면으로 되돌리면 비선형적인 경계를
+              나타내는 것을 볼 수 있다. 이것이 바로 Neural Network가 Feature Transform을 수행하여 비선형적인 분포를
+              가지는 데이터를 분류하는 방법이다.
+            </p>
+            <img src="/study/deep_learning_for_computer_vision/lecture_5/img14.png" alt="Visualization of Intuitions" />
+            <p>
+              Hidden layer의 node 수가 많아지면 많아질수록 더 복잡한 feature transform을 수행할 수 있게 된다. 위
+              그림에서 20개의 node를 사용한 경우 모든 점에 대해 완벽하게 decision boundary를 그은 것을 확인할 수 있다.
+              이때 node가 많아질수록 모델이 복잡해지게 되는데, 이때 node의 수 자체를 조절하기보다는 regularization을
+              통해 모델의 복잡도를 조절하는 것이 일반적이다.
+            </p>
+            <p>
+              아래 웹사이트에서 직접 파라미터를 조정해 가며 위의 사진과 같이 decision boundary를 시각화해 볼 수 있다.
+            </p>
+            <p>
+              <a href="https://cs.stanford.edu/people/karpathy/convnetjs/demo/classify2d.html" target="_blank"
+                >https://cs.stanford.edu/people/karpathy/convnetjs/demo/classify2d.html</a
+              >
+            </p>
+
+            <h2>Universal Approximation Theorem</h2>
+          </div>
           <div class="post-footer">
             <div class="post-footer-profile">
               <img src="/asset/cover.jpg" alt="Seongmin Jung" />
