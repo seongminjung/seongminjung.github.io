@@ -215,6 +215,68 @@
             </p>
 
             <h2>Universal Approximation Theorem</h2>
+            <p>
+              Universal Approximation Theorem은 Neural Network가 어떤 함수든 근사할 수 있다는 정리이다. 이론적으로는
+              hidden layer가 한 개만 있어도 어떤 종류의 함수든 근사할 수 있다. 이 Theorem을 증명해 보도록 하자.
+            </p>
+            <img
+              class="half"
+              src="/study/deep_learning_for_computer_vision/lecture_5/img15.png"
+              alt="Universal Approximation Theorem"
+            />
+            <p class="math-center">
+              $h_i = \max(0, w_ix + b_i)$<br />
+              $y = \sum u_ih_i + p$
+            </p>
+            <p>
+              위 그림과 같이 2-Layer, hidden node가 3개인 Neural Network를 생각해 보자. 각 node의 activation function은
+              ReLU다. 이때 input node에서 hidden node로 갈 때만 activation function을 거친다고 가정하면 각 node의
+              output은 위 수식과 같다.
+            </p>
+            <img
+              class="half"
+              src="/study/deep_learning_for_computer_vision/lecture_5/img16.png"
+              alt="Universal Approximation Theorem"
+            />
+            <p>
+              이때 $\sum$ 안의 성분인 $u_ih_i$는 풀어서 쓰면 $u_i\max(0, w_ix + b_i)$가 되는데, 이는 위 그림과 같이 ReLU
+              함수를 flip, shift, scale한 것과 같다. 즉 $u$, $w$, $b$를 적절히 조절하여 ReLU 함수를 좌표상 어디든
+              위치시킬 수 있다.
+            </p>
+            <img class="half" src="/study/deep_learning_for_computer_vision/lecture_5/img17.png" alt="Bump Function" />
+            <p>증명을 위한 트릭은, ReLU 함수 4개를 이용해 위와 같이 bump function을 만드는 것이다.</p>
+            <img class="half" src="/study/deep_learning_for_computer_vision/lecture_5/img18.png" alt="Bump Function" />
+            <p>
+              위 그림과 같이 Bump function을 여러 개 합침으로써 어떤 함수든 근사할 수 있다. 이로써 2-Layer Neural
+              Network이기만 하면 임의의 함수를 만들어낼 수 있다는 것을 증명하였다. 이때 주의할 점은, Universal
+              Approximation Theorem은 어떤 함수든 그 함수를 근사할 수 있는 parameter의 조합이 "존재"하기는 한다는 것을
+              보여줄 뿐이지 실제로 그 parameter들을 찾는 것은 또 다른 문제다.
+            </p>
+            <img src="/study/deep_learning_for_computer_vision/lecture_5/img19.png" alt="Shallow vs Deep networks" />
+            <p>
+              Universal Approximation Theorem에서는 hidden layer가 한 개인 경우를 살펴봤지만, 실제로는 hidden layer가
+              많아질수록 더 효율적으로 근사할 수 있다. 위의 그림처럼 node의 총 개수가 같다고 하더라도 deep한 network가
+              성능이 더 좋다고 알려져 있다.
+            </p>
+
+            <h2>Summary</h2>
+            <p>
+              이번 강의에서는, 우선 raw 데이터에서 feature를 추출한 다음 그 feature를 이용해 분류를 수행하는 것이 성능을
+              개선할 수 있다는 것을 살펴보았다. Neural Network를 여러 층으로 쌓음으로써 feature를 추출하고 분류하는
+              과정을 한번에 수행할 수 있다는 것을 배웠다. 또한 Activation Function의 존재로 인하여 어떤 feature 추출
+              함수든 근사할 수 있다는 것을 직관적인 예시와 Universal Approximation Theorem을 통해 살펴보았다.
+            </p>
+            <p>지금까지의 흐름은 아래와 같다.</p>
+            <ol>
+              <li>Linear classifier 대신 Multi-Layer Neural Network 사용</li>
+              <li>이미지 분류 수행</li>
+              <li>Loss Function을 이용하여 성능 평가</li>
+              <li>Optimizer를 사용하여 $W$ 업데이트</li>
+            </ol>
+            <p>
+              다음 강의에서는 여러 층의 $W$와 activation function이 포함된 Multi-Layer의 경우 어떻게 모든 파라미터를
+              효율적으로 업데이트할 수 있을지 살펴보도록 하겠다.
+            </p>
           </div>
           <div class="post-footer">
             <div class="post-footer-profile">
