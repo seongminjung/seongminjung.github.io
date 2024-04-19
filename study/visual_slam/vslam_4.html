@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>3D Rigid Body Motion | 3. Quaternions</title>
+    <meta name="description" content="Seongmin Jung's personal website" />
+    <meta name="keywords" content="Seongmin Jung, Robotics" />
+    <meta name="author" content="Seongmin Jung" />
+    <meta name="language" content="English" />
+    <link rel="shortcut icon" href="/favicon.png" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LL44K1WZ0G"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "G-LL44K1WZ0G");
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML" async></script>
+
+    <!-- Load an icon library to show a hamburger menu (bars) on small screens -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <!-- import css -->
+    <link rel="stylesheet" href="/css/index.css" />
+    <!-- import js -->
+    <script src="/js/script.js" defer></script>
+  </head>
+
+  <body>
+    <header>
+      <img class="cover" src="/asset/cover.jpg" alt="Seongmin Jung" />
+      <h1 class="title"><a href="/index.html">Seongmin Jung</a></h1>
+      <nav class="nav">
+        <a href="/index.html">Home</a>
+        <a href="/projects.html">Projects</a>
+        <a href="/study.html" class="bold">Study</a>
+        <a href="/blog.html">Blog</a>
+        <i id="nav-toggle" class="nav-toggle fa fa-bars" onclick="toggleNav()"></i>
+      </nav>
+    </header>
+
+    <div id="nav-modal-bg" onclick="toggleNav()"></div>
+    <nav id="nav-modal">
+      <a href="/index.html">Home</a>
+      <a href="/projects.html">Projects</a>
+      <a href="/study.html" class="bold">Study</a>
+      <a href="/blog.html">Blog</a>
+    </nav>
+
+    <main>
+      <div class="container">
+        <section id="post">
+          <a id="series-tag" href="/study/visual_slam.html"><i class="fa fa-book"></i> Visual SLAM</a>
+          <h1>3D Rigid Body Motion | 3. Quaternions</h1>
+          <p class="date">Posted on <time datetime="2024-04-19">April 19, 2024</time></p>
+          <div class="post-body">
+            <h2>Quaternion</h2>
+            <img class="half" src="/study/visual_slam/vslam_4/img1.png" alt="Quaternion" />
+            <p>
+              앞선 포스팅에서 살펴보았듯, Rotation matrix는 redundancy를 가지고 있고 Rotation vector나 Euler angle은
+              singularity를 가지고 있다. 이러한 문제를 해결하기 위해, 단위 복소수를 이용하여 2D 평면에서 회전을 표현했던
+              것을 이용할 수 있다. 아래 수식과 같이 $\theta$만큼의 회전을 복소수로 표현할 수 있다.
+            </p>
+            <p class="math-center">$e^{i\theta} = \cos\theta + i\sin\theta$</p>
+            <p>
+              3차원 공간에서는 사원수라고 불리는 Quaternion을 이용하여 회전을 표현할 수 있다. Quaternion은 실수부가 1개,
+              허수부가 3개인 수이다. 아래 수식에서 $i$, $j$, $k$는 허수부를 나타낸다. 모든 허수부가 0이면 real
+              quaternion, 실수부가 0이면 imaginary quaternion이라고 부른다.
+            </p>
+            <p class="math-center">$\mathbf{q} = s + xi + yj + zk$</p>
+            <p>Quaternion은 아래와 같이 크기가 4인 벡터로도 표현할 수 있다.</p>
+            <p class="math-center">
+              $\mathbf{q} = [s, \mathbf{v}]^T, \quad s = s \in \mathbb{R}, \quad \mathbf{v} = [x, y, z]^T \in
+              \mathbb{R}^3$
+            </p>
+            <p>Quaternion의 세 허수부는 아래 수식과 같은 규칙을 따른다.</p>
+            <p class="math-center">
+              $i^2 = j^2 = k^2 = ijk = -1$<br />
+              $ij = k, \quad jk = i \quad ki = j$<br />
+              $ji = -k, \quad kj = -i, \quad ik = -j$
+            </p>
+            <p>
+              제곱을 할 경우 복소수와 마찬가지로 -1이 되며, $i$, $j$, $k$를 각각 $x$, $y$, $z$축으로 본다면 각
+              허수부끼리의 곱셈은 각 축에 해당하는 방향벡터끼리의 외적으로 볼 수 있다.
+            </p>
+
+            <h2>Quaternion Operations</h2>
+            <p>이 파트에서는 사원수간 연산 규칙에 대해 다루도록 하겠다. 일반적인 복소수와 비슷한 규칙을 가진다.</p>
+
+            <h3>Addition and Subtraction</h3>
+            <p class="math-center">$\mathbf{q}_1 \pm \mathbf{q}_2 = [s_1 \pm s_2, \mathbf{v}_1 \pm \mathbf{v}_2]^T$</p>
+
+            <h3>Multiplication</h3>
+            <p>
+              두 사원수 $\mathbf{q}_1 = [s_1, \mathbf{v}_1]^T$와 $\mathbf{q}_2 = [s_2, \mathbf{v}_2]^T$의 곱셈은 일반
+              복소수와 같이 분배법칙으로 계산할 수 있다.
+            </p>
+            <p class="math-center">
+              $\begin{align*} \mathbf{q}_1\mathbf{q}_2 & = s_1s_2 - x_1x_2 - y_1y_2 - z_1z_2 \\ & + (s_1x_2 + x_1s_2 +
+              y_1z_2 - z_1y_2)i \\ & + (s_1y_2 - x_1z_2 + y_1s_2 + z_1x_2)j \\ & + (s_1z_2 + x_1y_2 - y_1x_2 + z_1s_2)k
+              \end{align*}$
+            </p>
+            <p>아래와 같이 벡터 연산 형태로 간단하게 표현할 수도 있다.</p>
+            <p class="math-center">
+              $\mathbf{q}_1\mathbf{q}_2 = [s_1s_2 - \mathbf{v}_1^T\mathbf{v}_2, s_1\mathbf{v}_2 + s_2\mathbf{v}_1 +
+              \mathbf{v}_1 \times \mathbf{v}_2]^T$
+            </p>
+            <p>
+              이때, 벡터 연산 수식을 보면 외적이 포함되어 있기 때문에 $\mathbf{v}_1$, $\mathbf{v}_2$가 평행하지 않다면
+              교환법칙은 성립하지 않는다. 즉,
+            </p>
+            <p class="math-center">$\mathbf{q}_1\mathbf{q}_2 \neq \mathbf{q}_2\mathbf{q}_1$.</p>
+            <p>Quaternion 곱셈의 결합 법칙은 성립한다.</p>
+            <p class="math-center">$(\mathbf{q}_1\mathbf{q}_2)\mathbf{q}_3 = \mathbf{q}_1(\mathbf{q}_2\mathbf{q}_3)$</p>
+
+            <h3>Length</h3>
+            <p>Quaternion의 크기는 다음과 같이 정의된다.</p>
+            <p class="math-center">$\Vert\mathbf{q}\Vert = \sqrt{s^2 + x^2 + y^2 + z^2}$</p>
+            <p>
+              이때 두 quaternion의 곱의 크기는 각 quaternion의 크기를 곱한 것과 같다. 이 성질 덕분에 unit quaternion을
+              계속 곱하더라도 그 크기가 유지된다.
+            </p>
+            <p class="math-center">
+              $\Vert\mathbf{q}_1\mathbf{q}_2\Vert = \Vert\mathbf{q}_1\Vert\Vert\mathbf{q}_2\Vert$
+            </p>
+
+            <h3>Conjugate</h3>
+            <p>Quaternion의 켤레는 다음과 같이 모든 허수부의 부호를 바꾸는 것으로 정의된다.</p>
+            <p class="math-center">$\mathbf{q}^* = s - xi - yj - zk = [s, -\mathbf{v}]^T$</p>
+            <p>어떤 복소수와 그 켤레를 곱했을 경우 실수부가 그 복소수의 크기의 제곱인 real quaternion이 된다.</p>
+            <p class="math-center">$\mathbf{q}\mathbf{q}^* = \mathbf{q}^*\mathbf{q} = \Vert\mathbf{q}\Vert^2$</p>
+
+            <h3>Inverse</h3>
+            <p>Quaternion의 역수은 곱해서 1이 되는 수이다.</p>
+            <p class="math-center">$\mathbf{q}\mathbf{q}^{-1} = \mathbf{q}^{-1}\mathbf{q} = 1$</p>
+            <p>역수는 다음과 같이 계산할 수 있다.</p>
+            <p class="math-center">$\mathbf{q}^{-1} = \frac{\mathbf{q}^*}{\Vert\mathbf{q}\Vert^2}$</p>
+            <p>
+              이때, unit quaternion의 경우 켤레가 역수와 같기 때문에 unit quaternion을 곱한 뒤 역수를 취하면 행렬의 역을
+              취한 것과 유사한 결과가 나온다.
+            </p>
+            <p class="math-center">$(\mathbf{q_1}\mathbf{q_2})^{-1} = \mathbf{q_2}^{-1}\mathbf{q_1}^{-1}$</p>
+
+            <h3>Scalar Multiplication</h3>
+            <p>Quaternion의 상수배는 일반 복소수와 같이 정의된다.</p>
+            <p class="math-center">$c\mathbf{q} = [cs, c\mathbf{v}]^T$</p>
+
+            <h2>Use Quaternion to Represent a Rotation</h2>
+            <p>
+              Unit quaternion을 이용하여 어떻게 3차원 회전을 계산할 수 있을지 살펴보자.먼저 3차원 공간상의 점
+              $\mathbf{p} = [x, y, z]^T$가 있다고 하자. 우선 크기를 맞추기 위해 좌표값 3개를 허수부에 넣고 실수부에는
+              0을 할당하여 $\mathbf{p} = [0, x, y, z]^T$로 변환한다. 회전된 점을 $\mathbf{p}'$라고 하면, unit
+              quaternion을 이용하여 아래와 같이 연산을 수행할 수 있다.
+            </p>
+            <p class="math-center">
+              $\mathbf{p}' = \mathbf{q}\mathbf{p}\mathbf{q}^{-1} = \mathbf{q}\mathbf{p}\mathbf{q}^*$
+            </p>
+            <p>
+              이때의 곱셈은 위에서 정의한 quaternion간의 곱셈이고, 그 결과인 $\mathbf{p}'$는 실수부가 0인 unit
+              quaternion이다. 따라서 $\mathbf{p}'$의 허수부를 취하여 변환된 3차원 점을 구할 수 있다.
+            </p>
+
+            <h2>Conversion of Quaternions to Other Rotation Representations</h2>
+            <p>
+              Quaternion을 rotation matrix와 rotation vector로 변환하는 방법에 대해 살펴보자. 우선 두 가지 연산자 $^+$와
+              $^\oplus$를 정의하자.
+            </p>
+            <p class="math-center">$\mathbf{q} = [s, x, y, z]^T = [s, \mathbf{v}]^T$</p>
+            <p>일 때,</p>
+            <p class="math-center">
+              $\mathbf{q}^+ = \begin{bmatrix} s & -\mathbf{v}^T \\ \mathbf{v} & s\mathbf{I} + \mathbf{v}^\wedge
+              \end{bmatrix} = \begin{bmatrix} s & -x & -y & -z \\ x & s & -z & y \\ y & z & s & -x \\ z & -y & x & s
+              \end{bmatrix}$
+            </p>
+            <p class="math-center">
+              $\mathbf{q}^\oplus = \begin{bmatrix} s & -\mathbf{v}^T \\ \mathbf{v} & s\mathbf{I} - \mathbf{v}^\wedge
+              \end{bmatrix} = \begin{bmatrix} s & -x & -y & -z \\ x & s & z & -y \\ y & -z & s & x \\ z & y & -x & s
+              \end{bmatrix}$
+            </p>
+            <p>
+              위 두 연산은 quaternion을 4x4 행렬로 변환시킨다. 두 연산자 $^+$와 $^\oplus$를 사용하면 quaternion 곱셈을
+              아래와 같이 표현할 수 있다. 이때 $\mathbf{q}_1\mathbf{q}_2$는 quaternion 간 곱셈, 나머지 둘은 행렬 간
+              곱셈이다.
+            </p>
+            <p class="math-center">
+              $\mathbf{q}_1\mathbf{q}_2 = \mathbf{q}_1^+ \mathbf{q}_2 = \mathbf{q}_2^\oplus \mathbf{q}_1$
+            </p>
+            <p>각 연산자를 풀어서 쓰면 아래와 같다.</p>
+            <p class="math-center">
+              $\mathbf{q}_1^+\mathbf{q}_2 = \begin{bmatrix} s_1 & -\mathbf{v}_1^T \\ \mathbf{v}_1 & s_1\mathbf{I} +
+              \mathbf{v}_1^\wedge \end{bmatrix} \begin{bmatrix} s_2 \\ \mathbf{v}_2 \end{bmatrix} = \begin{bmatrix}
+              s_1s_2 - \mathbf{v}_1^T\mathbf{v}_2 \\ s_1\mathbf{v}_2 + s_2\mathbf{v}_1 + \mathbf{v}_1^\wedge\mathbf{v}_2
+              \end{bmatrix} = \mathbf{q}_1\mathbf{q}_2$
+            </p>
+            <p class="math-center">
+              $\mathbf{q}_2^\oplus\mathbf{q}_1 = \begin{bmatrix} s_2 & -\mathbf{v}_2^T \\ \mathbf{v}_2 & s_2\mathbf{I} -
+              \mathbf{v}_2^\wedge \end{bmatrix} \begin{bmatrix} s_1 \\ \mathbf{v}_1 \end{bmatrix} = \begin{bmatrix}
+              s_2s_1 - \mathbf{v}_2^T\mathbf{v}_1 \\ s_2\mathbf{v}_1 + s_1\mathbf{v}_2 - \mathbf{v}_2^\wedge\mathbf{v}_1
+              \end{bmatrix} = \mathbf{q}_1\mathbf{q}_2$
+            </p>
+          </div>
+          <div class="post-footer">
+            <div class="post-footer-profile">
+              <img src="/asset/cover.jpg" alt="Seongmin Jung" />
+              <h1>Seongmin Jung</h1>
+            </div>
+            <h2>
+              Other posts in
+              <a href="/study/visual_slam.html">Visual SLAM</a> series
+            </h2>
+            <ul>
+              <li>
+                <a href="/study/visual_slam/vslam_4.html">
+                  <span><b>3D Rigid Body Motion | 3. Quaternions</b></span>
+                  <time datetime="2024-04-19">April 19, 2024</time>
+                </a>
+              </li>
+              <li>
+                <a href="/study/visual_slam/vslam_3.html">
+                  <span>3D Rigid Body Motion | 2. Rotation Vectors and the Euler Angles</span>
+                  <time datetime="2024-04-19">April 19, 2024</time>
+                </a>
+              </li>
+              <li>
+                <a href="/study/visual_slam/vslam_2.html">
+                  <span>3D Rigid Body Motion | 1. Rotation Matrix</span>
+                  <time datetime="2024-03-28">March 28, 2024</time>
+                </a>
+              </li>
+              <li>
+                <a href="/study/visual_slam/vslam_1.html">
+                  <span>Introduction</span>
+                  <time datetime="2024-03-28">March 28, 2024</time>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2024 Seongmin Jung<br />Designed and developed by Seongmin Jung</p>
+    </footer>
+  </body>
+</html>
