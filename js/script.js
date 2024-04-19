@@ -103,6 +103,9 @@ function showTabContent(tabName) {
 tabButtons.forEach((button) => {
   button.addEventListener("click", function (e) {
     let tabName = this.textContent.toLowerCase();
+    if (tabName == "all posts") {
+      tabName = "all-posts";
+    }
     if (tabName == "paper summaries") {
       tabName = "paper-summaries";
     }
@@ -118,9 +121,9 @@ tabButtons.forEach((button) => {
 });
 
 window.addEventListener("load", (event) => {
-  // Call showTabContent() on load, default tab is "post" or "travel"
-  // showTabContent("post") if it is study.html, and "travel" if it is blog.html
-  let tabName = "post";
+  // Call showTabContent() on load, default tab is "all-posts" or "travel"
+  // showTabContent("all posts") if it is study.html, and "travel" if it is blog.html
+  let tabName = "all-posts";
   if (window.location.pathname.includes("blog")) {
     tabName = "travel";
   }
