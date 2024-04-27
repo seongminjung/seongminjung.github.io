@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lecture 7: Convolutional Networks</title>
+    <meta name="description" content="Seongmin Jung's personal website" />
+    <meta name="keywords" content="Seongmin Jung, Robotics" />
+    <meta name="author" content="Seongmin Jung" />
+    <meta name="language" content="English" />
+    <link rel="shortcut icon" href="/favicon.png" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LL44K1WZ0G"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "G-LL44K1WZ0G");
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML" async></script>
+
+    <!-- Load an icon library to show a hamburger menu (bars) on small screens -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <!-- import css -->
+    <link rel="stylesheet" href="/css/index.css" />
+    <!-- import js -->
+    <script src="/js/script.js" defer></script>
+  </head>
+
+  <body>
+    <header>
+      <img class="cover" src="/asset/cover.jpg" alt="Seongmin Jung" />
+      <h1 class="title"><a href="/index.html">Seongmin Jung</a></h1>
+      <nav class="nav">
+        <a href="/index.html">Home</a>
+        <a href="/projects.html">Projects</a>
+        <a href="/study.html" class="bold">Study</a>
+        <a href="/blog.html">Blog</a>
+        <i id="nav-toggle" class="nav-toggle fa fa-bars" onclick="toggleNav()"></i>
+      </nav>
+    </header>
+
+    <div id="nav-modal-bg" onclick="toggleNav()"></div>
+    <nav id="nav-modal">
+      <a href="/index.html">Home</a>
+      <a href="/projects.html">Projects</a>
+      <a href="/study.html" class="bold">Study</a>
+      <a href="/blog.html">Blog</a>
+    </nav>
+
+    <main>
+      <div class="container">
+        <section id="post">
+          <a id="series-tag" href="/study/deep_learning_for_computer_vision.html"
+            ><i class="fa fa-book"></i> Deep Learning for Computer Vision</a
+          >
+          <h1>Lecture 7: Convolutional Networks</h1>
+          <p class="date">Posted on <time datetime="2024-04-27">April 27, 2024</time></p>
+          <div class="post-body">
+            <h2>Convolutional Layers</h2>
+            <p>
+              지금까지 다루었던 Fully-Connected Layer의 경우, 인풋 데이터 $\mathbf{x}$ 전체에 가중치 $\mathbf{W}$를
+              곱하는 방식이다. 즉, $f(\mathbf{x}) = \mathbf{W} \cdot \mathbf{x}$로 표현된다. 이는 아래 이미지와 같이
+              인풋과 같은 크기와 채널 수를 가지는 Weight Matrix를 만들고, 이를 인풋 데이터와 element-wise
+              multiplication한 후 모두 더하는 것으로 해석할 수 있다. 학습 결과 이 Weight Matrix는 각 클래스 자체를
+              대변하는 Template이 된다.
+            </p>
+            <img
+              class="half"
+              src="/study/deep_learning_for_computer_vision/lecture_7/img1.png"
+              alt="Fully-Connected Layer"
+            />
+            <img src="/study/deep_learning_for_computer_vision/lecture_7/img2.png" alt="Template" />
+            <p>
+              이러한 방식의 단점으로, 각 템플릿은 '융통성'이 없다. 즉, 템플릿에 나타난 바로 그 위치에 물체가 있을 때만
+              높은 점수를 주고, 물체의 위치가 조금이라도 다르면 낮은 점수를 준다. 그렇다면 이미지 전체를 대상으로 하나의
+              큰 템플릿 매칭을 하는 것이 아니라, 물체의 작은 특징들에 대한 템플릿을 구하고 이러한 템플릿을 모아 물체를
+              판별하면 어떨까?
+            </p>
+            <p>
+              Convolutional Layer가 바로 그 역할을 한다. 이미지보다 작은 크기의 템플릿인 '필터'를 만들고, 이미지의
+              '일부분'과 element-wise multiplication한 후 모두 더하는 방식을 사용한다.
+            </p>
+            <img
+              class="half"
+              src="/study/deep_learning_for_computer_vision/lecture_7/img3.png"
+              alt="Convolutional Layer"
+            />
+            <p>
+              위 그림이 이에 해당되는데, 3x5x5 크기의 영역만을 활용하여 element-wise multiplication을 수행하고 모두
+              더하여 숫자 하나를 만들어낸다. 그 숫자가 바로 이미지의 해당 영역에서의 그 템플릿에 대한 점수이다.
+            </p>
+            <p>
+              템플릿을 이미지의 좌상단부터 우하단까지 이동시키면서 각 위치에 대한 점수를 계산할 수 있고, 이 숫자를 모아
+              2D Matrix로 표현할 수 있다. 이를 Activation map이라고 한다. 따라서 Activation map에는 그 필터가 찾고자
+              하는 특징이 있는 영역에 높은 값이 들어가고, 그렇지 않은 영역에는 낮은 값이 들어간다.
+            </p>
+            <img class="half" src="/study/deep_learning_for_computer_vision/lecture_7/img4.png" alt="Activation Map" />
+            <p>
+              이때 여러가지 특징에 대해 각각의 템플릿(필터)를 적용하면 아래 그림과 같이 필터 개수만큼의 Activation map이
+              나오게 된다.
+            </p>
+            <img
+              class="half"
+              src="/study/deep_learning_for_computer_vision/lecture_7/img5.png"
+              alt="Convolutional Layer"
+            />
+            <p>
+              마지막으로, training 과정에서는 하나의 이미지가 아닌 mini-batch로 여러 이미지를 한 번에 처리한다. 따라서
+              하나의 batch가 들어왔을 때의 activation map은 아래 그림과 같다.
+            </p>
+            <img
+              class="half"
+              src="/study/deep_learning_for_computer_vision/lecture_7/img6.png"
+              alt="Convolutional Layer, Mini-Batch"
+            />
+            <p>
+              즉, input shape는 $N \times C_{in} \times H \times W$, filter shape는 $C_{out} \times C_{in} \times K_h
+              \times K_w$일 때, output shape는 $N \times C_{out} \times H_{out} \times W_{out}$이다. 각 파라미터의
+              의미는 다음과 같다.
+            </p>
+            <ul>
+              <li>$N$: batch size</li>
+              <li>$C_{in}$: input channel</li>
+              <li>$C_{out}$: output channel</li>
+              <li>$H$: input height</li>
+              <li>$W$: input width</li>
+              <li>$H_{out}$: output height</li>
+              <li>$W_{out}$: output width</li>
+              <li>$K_h$: filter height</li>
+              <li>$K_w$: filter width</li>
+            </ul>
+            <p>
+              그 결과, 아래와 같이 filter들을 visualize할 수 있다. 전체적인 물체의 형태 대신 모서리나 원 등 작은
+              기하학적 특징을 찾는 것을 확인할 수 있다.
+            </p>
+            <img
+              class="half"
+              src="/study/deep_learning_for_computer_vision/lecture_7/img7.png"
+              alt="Visualization of Filters"
+            />
+
+            <h3>Stacking Convolutions</h3>
+            <img
+              class="half"
+              src="/study/deep_learning_for_computer_vision/lecture_7/img8.png"
+              alt="Stacking Convolutions"
+            />
+            <p>
+              Convolutional Layer를 여러 층으로 쌓으면 더 복잡한 특징을 찾을 수 있다. 첫 번째 Convolutional Layer가
+              이미지에서 직접 특징을 찾는다면, 그 다음 Convolutional Layer부터는 Activation map에서 특징을 찾는다. 그
+              말은, 앞에서 찾은 작은 특징을 조합하여 더 고차원적인 특징을 찾는다는 것이다. 이미지의 한 부분에서 특징 A가
+              높게 나오고 그 바로 옆에서는 특징 B가 높게 나온다면, 다음 layer에서는 이 둘을 조합하여 고차원적인 특징 C를
+              찾을 수 있는 것이다.
+            </p>
+            <p>
+              이때 두 Convolutional Layer 사이에 Activation Function을 추가하여 두 Layer가 하나로 합쳐지는 것을
+              방지한다. 주로 ReLU 함수를 사용한다.
+            </p>
+            <img src="/study/deep_learning_for_computer_vision/lecture_7/img9.png" alt="Receptive Field" />
+            <p>
+              위 그림은 여러 Convolutional Layer가 쌓였을 때, output의 한 element에 영향을 미치는 이전 layer의 영역을
+              표시한다. 이를 Receptive Field라고 한다. Layer가 많아질수록 Receptive Field가 커지며, 이는 작은 필터로도
+              더 넓은 영역에 걸친 특징까지 찾아낼 수 있다는 것을 의미한다. Receptive Field의 한 변의 길이는 아래의
+              수식으로 계산할 수 있다. $L$을 Layer의 개수라고 할 때,
+            </p>
+            <p class="math-center">$RF = 1 + L \times (K - 1)$</p>
+            <p>
+              가 된다. 위 그림에서 input layer의 Receptive Field를 구해 보면, 총 3개의 Layer를 거쳤으므로 $1 + 3 \times
+              (3 - 1) = 7$이 된다.
+            </p>
+
+            <h3>Padding</h3>
+            <img class="half" src="/study/deep_learning_for_computer_vision/lecture_7/img10.png" alt="Shrinking" />
+            <p>
+              위 이미지를 보면, Convolutional Layer를 거치면서 이미지의 크기가 줄어드는 것을 확인할 수 있다. 인풋
+              이미지가 한 변의 길이가 $W$인 정사각형이고 필터의 크기가 $K$라면, Convolutional Layer를 거치면 이미지의 한
+              변의 길이는 $W - K + 1$이 된다.
+            </p>
+            <p>
+              이를 방지하기 위해 이미지의 모서리에 0으로 채워진 여분의 픽셀을 덧대는 방식을 사용하는데, 이를
+              Padding이라고 한다.
+            </p>
+            <img class="half" src="/study/deep_learning_for_computer_vision/lecture_7/img11.png" alt="Padding" />
+            <p>
+              위 예시의 경우, 원래는 7x7 이미지에 3x3 필터를 적용하면 5x5 Activation map이 나오게 된다. 이때 이미지의
+              모서리에 1픽셀 크기의 Padding을 적용하면 총 9x9 이미지가 되고, 여기에 3x3 필터를 적용하면 기존과 동일한
+              크기인 7x7 Activation map이 나오게 된다.
+            </p>
+            <p>Padding까지 고려한 Activation map의 크기는 아래와 같이 계산할 수 있다. $P$를 Padding의 크기라고 하자.</p>
+            <p class="math-center">$W_{out} = W - K + 1 + 2P$</p>
+            <p>또한 $W_{out} = W$를 맞추기 위해, 보편적으로 $P = \frac{K - 1}{2}$로 설정한다.</p>
+
+            <h3>Stride</h3>
+            <p>
+              Filter를 sliding할 간격을 직접 설정할 수 있는데, 이를 Stride라 한다. Stride가 1이면 한 픽셀씩 이동하고,
+              2이면 두 픽셀씩 이동한다. Stride에 따라서도 Activation map의 크기가 달라진다.
+            </p>
+            <img class="half" src="/study/deep_learning_for_computer_vision/lecture_7/img12.png" alt="Stride" />
+            <p>
+              위 그림처럼 이미지의 크기가 7이고 필터의 크기가 3일 때, Stride가 2인 경우 Activation map의 크기는 3이
+              된다. 이를 일반화하면 아래와 같다. $S$를 Stride의 크기라 하자.
+            </p>
+            <p class="math-center">$W_{out} = \frac{W - K + 2P}{S} + 1$</p>
+            <p>보편적인 파라미터들의 조합은 다음과 같다.</p>
+            <ul>
+              <li>$K = 3, P = 1, S = 1$: 3x3 conv</li>
+              <li>$K = 5, P = 2, S = 1$: 5x5 conv</li>
+              <li>$K = 1, P = 0, S = 1$: 1x1 conv</li>
+              <li>$K = 3, P = 1, S = 2$: 3x3 conv, stride 2</li>
+            </ul>
+            <p>
+              Stride를 통해 Activation map의 크기를 줄일 수 있으며, 이는 아래에 살펴볼 Pooling Layer와 유사하게
+              downsampling을 하는 효과가 있다.
+            </p>
+
+            <h2>Pooling Layers</h2>
+            <p>
+              Pooling Layer는 downsampling을 통해 이미지의 크기를 줄이는 Layer이다. 크게 세 가지 이유로 downsampling을
+              하게 되는데, 첫 번째로 Receptive Field를 적은 수의 Layer로 늘릴 수 있으며 두 번째로 연산량을 줄일 수 있다.
+              마지막으로는, 특히 Max Pooling의 경우 작은 변화에 대해 불변성을 부여할 수 있다. 예를 들어, 이미지가 한두
+              픽셀 이동하거나 회전하더라도 Max Pooling을 거치면 Activation map이 크게 변하지 않게 된다.
+            </p>
+            <p>Pooling Layer에는 세 가지 Hyperparameter가 존재한다.</p>
+            <ul>
+              <li>Pooling Function: Max Pooling, Average Pooling 등</li>
+              <li>Kernel Size: Pooling을 적용할 영역의 크기</li>
+              <li>Stride: Pooling을 적용할 간격</li>
+            </ul>
+            <img class="half" src="/study/deep_learning_for_computer_vision/lecture_7/img13.png" alt="Pooling" />
+            <p>
+              위 예시는 4x4 이미지에 2x2 Kernel Size로 Max Pooling을 적용한 결과이다. 각 영역별로 가장 큰 값을 선택하여
+              Activation map을 만들게 된다. Average Pooling의 경우 최댓값 대신 평균값을 이용한다는 것 외에는 모두
+              동일하다. Pooling Layer에는 학습 가능한 파라미터가 없으며, Max Pooling이나 Average Pooling 등 미리 정해진
+              함수를 사용한다. Pooling Layer에서는 Padding을 사용하지 않는다.
+            </p>
+            <p>
+              Max Pooling이 가장 보편적으로 사용되는 Pooling Function인데, 그 이유는 Convolution Layer의 목적 자체가
+              이미지의 각 영역에 우리가 원하는 특징이 있는지를 찾는 것이기 때문이다. 따라서 score 값이 큰 픽셀이 있다면,
+              그곳에는 우리가 찾고자 하는 특징이 있다는 뜻이기 때문에 그 정보를 유지하여 다음 Layer로 넘기는 것이
+              유리하다.
+            </p>
+            <p>
+              Pooling Layer의 output shape는 다음과 같이 계산할 수 있다. $K$를 필터의 크기, $S$를 Stride의 크기라 하자.
+            </p>
+            <p class="math-center">$W_{out} = \frac{W - K}{S} + 1$</p>
+            <p>보편적인 파라미터들의 조합은 다음과 같다.</p>
+            <ul>
+              <li>Max Pooling, $K = 2, S = 2$</li>
+              <li>Max Pooling, $K = 3, S = 2$ (AlexNet)</li>
+            </ul>
+          </div>
+          <div class="post-footer">
+            <div class="post-footer-profile">
+              <img src="/asset/cover.jpg" alt="Seongmin Jung" />
+              <h1>Seongmin Jung</h1>
+            </div>
+            <h2>
+              Other posts in
+              <a href="/study/deep_learning_for_computer_vision.html">Deep Learning for Computer Vision</a> series
+            </h2>
+            <ul>
+              <li>
+                <a href="/study/deep_learning_for_computer_vision/lecture_7.html">
+                  <span><b>Lecture 7: Convolutional Networks</b></span>
+                  <time datetime="2024-04-27">April 27, 2024</time>
+                </a>
+              </li>
+              <li>
+                <a href="/study/deep_learning_for_computer_vision/lecture_6.html">
+                  <span>Lecture 6: Backpropagation</span>
+                  <time datetime="2024-04-20">April 20, 2024</time>
+                </a>
+              </li>
+              <li>
+                <a href="/study/deep_learning_for_computer_vision/lecture_5.html">
+                  <span>Lecture 5: Neural Networks</span>
+                  <time datetime="2024-04-18">April 18, 2024</time>
+                </a>
+              </li>
+              <li>
+                <a href="/study/deep_learning_for_computer_vision/lecture_4.html">
+                  <span>Lecture 4: Optimization</span>
+                  <time datetime="2024-04-02">April 2, 2024</time>
+                </a>
+              </li>
+              <li>
+                <a href="/study/deep_learning_for_computer_vision/lecture_3.html">
+                  <span>Lecture 3: Linear Classifiers</span>
+                  <time datetime="2024-03-28">March 28, 2024</time>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2024 Seongmin Jung<br />Designed and developed by Seongmin Jung</p>
+    </footer>
+  </body>
+</html>
