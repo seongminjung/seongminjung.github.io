@@ -258,6 +258,139 @@
               <li>Max Pooling, $K = 2, S = 2$</li>
               <li>Max Pooling, $K = 3, S = 2$ (AlexNet)</li>
             </ul>
+
+            <h2>Batch Normalization</h2>
+            <p>
+              Batch Normalization은 인풋 데이터의 분포를 일정하게 하여 training 수렴 속도를 높이는 유용한 방법이다.
+              Network가 깊어도 빠르게 잘 수렴하도록 해 준다.
+            </p>
+
+            <h3>Train Time</h3>
+            <p>
+              Training 시 Mini-Batch 단위로 학습을 진행하게 되는데, 한 레이어의 파라미터가 업데이트됨으로 인하여 다음
+              레이어의 입력 데이터의 분포가 변하게 된다. 즉, 다음 레이어로 들어오는 mini-batch의 평균이나 분산이 데이터
+              자체가 다르기 때문뿐만 아니라 이전 레이어로 인해 바뀌는 것이다. 이를 Internal Covariate Shift라고 한다.
+            </p>
+            <img
+              class="half"
+              src="/study/deep_learning_for_computer_vision/lecture_7/img14.png"
+              alt="Internal Covariate Shift"
+            />
+            <p>
+              위 그림과 같이, layer를 많이 거칠수록 초기 layer의 작은 파라미터 변화가 batch 전체 평균이나 분산의 큰
+              변화를 가져오는 문제가 발생한다. 따라서 뒤쪽 layer의 경우 이전 batch로 파라미터를 업데이트했는데 이전과
+              유사한 데이터가 들어오지 않으니 weight update가 step마다 불규칙적으로 진행되거나 weight의 각 element
+              간에도 update되는 속도가 달라지는 문제가 발생한다. 이는 결과적으로 optimization의 속도를 늦추게 된다.
+            </p>
+            <img
+              class="half"
+              src="/study/deep_learning_for_computer_vision/lecture_7/img15.png"
+              alt="Batch Normalization"
+            />
+            <p>
+              이러한 문제를 해결하기 위해, 위 그림과 같이 각 conv layer에서 output이 출력될 때마다 그 batch 내
+              이미지들의 평균과 분산을 $\beta$, $\gamma$로 변환시켜 준다. 이때 $\beta$, $\gamma$는 node마다 하나씩
+              할당되는데, 지금까지 지나간 batch들을 통해 최적화된 "공통 평균", "공통 분산"에 해당한다. 이를 Batch
+              Normalization이라 한다. 주로 conv layer 또는 FC layer와 Activation function 사이에 적용된다.
+            </p>
+            <p>
+              Batch 내 이미지들의 평균과 분산을 원하는 값으로 변환시키기 위해서는, 우선 그 batch 내에서 평균과 분산을
+              각각 0과 1로 표준화시켜야 한다. 이때 Batch Normalization은 채널별로 수행되므로, 한 batch에 RGB 이미지
+              100장이 있다면 R채널 100장, G채널 100장, B채널 100장으로 분리한 뒤 각 채널별로 100장의 모든 픽셀값을
+              이용해 연산을 수행한다. 따라서 $\beta$, $\gamma$는 그 크기가 채널의 개수인 벡터가 된다.
+            </p>
+            <img
+              class="half"
+              src="/study/deep_learning_for_computer_vision/lecture_7/img16.png"
+              alt="Batch Normalization Variables"
+            />
+            <p>Batch Normalization 관련 변수의 shape는 위 그림과 같다.</p>
+            <p class="math-center">
+              $\begin{align*} \mu_j & = \cfrac{1}{N} \sum_{i=1}^{N} x_{i, j} \\ \sigma_j^2 & = \cfrac{1}{N}
+              \sum_{i=1}^{N} (x_{i, j} - \mu_j)^2 \\ \hat{x}_{i, j} & = \cfrac{x_{i, j} - \mu_j}{\sqrt{\sigma_j^2 +
+              \epsilon}} \\ y_{i, j} & = \gamma_j \hat{x}_{i, j} + \beta_j\end{align*}$
+            </p>
+            <p>
+              위 수식은 한 batch 내 이미지를 평균이 0, 분산이 1인 분포로 변환시킨 후 $\beta$, $\gamma$를 이용해 원하는
+              분포로 만드는 과정이다. $x_{i, j}$는 $i$번째 이미지의 $j$번째 채널, $y_{i, j}$는 $i$번째 이미지의 $j$번째
+              채널의 Normalize된 값이다. $\epsilon$ 은 분모가 0이 되는 것을 방지하기 위한 작은 상수이다.
+            </p>
+            <p>
+              이때, $\beta$와 $\gamma$는 학습 가능한 파라미터이다. 즉, 사람이 직접 설정한 값이 아니라 batch가 지날
+              때마다 업데이트된다. 이는 batch 내의 평균과 분산 또한 데이터의 특성이 될 수 있기 때문인데, 평균과 분산을
+              완전히 없애는 대신 학습 가능한 파라미터로 두어 네트워크가 스스로 최적화할 수 있도록 한다.
+            </p>
+            <p>
+              Batch Normalization을 통해 각 채널의 평균과 분산을 통일해 줌으로써 앞 레이어의 파라미터들이
+              업데이트되더라도 이미지들이 일정한 분포를 가지게 해 준다. 그 결과, learning rate를 크게 하거나 sigmoid 등
+              saturate되는 activation function을 사용할 수 있고, weight initialization에도 덜 영향을 받게 된다.
+            </p>
+
+            <h3>Test Time</h3>
+            <p>
+              Training을 할 때에는 batch별로 $\mu$와 $\sigma$를 구할 수 있지만, test 시에는 mini-batch가 없다. 따라서,
+              test 시에는 training 때 구해놓은 $\mu$와 $\sigma$를 사용해야 한다. 각 mini-batch가 지나갈 때마다 moving
+              average를 통해 값을 가중치 평균하여 전체 데이터에 대한 $\mu^{test}_j$와 $\sigma^{test}_j$를 구하게 된다.
+            </p>
+            <p class="math-center">
+              $\begin{align*} \mu^{test}_j & = 0.99 \mu^{test}_j + 0.01 \mu_j \\ \sigma^{test}_j & = 0.99
+              \sigma^{test}_j + 0.01 \sigma_j \end{align*}$
+            </p>
+            <p>
+              이 과정을 통해 test 시에도 Batch Normalization을 적용할 수 있게 된다. 이때는 $\mu^{test}_j$와
+              $\sigma^{test}_j$가 고정된 값이므로, Convolutional layer의 weight와 bias에 포함되어 함께 계산될 수 있다.
+              이를 통해 test 시에는 Batch Normalization의 연산량이 사실상 0이 된다.
+            </p>
+
+            <h3>Batch Normalization Results</h3>
+            <img
+              class="half"
+              src="/study/deep_learning_for_computer_vision/lecture_7/img17.png"
+              alt="Batch Normalization Results"
+            />
+            <p>
+              Batch Normalization 여부에 따른 학습 속도를 그래프로 비교하면 위 그림과 같다. Batch Normalization을 적용한
+              경우(파란색 실선) 그렇지 않은 경우(검은색 점선)보다 학습이 훨씬 빠르게 진행되는 것을 확인할 수 있다.
+            </p>
+            <ul>
+              <li>Learning rate를 크게 해도 학습이 잘 진행된다.</li>
+              <li>Weight initialization에 덜 민감하다.</li>
+              <li>Regularizaion의 역할을 한다.</li>
+              <li>Test 시 추가적인 연산이 필요하지 않다.</li>
+            </ul>
+            <p>
+              Batch Normalization은 위와 같은 장점들이 있지만, 이론적으로 완전히 검증되지 않았고 training과
+              testing에서의 동작이 달라 버그의 요인이 될 가능성이 높다는 단점이 있다. 그럼에도 Batch Normalization은
+              현재 수많은 Deep network에 필수적으로 사용되고 있다.
+            </p>
+
+            <h3>Variants of Batch Normalization</h3>
+            <img class="half" src="/study/deep_learning_for_computer_vision/lecture_7/img18.png" alt="Variants" />
+
+            <h4>Layer Normalization</h4>
+            <img
+              class="half"
+              src="/study/deep_learning_for_computer_vision/lecture_7/img19.png"
+              alt="Layer Normalization"
+            />
+            <p>
+              Layer Normalization은 FC layer나 RNN, Transformer 등에서 사용되는 방법이다. Batch Normalization이 채널
+              단위로 평균과 분산을 구하는 것과 달리, Layer Normalization에서는 각 batch에 대해 평균과 분산을 구한다. FC
+              layer에서는 각 인풋이 벡터이기 때문에 이러한 연산이 가능하다. 다만 이 방식은 앞선 레이어에 포함되어 함께
+              연산할 수 없기 때문에 따로 forward pass와 backpropagation을 수행해야 한다.
+            </p>
+
+            <h4>Instance Normalization</h4>
+            <img
+              class="half"
+              src="/study/deep_learning_for_computer_vision/lecture_7/img20.png"
+              alt="Instance Normalization"
+            />
+            <p>
+              Instance Normalization은 CNN에서 사용되는데, 각 이미지를 독립적으로 생각하여 한 이미지에 대해서만 채널별
+              픽셀값들의 평균과 분산을 구하는 방식이다. 각 이미지가 독립적으로 처리되기 때문에 Batch Normalization과
+              달리 training과 test 시의 동작이 같다.
+            </p>
           </div>
           <div class="post-footer">
             <div class="post-footer-profile">
