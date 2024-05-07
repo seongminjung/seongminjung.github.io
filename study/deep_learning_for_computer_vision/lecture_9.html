@@ -109,7 +109,8 @@
             </p>
             <p>
               첫 번째 단점으로는, Sigmoid는 saturate하는 경향이 있다. 즉, 입력값이 크거나 작을 때 각각 1과 0으로
-              수렴하기 때문에 gradient가 0에 가까워지는 vanishing gradient 문제가 발생한다.
+              수렴하기 때문에 gradient가 0에 가까워지는 문제가 발생한다. 이를 <b>Vanishing Gradient Problem</b>이라고
+              한다.
             </p>
             <p class="math-center">
               $\cfrac{\partial L}{\partial x} = \cfrac{\partial \sigma}{\partial x} \cdot \cfrac{\partial L}{\partial
@@ -159,6 +160,15 @@
             </p>
 
             <h3>Tanh</h3>
+            <p>Tanh 함수는 아래와 같이 정의된다.</p>
+            <p class="math-center">$f(x) = \tanh(x) = \cfrac{e^x - e^{-x}}{e^x + e^{-x}}$</p>
+            <p>
+              Tanh 함수는 Sigmoid 함수를 y축 방향으로 단순히 scale과 shift한 것으로, 인풋을 -1과 1 사이의 값으로
+              압축시킨다. 따라서 zero-centered되어 있다는 장점이 있지만 그 외 특성은 모두 Sigmoid와 동일하다. 따라서
+              Sigmoid와 마찬가지로 오늘날 거의 쓰이지 않는다.
+            </p>
+
+            <h3>ReLU</h3>
           </div>
           <div class="post-footer">
             <div class="post-footer-profile">
