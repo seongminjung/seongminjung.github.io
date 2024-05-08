@@ -168,7 +168,87 @@
               Sigmoid와 마찬가지로 오늘날 거의 쓰이지 않는다.
             </p>
 
-            <h3>ReLU</h3>
+            <h3>ReLU (Rectified Linear Unit)</h3>
+            <p>ReLU 함수는 아래와 같이 정의된다.</p>
+            <p class="math-center">$f(x) = \max(0, x)$</p>
+            <p>
+              ReLU 함수는 $x$가 양수일 때 saturate하지 않는다는 장점이 있고 연산도 매우 효율적이다. 또한 Sigmoid나
+              tanh보다 6배 정도 빠르게 수렴한다고 알려져 있다. 다만 ReLU는 zero-centered되어 있지 않으며 모든 출력값이
+              양수라는 단점도 가지고 있다.
+            </p>
+            <p>
+              그보다 더 큰 문제는 $x$가 음수일 때 gradient가 0이 되는 문제이다. 이로 인해 출력이 음수인 뉴런의 경우 전혀
+              학습을 하지 못하는데, 이를 <b>Dead ReLU Problem</b>이라고 한다. 데이터셋의 모든 이미지에 대해 뉴런의
+              출력값이 음수일 경우 그 뉴런은 어떤 mini-batch를 사용하더라도 전혀 학습하지 못한다. Dead neuron은 연산은
+              그대로 하지만 의미 있는 출력을 내보내지 못해 연산량의 낭비를 가져온다. 하지만 Batch Normalization 등을
+              사용하기 때문에 이 문제는 실제로는 잘 발생하지 않는다.
+            </p>
+
+            <h3>Leaky ReLU</h3>
+            <p>Leaky ReLU 함수는 아래와 같이 정의된다.</p>
+            <p class="math-center">$f(x) = \max(\alpha x, x)$</p>
+            <p>
+              Leaky ReLU는 ReLU의 Dead ReLU Problem을 해결하기 위해 나온 함수로, $x$가 음수일 때 gradient가 0이 되는
+              문제를 해결한다. $\alpha$는 일반적으로 0.1로 설정한다. $x$가 음수일 때에도 gradient가 0이 되지 않기 때문에
+              saturate되거나 Dead ReLU Problem이 발생하지 않는다.
+            </p>
+            <p>
+              Leaky ReLU의 한 가지 변형으로 Parametric ReLU가 있다. 이는 $\alpha$를 학습 가능한 파라미터로 설정한
+              것인데, backpropagation을 통해 최적의 $\alpha$를 찾는다.
+            </p>
+
+            <h3>ELU (Exponential Linear Unit)</h3>
+            <p>ELU 함수는 아래와 같이 정의된다.</p>
+            <p class="math-center">
+              $f(x) = \begin{cases} x & \text{if } x > 0 \\ \alpha (e^x - 1) & \text{if } x \leq 0 \end{cases}$
+            </p>
+            <p>
+              ELU는 ReLU의 형태와 유사하지만 음수 부분을 부드럽게 만든 함수이다. ReLU의 장점을 그대로 가지며, 추가적으로
+              output의 평균을 조금 더 0에 가깝게 할 수 있으며 noise에 조금 더 robust하다. 다만 음수에서 saturate하며
+              지수함수 연산이 있기 때문에 ReLU보다 연산량이 많은 편이라는 단점이 있다.
+            </p>
+
+            <h3>SELU (Scaled Exponential Linear Unit)</h3>
+            <p>SELU 함수는 아래와 같이 정의된다.</p>
+            <p class="math-center">
+              $f(x) = \begin{cases} \lambda x & \text{if } x > 0 \\ \lambda\alpha (e^x - 1) & \text{if } x \leq 0
+              \end{cases}$
+            </p>
+            <p class="math-center">$\alpha = 1.673263242354..., \quad \lambda = 1.050700987355...$</p>
+            <p>
+              SELU는 ELU의 scale된 버전이다. ELU와 비슷하지만 $\alpha$와 $\lambda$가 위의 특정 값일 때
+              "Self-Normalizing"되는 특성을 가지는데, 이는 Batch Normalization 없이도 깊은 네트워크를 트레이닝할 수 있게
+              하는 특성이다. 하지만 실제로 잘 사용되는 activation function은 아니다.
+            </p>
+
+            <h3>GELU (Gaussian Error Linear Unit)</h3>
+            <p>GELU 함수는 아래와 같이 정의된다.</p>
+            <p class="math-center">
+              $\begin{gather} X \sim N(0, 1) \\ f(x) = xP(X \leq x) = \cfrac{x}{2}(1 + \text{erf}(\cfrac{x}{\sqrt{2}}))
+              \end{gather}$
+            </p>
+            <p>
+              이때, $X$가 Gaussian 분포를 따르므로 $x$가 클수록 $P(X \leq x)$는 1에 가까워질 것이고 작을수록 0에
+              가까워질 것이다. 따라서 ReLU와 비슷하면서도 부드러운 곡선의 형태를 가진다. Transformer에서 주로 사용된다.
+            </p>
+            <p>
+              GELU의 한 가지 특징으로는 non-monotonic하다는 점인데, 즉 $x$가 음수일 때 그래프가 아래로 튀어나온 부분이
+              있다. 따라서 두 개의 $x$값이 동일한 출력을 내는 경우가 생긴다. 이 경우, 그 다음 node가 원래 입력이 정확히
+              무엇인지 모른 채로 추론을 진행해야 하므로 약간의 stochasticity를 가진다. 이를 통해 약간의 regularization
+              효과를 얻을 수 있다.
+            </p>
+            <img
+              src="/study/deep_learning_for_computer_vision/lecture_9/img3.png"
+              alt="Activation function performances"
+            />
+            <p>
+              위 그림은 각 activation function의 성능을 여러 모델에서 비교한 결과이다. 이때, 수치를 보면 Sigmoid와
+              tanh를 제외하면 어떤 activation function을 쓰더라도 차이가 1~2퍼센트 이상 크지 않다. 따라서 activation
+              function을 고르는 데 시간을 너무 많이 쓰기보다는 ReLU를 사용하여 우선 진행하고, 최종적으로 마지막 0.1%의
+              성능을 끌어내야 할 때 여러 activation function을 비교하는 것이 좋다.
+            </p>
+
+            <h2>Data Preprocessing</h2>
           </div>
           <div class="post-footer">
             <div class="post-footer-profile">
