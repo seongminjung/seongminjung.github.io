@@ -262,8 +262,9 @@
             <img class="half" src="/study/deep_learning_for_computer_vision/lecture_11/img14.png" alt="ShuffleNet" />
             <p>
               이러한 Channel Shuffle을 사용한 ShuffleNet의 구조는 위 그림과 같다. ResNet에서 기본 구조를 가져왔지만 모든
-              conv layer가 grouped되어 있다는 것이 차이점이다. 모든 conv layer가 grouped conv인 이유는, channel
-              shuffle을 통해 ungrouped 1x1 conv layer 없이도 전체 채널 간 정보를 공유할 수 있기 때문이다.
+              conv layer가 grouped되어 있다는 것이 차이점이다. Channel shuffle을 통해 ungrouped 1x1 conv layer 없이도
+              전체 채널 간 정보를 공유할 수 있기 때문에 모든 conv layer를 grouped conv로 설정하여 연산량을 줄일 수
+              있었다.
             </p>
             <p>첫 번째 conv layer 이외에는 ReLU layer가 없다는 것도 특징인데, 이는 empirical한 부분이다.</p>
             <img
@@ -291,27 +292,173 @@
             <img
               class="half"
               src="/study/deep_learning_for_computer_vision/lecture_11/img18.png"
-              alt="NAS cell result"
+              alt="NAS cell results"
             />
             <p>
               NAS는 MobileNetV3을 설계하는 데 사용되었는데, MobileNetV2보다 더 높은 정확도를 보이면서도 연산량을 줄일 수
               있었다.
             </p>
-            <img src="/study/deep_learning_for_computer_vision/lecture_11/img19.png" alt="NAS result" />
+            <img src="/study/deep_learning_for_computer_vision/lecture_11/img19.png" alt="NAS results" />
             <p>
               다른 모델들과 비교한 NAS 활용 모델의 성능은 위 그림과 같다. 다른 모델과 비교하여 복잡도 대비 정확도가 높은
               것을 확인할 수 있다.
             </p>
 
             <h3>EfficientNet (2019)</h3>
-
-            <h4>Model Scaling</h4>
+            <p>
+              NAS 출현 이후, NAS를 이용해 찾아낸 모델을 기초로 어떻게 더 모델의 크기와 정확도를 늘릴 수 있을지에 대한
+              연구가 진행되었다. 이를 Model Scaling이라 하는데, 모델의 width, depth, 이미지의 resolution 등을 증가시키게
+              된다.
+            </p>
+            <p>EfficientNet은 이러한 Model Scaling의 방법론을 체계화한 모델이다. 그 순서는 아래와 같다.</p>
+            <ol>
+              <li>NAS를 통해 Baseline이 될 모델을 찾는다.</li>
+              <li>
+                Baseline 모델의 width, depth, resolution을 증가시킬 factor를 찾는다. Depth factor는 $\alpha$로, width
+                factor는 $\beta$로, resolution factor는 $\gamma$로 표기한다. $\alpha, \beta, \gamma \geq 0$이고
+                $\alpha\beta^2\gamma^2 \approx 2$를 만족하도록 설정하는데, 이 조건을 통해 scaling 후 모델의 연산량이 두
+                배 증가하도록 한다. 이후 grid search를 통해 각 값을 찾는다. EfficientNet의 경우 $\alpha = 1.2, \beta =
+                1.1, \gamma = 1.15$로 설정하였다.
+              </li>
+              <li>
+                Scaling을 $\alpha$, $\beta$, $\gamma$가 아닌 $\alpha^\phi$, $\beta^\phi$, $\gamma^\phi$로 적용하여,
+                모델의 연산량을 원하는 대로 조절할 수 있다. 이때 최종 연산량은 $2^\phi$배로 scaling된다.
+              </li>
+            </ol>
+            <img src="/study/deep_learning_for_computer_vision/lecture_11/img20.png" alt="EfficientNet results" />
+            <p>
+              EfficientNet은 위 그림과 같이 다른 모델들과 비교하여 높은 정확도와 효율성을 보였다. 다만 연산량과 실제
+              runtime은 다른데, depthwise convolution의 경우 모바일 기기에서는 속도가 빠르지만 오히려 GPU나 TPU에서는
+              memory bound로 인해 그만큼의 속도가 나오지 않는다는 문제가 있다. (Conv layer의 연산량이 줄어 상대적으로
+              memory in/out의 소요시간이 bottleneck이 된다.) 또한 연산량을 수학적으로 계산하는 공식도 완전히 들어맞는
+              것이 아니며 FFT를 이용하는 등 단순 덧셈과 곱셈이 아닌 방식으로 속도를 개선할 수도 있기 때문에 위 그래프와
+              같은 비교를 할 때에는 주의해야 한다.
+            </p>
 
             <h3>NFNet (2021)</h3>
+            <p>
+              EfficientNet 이후로, 모델의 복잡도보다도 실제 하드웨어 위에서의 runtime을 개선하는 방향으로 연구가
+              진행되었다. 이러한 연구들은 ResNet 아키텍쳐를 기반으로 하였다.
+            </p>
+            <p>
+              NFNet은 ResNet에서 Batch normalization을 제거할 수 있는 방법을 제안한 모델이다. Batch normalization은 작은
+              minibatch에서는 잘 작동하지 않고, training과 test 시의 동작이 다르며, 학습을 느리게 만든다는 단점이 있기
+              때문에 이를 제거한 것이다. NFNet은 Batch normalization을 제거하면서 몇 가지 trick을 제안하였다.
+            </p>
+
+            <h4>Scaled Residual Blocks</h4>
+            <img class="half" src="/study/deep_learning_for_computer_vision/lecture_11/img21.png" alt="NFNet" />
+            <p>
+              첫 번째 트릭은 Scaled Residual Blocks이다. NFNet은 위 그림과 같이 pre-activation ResNet block을
+              사용하였다. 이때, batch normalization을 제거하였기 때문에 layer을 거칠수록 출력의 variance가 증가하게
+              된다. 이를 보정하기 위해 입력을 $\beta$로 나누어 주고 출력에 $\alpha$를 곱해 주게 된다. 이때 $\alpha$는
+              사람이 직접 정해 주는 hyperparameter이며, $\beta$는 $\beta = \sqrt{Var(x_l)}$로 설정한다. 이를 통해 매
+              블록의 variance를 일정하게 유지할 수 있다.
+            </p>
+
+            <h4>Weight Standardization</h4>
+            <p>
+              두 번째 트릭은 Weight Standardization이다. Batch normalization이 activation을 normalize한다면 Weight
+              standardization은 weight를 normalize한다. 구체적으로는, 모델이 학습하는 weight $W$는 그대로 있고, conv
+              layer를 연산할 때는 $W$를 그대로 사용하는 것이 아닌 아래의 식을 통해 normalize된 weight $\hat W$를
+              사용한다.
+            </p>
+            <p class="math-center">$\hat W_{i,j} = \gamma \cdot \cfrac{W_{i,j} - mean(W_i)}{std(W_i)\sqrt{N}}$</p>
+            <p>
+              이때 $\gamma$는 activation function의 종류에 따라 다른데, ReLU의 경우 $\gamma = \sqrt{2/(1-(1/\pi))}$로
+              설정한다.
+            </p>
+            <p>Test 시에는 training 동안 구한 고정된 $\hat W$ 값을 사용한다.</p>
+
+            <h4>Adaptive Gradient Clipping</h4>
+            <p>
+              기타 소소한 trick으로는, 먼저 Adaptive Gradient Clipping이 있다. 이는 단순히 gradient의 최댓값과 최솟값을
+              설정하여 Weight matrix의 norm이 너무 커지지 않도록 한 것이다.
+            </p>
+
+            <h4>Tweak ResNet architecture</h4>
+            <p>
+              NFNet은 ResNet 아키텍쳐의 구조도 살짝 변경하였다. SE_ResNeXt 구조에서 시작하여 stem과 downsampling
+              block들의 구조를 변경하였고 ReLU 대신 GELU를 사용하였다. 또한 모든 layer에서 group width(그룹의 개수)를
+              128로 설정하였다.각 stage의 width는 각각 [256, 512, 1024, 1024] 대신 [256, 512, 1536, 1536]으로
+              설정하였다. 각 stage의 depth는 각각 [3, 4, 6, 3] 대신 [1, 2, 6, 3]으로 설정하였다.
+            </p>
+
+            <h4>Stronger Regularization</h4>
+            <p>
+              마지막으로 regularization도 강화하였다. MixUp, RandAugment, CutMix, DropOut, Stochastic Depth를
+              사용하였다.
+            </p>
+            <img class="half" src="/study/deep_learning_for_computer_vision/lecture_11/img22.png" alt="NFNet results" />
+            <p>
+              그 결과, 위 그림과 같이 training 시간 대비 정확도가 다른 모델에 비해 크게 개선된 것을 확인할 수 있다. 다만
+              x축이 training 시간이라는 것에 유의하자.
+            </p>
 
             <h3>ResNet-RS (2021)</h3>
+            <p>
+              ResNet-RS는 기본 ResNet-200 모델에서 간단한 개선만을 통해 성능을 향상시킨 모델이다. ResNet-RS에 적용된
+              개선점들은 아래와 같다.
+            </p>
+            <ul>
+              <li>Baseline ResNet-200 (accuracy: 79.0%)</li>
+              <li>+ Cosine LR deceay (+0.3%)</li>
+              <li>+ Longer training of 90 -> 350 epochs (-0.5%)</li>
+              <li>+ EMA(exponential moving average) of weights (+0.3%)</li>
+              <li>+ Label smoothing (+1.3%)</li>
+              <li>+ Stochastic Depth (+0.2%)</li>
+              <li>+ RandAugment (+0.4%)</li>
+              <li>+ Dropout on FC (-0.3%)</li>
+              <li>+ Less weight decay (+1.5%)</li>
+              <li>+ Squeeze and excite (+0.7%)</li>
+              <li>+ ResNet-D (+0.5%)</li>
+            </ul>
+            <img
+              class="half"
+              src="/study/deep_learning_for_computer_vision/lecture_11/img23.png"
+              alt="ResNet-RS results"
+            />
+            <p>
+              ResNet-RS의 training time 대비 정확도는 위 그림과 같다. EfficientNet보다 성능이 개선된 것을 확인할 수
+              있다.
+            </p>
 
             <h3>RegNet (2020)</h3>
+            <img class="half" src="/study/deep_learning_for_computer_vision/lecture_11/img24.png" alt="RegNet" />
+            <img class="half" src="/study/deep_learning_for_computer_vision/lecture_11/img24-1.png" alt="RegNet" />
+            <p>
+              RegNet은 ResNet의 구조를 규격화한 모델이다. 위 그림과 같이 전체 네트워크, body, 각 stage와 각 block을
+              규격화하였다. 전체 네트워크는 stem, body, head로 구성되고, body는 4개의 stage로, stage는 여러 개의
+              block으로 구성된다. Stem은 3x3 conv layer로 이루어져 있으며 각 stage에서의 첫 번째 block은 이미지의 크기를
+              절반으로 줄인다.
+            </p>
+            <p>
+              각 stage는 block의 개수, input channel의 수, bottleneck ratio, group width의 총 4개의 hyperparameter만으로
+              구성될 수 있고 총 4개의 stage가 있으므로, 전체 네트워크는 총 16개의 hyperparameter만으로 구성될 수 있다.
+            </p>
+            <img src="/study/deep_learning_for_computer_vision/lecture_11/img25.png" alt="RegNet ramdom sample" />
+            <p>
+              이후 위 그림과 같이 16개의 파라미터에 대해 random search를 진행한다. 이러한 결과를 바탕으로 더 세밀하게
+              파라미터들을 조정하게 되며, 파라미터간의 관계 또한 찾아내었다. Bottleneck ratio의 경우 모든 stage가 공통의
+              값을 갖도록 하여 파라미터를 16개에서 13개로 줄였고, group width 또한 모든 stage가 공통의 값을 갖도록 하여
+              파라미터를 13개에서 10개로 줄였다. 또한 input channel의 수와 stage당 block 수는 선형적으로 증가하도록 하여
+              최종적으로 아래 6개의 파라미터만으로 네트워크를 구성할 수 있도록 하였다.
+            </p>
+            <ul>
+              <li>Overall depth $d$</li>
+              <li>Bottleneck ratio $b$</li>
+              <li>Group width $g$</li>
+              <li>Initial width $w_0$</li>
+              <li>Width grouth rate $w_a$</li>
+              <li>Blocks per stage $w_m$</li>
+            </ul>
+            <p>
+              최종적으로 이 6개의 파라미터에 대해 random search를 수행하여 최적의 파라미터를 찾아내었고, 이를 바탕으로
+              성능을 다시 한 번 개선한 모델을 만들 수 있었다. 그 결과, 아래 그림과 같이 RegNet이 EfficientNet보다
+              정확도는 비슷하면서 training 시 최대 5배 빠르다는 결과를 얻었다.
+            </p>
+            <img src="/study/deep_learning_for_computer_vision/lecture_11/img26.png" alt="RegNet results" />
+            <p>이러한 좋은 특성으로 인해 테슬라의 vision 시스템에서도 RegNet을 사용한다고 한다.</p>
           </div>
           <div class="post-footer">
             <div class="post-footer-profile">
