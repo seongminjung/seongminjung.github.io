@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lecture 14: Object Detectors</title>
+    <meta name="description" content="Seongmin Jung's personal website" />
+    <meta name="keywords" content="Seongmin Jung, Robotics" />
+    <meta name="author" content="Seongmin Jung" />
+    <meta name="language" content="English" />
+    <link rel="shortcut icon" href="/favicon.png" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LL44K1WZ0G"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "G-LL44K1WZ0G");
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML" async></script>
+
+    <!-- Load an icon library to show a hamburger menu (bars) on small screens -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <!-- import css -->
+    <link rel="stylesheet" href="/css/index.css" />
+    <!-- import js -->
+    <script src="/js/script.js" defer></script>
+  </head>
+
+  <body>
+    <header>
+      <img class="cover" src="/asset/cover.jpg" alt="Seongmin Jung" />
+      <h1 class="title"><a href="/index.html">Seongmin Jung</a></h1>
+      <nav class="nav">
+        <a href="/index.html">Home</a>
+        <a href="/projects.html">Projects</a>
+        <a href="/study.html" class="bold">Study</a>
+        <a href="/blog.html">Blog</a>
+        <i id="nav-toggle" class="nav-toggle fa fa-bars" onclick="toggleNav()"></i>
+      </nav>
+    </header>
+
+    <div id="nav-modal-bg" onclick="toggleNav()"></div>
+    <nav id="nav-modal">
+      <a href="/index.html">Home</a>
+      <a href="/projects.html">Projects</a>
+      <a href="/study.html" class="bold">Study</a>
+      <a href="/blog.html">Blog</a>
+    </nav>
+
+    <main>
+      <div class="container">
+        <section id="post">
+          <a id="series-tag" href="/study/deep_learning_for_computer_vision.html"
+            ><i class="fa fa-book"></i> Deep Learning for Computer Vision</a
+          >
+          <h1>Lecture 14: Object Detectors</h1>
+          <p class="date">Posted on <time datetime="2024-05-19">May 19, 2024</time></p>
+          <div class="post-body">
+            <h2>Fast R-CNN</h2>
+            <p>
+              지난 강의에서는 R-CNN에 대해 알아보았다. 하지만 R-CNN 모델은 한 이미지당 2000개의 영역에 대해 각각 CNN을
+              실행해야 하므로 training과 test 모두에서 매우 느리다는 단점이 있다. 이때 CNN에서 가장 연산량이 많은 부분이
+              초반 몇 stage이므로, 이 점을 개선해 속도를 높인 Fast R-CNN이 등장하게 된다.
+            </p>
+            <img class="half" src="/study/deep_learning_for_computer_vision/lecture_14/img1.png" alt="Fast R-CNN" />
+            <p>
+              Fast R-CNN은 이미지 전체에 대해 CNN을 한 번만 실행하고, 추출된 feature map 상에서 RoI(Regions of
+              Interest)를 구하는 방식을 사용한다. 연산량이 많은 초반 conv layer 단계들은 첫 단계에 포함하고, 이후 각
+              영역에 대해 fully connected layer만을 사용하거나 마지막 stage만을 사용하여 각 영역에 대한 class score와
+              bounding box를 예측한다. 이 FC layer는 R-CNN에서 이미지 영역 자체를 입력받는 모델에 비해 훨씬 가볍고
+              빠르게 동작한다.
+            </p>
+            <p>
+              이때, region proposal은 여전히 RGB 이미지를 이용하는 고전적인 방식을 사용한다. Fast R-CNN은 feature map
+              상에서 영역을 crop해야 하는데, region proposal을 feature map에 어떻게 대응시킬 수 있을까? 이때 사용되는
+              방법이 RoI pooling이다.
+            </p>
+
+            <h3>RoI Pooling</h3>
+            <img src="/study/deep_learning_for_computer_vision/lecture_14/img2.png" alt="Projecting points" />
+            <p>
+              위 사진과 같이 output image의 특정 점에 대해 input image에서의 receptive field를 얻을 수 있다. input과
+              output 사이에 어떤 layer가 있든, 이미지의 크기가 유지된다면 receptive field의 중심은 항상 output image의
+              점과 같은 위치에 있다.
+            </p>
+            <img
+              src="/study/deep_learning_for_computer_vision/lecture_14/img3.png"
+              alt="Projecting points with different image size"
+            />
+            <p>
+              이미지의 크기가 달라진다면, 좌표의 절대적인 값은 달라지겠지만 output image의 특정 점에 대해 input
+              image상에 대응되는 한 점은 항상 특정할 수 있을 것이다.
+            </p>
+            <img class="half" src="/study/deep_learning_for_computer_vision/lecture_14/img4.png" alt="RoI pooling" />
+            <p>
+              이를 직사각형의 모든 꼭짓점에 대해 적용하면 RoI pooling이 된다. 이처럼 RoI pooling은 input image의 특정
+              영역을 output image에 대응시키는 방법이다. 원본 이미지에 대해 region proposal을 얻고, RoI pooling을
+              적용하여 feature map에 각 영역을 대응시킨다.
+            </p>
+            <p>
+              이때, Region proposal을 통해 얻은 영역은 그 크기가 제각각일 것이다. CNN은 정해진 크기의 이미지만을
+              입력으로 받을 수 있으므로 R-CNN에서는 모든 영역을 224x224로 resize하였다. 이와 유사하게 Fast R-CNN에서도
+              crop된 feature map을 고정된 크기로 resize하여 사용한다. 보통 7x7이나 14x14로 resize한다.
+            </p>
+            <p>
+              또한, RoI pooling 후의 RoI의 꼭짓점 좌표가 소수점이 되어 위 그림처럼 grid에 딱 맞지 않을 수 있다. 이를
+              해결하기 위한 간단한 방법으로 단순히 좌표값을 반올림하는 방법이 있다. 이후 단순히 직사각형을 nxn 영역으로
+              나누고 각 영역의 최대값을 구하는 max pooling을 적용한다.
+            </p>
+          </div>
+          <div class="post-footer">
+            <div class="post-footer-profile">
+              <img src="/asset/cover.jpg" alt="Seongmin Jung" />
+              <h1>Seongmin Jung</h1>
+            </div>
+            <h2>
+              Other posts in
+              <a href="/study/deep_learning_for_computer_vision.html">Deep Learning for Computer Vision</a> series
+            </h2>
+            <ul>
+              <li>
+                <a href="/study/deep_learning_for_computer_vision/lecture_14.html">
+                  <span><b>Lecture 14: Object Detectors</b></span>
+                  <time datetime="2024-05-19">May 19, 2024</time>
+                </a>
+              </li>
+              <li>
+                <a href="/study/deep_learning_for_computer_vision/lecture_13.html">
+                  <span>Lecture 13: Object Detection</span>
+                  <time datetime="2024-05-17">May 17, 2024</time>
+                </a>
+              </li>
+              <li>
+                <a href="/study/deep_learning_for_computer_vision/lecture_12.html">
+                  <span>Lecture 12: Deep Learning Software</span>
+                  <time datetime="2024-05-15">May 15, 2024</time>
+                </a>
+              </li>
+              <li>
+                <a href="/study/deep_learning_for_computer_vision/lecture_11.html">
+                  <span>Lecture 11: CNN Architectures II</span>
+                  <time datetime="2024-05-12">May 12, 2024</time>
+                </a>
+              </li>
+              <li>
+                <a href="/study/deep_learning_for_computer_vision/lecture_10.html">
+                  <span>Lecture 10: Training Neural Networks II</span>
+                  <time datetime="2024-05-11">May 11, 2024</time>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2024 Seongmin Jung<br />Designed and developed by Seongmin Jung</p>
+    </footer>
+  </body>
+</html>

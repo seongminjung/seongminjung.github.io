@@ -320,8 +320,8 @@
               Test 시에는 우선 이미지에 대해 region proposal을 수행한 후, 각 영역을 224x224로 resize한다. 이후 각
               이미지들을 CNN에 넣어 class와 bounding box transform을 예측한다. 이후 각 region에 대해 class가
               background가 아니고, class score가 threshold 이상인 region만을 남긴다. 남은 region에 대해서는 모델로부터
-              얻은 transform을 이용하여 bounding box를 변형시킨다. 이 과정을 반복하는 것을 bounding box regression이라
-              하며, 이를 통해 최종 bounding box를 얻어낸다.
+              얻은 transform을 이용하여 bounding box를 변형시킨다. 이 과정을 bounding box regression이라 하며, 이를 통해
+              최종 bounding box를 얻어낸다.
             </p>
             <p>
               이때 class score의 threshold는 heuristic으로 정하게 되는데, 전체 클래스에 대해 threshold를 정하거나 각
@@ -359,6 +359,12 @@
             </h2>
             <ul>
               <li>
+                <a href="/study/deep_learning_for_computer_vision/lecture_14.html">
+                  <span>Lecture 14: Object Detectors</span>
+                  <time datetime="2024-05-19">May 19, 2024</time>
+                </a>
+              </li>
+              <li>
                 <a href="/study/deep_learning_for_computer_vision/lecture_13.html">
                   <span><b>Lecture 13: Object Detection</b></span>
                   <time datetime="2024-05-17">May 17, 2024</time>
@@ -380,12 +386,6 @@
                 <a href="/study/deep_learning_for_computer_vision/lecture_10.html">
                   <span>Lecture 10: Training Neural Networks II</span>
                   <time datetime="2024-05-11">May 11, 2024</time>
-                </a>
-              </li>
-              <li>
-                <a href="/study/deep_learning_for_computer_vision/lecture_9.html">
-                  <span>Lecture 9: Training Neural Networks I</span>
-                  <time datetime="2024-05-03">May 3, 2024</time>
                 </a>
               </li>
             </ul>
