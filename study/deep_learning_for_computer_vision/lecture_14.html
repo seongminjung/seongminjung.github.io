@@ -270,6 +270,159 @@
               전체 네트워크를 이용해 연산한 것과 같은 효과를 얻을 수 있다. FPN은 추가적으로 소요되는 연산이 매우 적기
               때문에 scaling 문제를 해결하기 위해 거의 대부분의 모델에 사용되는 방법이다.
             </p>
+
+            <h2>RetinaNet</h2>
+
+            <h3>Two-Stage Detector vs. Single-Stage Detector</h3>
+            <p>
+              지금까지 알아본 Fast R-CNN과 Faster R-CNN은 모두 이미지 전체에 대해 연산을 수행하는 backbone network와, 각
+              RoI에 대해 연산을 수행하는 per-region network로 구성되어 있다. 이처럼 두 단계의 별개의 네트워크로 구성되어
+              있기 때문에 이들은 two-stage detector라고 불린다. 반대로 per-region network 없이 이미지 전체에 대한 하나의
+              네트워크만 이용하여 detection을 수행하는 방법도 있는데, 이들을 single-stage detector라고 한다.
+            </p>
+            <img
+              class="half"
+              src="/study/deep_learning_for_computer_vision/lecture_14/img16.png"
+              alt="Two-stage vs. single-stage detector"
+            />
+            <p>
+              위 그래프에서 Single-stage detector는 two-stage detector에 비해 빠르면서 정확도도 높은 것을 알 수 있다.
+            </p>
+
+            <h3>RetinaNet</h3>
+            <img src="/study/deep_learning_for_computer_vision/lecture_14/img17.png" alt="RetinaNet" />
+            <p>
+              RetinaNet은 single-stage detector의 일종이다. RPN과 유사하게 anchor를 이용하는데, 우선 위의 왼쪽 그림과
+              같이 각 anchor point에 대해 anchor box를 설정한다. 이후 각 box에 대해 classification과 bounding box
+              regression을 수행한다.
+            </p>
+            <p>
+              이때 RPN에서는 각 anchor box가 물체를 포함하는지 아닌지를 binary classification했다면, RetinaNet은 각
+              anchor box에 대해 카테고리별로 score를 구한다. 이에 따라 classification output은 $K \cdot (C +1) \times 5
+              \times 6$이 된다. Background까지 class에 포함하기 때문에 $C + 1$을 곱한다. Bounding box regression은 RPN과
+              동일하게 수행한다. 이를 통해 하나의 stage만으로 detection을 수행할 수 있다.
+            </p>
+            <p>
+              이때, 대부분의 anchor box는 물체를 포함하지 않기 때문에 background에 해당하는 box들이 매우 많아질 수 있다.
+              이와 같은 training sample의 불균형은 학습을 방해할 수 있다. 이를 해결하기 위해 cross-entropy 대신 Focal
+              Loss라는 새로운 loss function을 사용한다. 두 loss function의 수식은 아래와 같다.
+            </p>
+            <p class="math-center">
+              $\begin{align*} CE(p) & = -\log(p) \\ FL(p) & = -(1 - p)^\gamma \cdot \log(p) \end{align*}$
+            </p>
+            <p>마지막으로 FPN까지 사용하여 여러 크기의 물체를 detect하게 된다.</p>
+
+            <h2>FCOS</h2>
+            <p>
+              Anchor box는 성능은 좋지만 실제 코드로 구현하기 불편하며 anchor box의 크기나 비율을 어떻게 설정할지에 대한
+              추가적인 hyperparameter가 필요하다. 이를 해결하기 위해 anchor box를 사용하지 않는 FCOS가 등장하였다.
+            </p>
+            <img src="/study/deep_learning_for_computer_vision/lecture_14/img18.png" alt="FCOS" />
+            <p>
+              FCOS는 anchor box 대신 anchor point 자체를 사용한다. 위의 왼쪽 이미지와 같이 cat 카테고리의 GT box가 있을
+              때, 그 box 내부에 anchor point가 속하면 그 점은 positive, 외부에 속하면 negative로 labeling한다.
+              카테고리를 구분하여 모든 point를 labeling하면, $C \times 5 \times 6$의 결과를 얻을 수 있다. 이때 C개의
+              독립된 binary classification problem으로 생각한다. Training은 per-category logistic regression을 사용하여
+              진행한다.
+            </p>
+            <p>
+              Bounding box regression 단계에서는 box의 경계선이 해당 점으로부터 상하좌우로 얼마나 떨어져 있는지를
+              예측한다. 위 왼쪽 그림에서 T, B, S, R 4개의 값을 예측한다. 이때 카테고리와 관계없이 그 점이 속한 가장 작은
+              box에 regression한다. L2 loss를 이용해 학습시키게 된다.
+            </p>
+            <p>
+              이때, GT box의 중심에 있는 anchor point는 실제로 물체 안에 속할 확률이 높지만 GT box의 경계에 위치한
+              point들은 물체의 외부에 있어 regression의 결과가 좋지 않을 수 있다. 따라서 물체가 GT box의 중심에 있는
+              정도인 centerness를 도입하여 regression의 결과를 얼마나 신뢰할지 결정한다. Centerness는 0부터 1 사이의
+              값으로, 1에 가까울수록 bounding box의 중심에 물체가 위치할 가능성이 높다. 아래의 수식을 통해 GT
+              centerness를 구할 수 있다. Centerness의 학습은 logistic regression loss를 사용한다.
+            </p>
+            <p class="math-center">
+              $centerness = \sqrt{\cfrac{\min(L, R)}{\max(L, R)} \cdot \cfrac{\min(T, B)}{\max(T, B)}}$
+            </p>
+            <p>
+              Test 시에는 각 anchor point에 대해 class score, bounding box edges, centerness를 각각 예측한다. 이후 class
+              score와 centerness를 곱하여 confidence 값을 구한다. 이후 confidence에 threshold를 적용하는 등 가능성이
+              높은 box만을 선택한다.
+            </p>
+            <p>FCOS 또한 FPN을 사용한다.</p>
+
+            <h2>Mean Average Precision (mAP)</h2>
+            <p>
+              Mean Average Precision(mAP)은 object detection 모델의 성능을 측정하는 지표 중 하나이다. mAP는 아래의 세
+              단계로 구성된다.
+            </p>
+            <ol>
+              <li>모든 test set에 대해 detection을 수행한다. 이때 NMS를 적용하여 중복된 bounding box를 제거한다.</li>
+              <li>
+                각 카테고리에 대해 Average Precision(AP)을 구한다. AP는 Precision-Recall curve의 아래 면적을 의미한다.
+              </li>
+              <li>모든 카테고리에 대해 AP의 평균을 구한다.</li>
+            </ol>
+            <p>
+              위의 2번 단계에서, Precision-Recall curve를 그리는 과정을 예시를 통해 알아보자. 우선 Precision과 Recall의
+              정의는 다음과 같다.
+            </p>
+            <p class="math-center">
+              $Precision = \cfrac{\text{# of matched predicted boxes}}{\text{# of predicted boxes we considered}}$
+            </p>
+            <p class="math-center">$Recall = \cfrac{\text{# of matched GT boxes}}{\text{Total # of GT boxes}}$</p>
+            <img
+              class="half"
+              src="/study/deep_learning_for_computer_vision/lecture_14/img19.png"
+              alt="Calculating Precision-Recall curve 1"
+            />
+            <p>
+              먼저 위 그림과 같이 모든 test set에 대해 모델이 예측한 box와 GT box를 모으고, 모델이 예측한 box는 모델이
+              별도로 예측한 score 값을 이용해 정렬한다.
+            </p>
+            <img
+              class="half"
+              src="/study/deep_learning_for_computer_vision/lecture_14/img20.png"
+              alt="Calculating Precision-Recall curve 2"
+            />
+            <p>
+              이후 score가 가장 높은 box부터, 그 box와 가장 가까운 GT box를 찾는다. 이때 IoU가 0.5보다 큰 GT box가 없을
+              경우 negative로 처리한다. 위 경우 첫 번째 예측된 box와 두 번째 GT box가 매칭되었다. 매 매칭마다
+              Precision과 Recall을 계산한다.
+            </p>
+            <p>
+              현재까지 다룬 predicted box는 1개이고 그중 1개가 매칭되었으므로 precision은 1이다. 또한 총 3개의 GT box 중
+              1개가 매칭되었으므로 recall은 1/3이다. 따라서 (1, 1/3) 지점에 점을 찍을 수 있다.
+            </p>
+            <img
+              class="half"
+              src="/study/deep_learning_for_computer_vision/lecture_14/img21.png"
+              alt="Calculating Precision-Recall curve 3"
+            />
+            <p>
+              매칭된 GT box는 제외하고 두 번째 predicted box로 넘어간다. 이 경우도 매칭이 되었다. Precision은 2/2 = 1,
+              recall은 2/3이 된다.
+            </p>
+            <img
+              class="half"
+              src="/study/deep_learning_for_computer_vision/lecture_14/img22.png"
+              alt="Calculating Precision-Recall curve 4"
+            />
+            <p>
+              세 번째 predicted box의 경우 모든 GT box와의 IoU가 0.5보다 작아 매칭되지 않았다. 따라서 precision은 2/3,
+              recall은 2/3이 된다.
+            </p>
+            <img
+              class="half"
+              src="/study/deep_learning_for_computer_vision/lecture_14/img23.png"
+              alt="Calculating Precision-Recall curve 5"
+            />
+            <p>
+              같은 과정을 반복하면 위의 그림과 같이 Precision-Recall curve를 얻을 수 있다. 이때 AP는 Precision-Recall
+              curve의 아래 면적을 의미한다. 따라서 AP = 1이 되기 위해서는 모든 GT box가 매칭되어야 하고, 마지막 매칭이
+              이루어지기까지 negative가 단 하나라도 있어서는 안 된다.
+            </p>
+            <p>
+              위 예시에서는 IoU의 threshold를 0.5로 설정하였다. 따라서 이를 mAP@0.50이라고 부른다. mAP에서 더 나아간
+              COCO mAP의 경우 여러 threshold 값에 대해 mAP를 구하고 다시 이에 대한 평균을 구한다. mAP@0.50, mAP@0.55,
+              mAP@0.60, ..., mAP@0.95를 구한 후 이들의 평균을 구한다.
+            </p>
           </div>
           <div class="post-footer">
             <div class="post-footer-profile">
