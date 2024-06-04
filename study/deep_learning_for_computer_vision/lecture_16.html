@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lecture 16: Recurrent Networks</title>
+    <meta name="description" content="Seongmin Jung's personal website" />
+    <meta name="keywords" content="Seongmin Jung, Robotics" />
+    <meta name="author" content="Seongmin Jung" />
+    <meta name="language" content="English" />
+    <link rel="shortcut icon" href="/favicon.png" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LL44K1WZ0G"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "G-LL44K1WZ0G");
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML" async></script>
+
+    <!-- Load an icon library to show a hamburger menu (bars) on small screens -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <!-- import css -->
+    <link rel="stylesheet" href="/css/index.css" />
+    <!-- import js -->
+    <script src="/js/script.js" defer></script>
+  </head>
+
+  <body>
+    <header>
+      <img class="cover" src="/asset/cover.jpg" alt="Seongmin Jung" />
+      <h1 class="title"><a href="/index.html">Seongmin Jung</a></h1>
+      <nav class="nav">
+        <a href="/index.html">Home</a>
+        <a href="/projects.html">Projects</a>
+        <a href="/study.html" class="bold">Study</a>
+        <a href="/blog.html">Blog</a>
+        <i id="nav-toggle" class="nav-toggle fa fa-bars" onclick="toggleNav()"></i>
+      </nav>
+    </header>
+
+    <div id="nav-modal-bg" onclick="toggleNav()"></div>
+    <nav id="nav-modal">
+      <a href="/index.html">Home</a>
+      <a href="/projects.html">Projects</a>
+      <a href="/study.html" class="bold">Study</a>
+      <a href="/blog.html">Blog</a>
+    </nav>
+
+    <main>
+      <div class="container">
+        <section id="post">
+          <a id="series-tag" href="/study/deep_learning_for_computer_vision.html"
+            ><i class="fa fa-book"></i> Deep Learning for Computer Vision</a
+          >
+          <h1>Lecture 16: Recurrent Networks</h1>
+          <p class="date">Posted on <time datetime="2024-06-04">June 4, 2024</time></p>
+          <div class="post-body">
+            <h2>Recurrent Neural Networks</h2>
+            <p>
+              지금까지 단일 이미지에 대한 classification이나 localization 문제를 다루었다면, 이번에는 연속된 여러
+              데이터를 다루는 방법에 대해 알아보자. 비디오를 classification라는 문제나, 이미지에 대한 설명을 출력하는
+              image captioning과 같은 문제가 이에 해당되는데, 입력이나 출력의 길이가 정해져 있지 않은 경우 일반적인
+              일대일 방식의 뉴럴 네트워크로는 해결하기 어렵다. 이러한 문제들을 해결하기 위해 Recurrent Neural
+              Networks(RNN)가 등장하였다.
+            </p>
+            <img
+              class="half"
+              src="/study/deep_learning_for_computer_vision/lecture_16/img1.png"
+              alt="Recurrent Neural Networks"
+            />
+            <p>
+              RNN은 위와 같은 다이어그램으로 표현될 수 있다. 입력 시퀀스 $x$에 대해 출력 시퀀스 $y$를 출력하는 모델로,
+              입력과 출력 사이에는 hidden state $h$가 존재한다. RNN은 시간에 따라 변화하는 데이터를 다루기 때문에, 각
+              변수를 시간 $t$에 따라 $x_t$, $h_t$, $y_t$로 표현한다.
+            </p>
+            <p>
+              RNN은 현재 시점의 입력 데이터 $x_t$와 이전 시점의 hidden state $h_{t-1}$을 통해 현재 시점의 hidden state
+              $h_t$를 계산하고, 이를 바탕으로 현재 시점의 출력 $y_t$를 계산하는 방식으로 동작한다. 이를 수식으로
+              나타내면 아래와 같다.
+            </p>
+            <p class="math-center">$h_t = f_W(h_{t-1}, x_t)$</p>
+            <p>이때 함수 $f_W$가 RNN에 해당하는 부분이다. 학습 파라미터로 가중치 행렬 $W$가 있다.</p>
+
+            <h3>Vanilla RNN</h3>
+            <p>
+              Vanilla RNN은 가장 기본적인 형태의 RNN으로, hidden state를 계산하는 함수 $f_W$와 출력 $y$를 계산하는
+              과정이 아래와 같이 정의된다.
+            </p>
+            <p class="math-center">$h_t = \tanh(W_{hh}h_{t-1} + W_{xh}x_t + b_h)$</p>
+            <p class="math-center">$y_t = W_{hy}h_t + b_y$</p>
+            <p>
+              즉, vanilla RNN는 single FC layer와 tanh 함수로 구성된다. 파라미터로는 weight matrix $W_{hh}$, $W_{xh}$,
+              $W_{hy}$와 bias $b_h$, $b_y$가 있다. Activation function으로 tanh를 사용하였는데, 이는 vanilla RNN이
+              개발되었을 당시에 더 좋은 activation function이 없었기 때문이다.
+            </p>
+
+            <h4>Computational Graph</h4>
+            <img src="/study/deep_learning_for_computer_vision/lecture_16/img2.png" alt="Computational Graph" />
+            <p>
+              Vanilla RNN의 computational graph는 위 그림과 같다. 이때 $h_0$은 전부 0으로 놓고 시작하거나 학습
+              파라미터로 두고 학습시키는 방법이 있는데, 두 방법 모두 성능에 큰 차이를 가져오지는 않는다. 이후 같은
+              weight matrix를 사용하는 동일한 함수 $f_W$를 여러 번 적용하게 되는데, 이를 통해 임의의 길이를 갖는
+              시퀀스를 처리할 수 있다.
+            </p>
+            <p>
+              각 인풋에 대응되는 아웃풋을 얻어야 하는 경우 위 그림과 같이 모든 hidden state $h_t$에 대해 출력 $y_t$를
+              계산하고, 각 출력에 대한 loss를 얻은 후 모두 더하여 최종 loss를 구하게 된다. 반면 최종적인 결과 $y_T$만
+              필요하다면 중간 결과물들은 생략하고 $y_T$에 대한 loss만을 계산하게 된다. 이 computational graph를 통해
+              $W$나 $h_0$에 대한 backpropagation을 수행할 수 있다.
+            </p>
+            <p>
+              이때 입력된 데이터들은 가중치 벡터 $W$에 그 정보가 점점 축적되기 때문에, 최종 hidden state $h_T$는 모든
+              인풋 데이터의 정보를 기반으로 계산된 결과라고 볼 수 있다.
+            </p>
+            <img
+              src="/study/deep_learning_for_computer_vision/lecture_16/img3.png"
+              alt="Sequence to sequence (seq2seq)"
+            />
+            <p>
+              기본 vanilla RNN을 응용한 버전으로 sequence to sequence(seq2seq) 문제가 있다. 임의의 길이를 갖는 시퀀스를
+              입력으로 받고, 또 다른 임의의 길이를 갖는 시퀀스를 출력으로 내보내게 된다. 번역과 같은 문제가 이에
+              해당하는데, 입력과 출력의 길이가 다를 수 있기 때문에 vanilla RNN으로는 해결하기 어렵다.
+            </p>
+            <p>
+              따라서 위 그림과 같이 many-to-one 구조와 one-to-many 구조를 결합하는 방식을 사용한다. 먼저 many-to-one을
+              이용해 임의의 인풋 시퀀스를 처리하여 하나의 hidden state $h_T$를 얻고, 이를 one-to-many 구조로 변환하여
+              출력 시퀀스를 생성한다.
+            </p>
+            <p>
+              Many-to-one과 one-to-many에서는 서로 다른 weight matrix $W$를 사용하는 것이 일반적이며, $h_T$가 두 번째
+              네트워크로 전달되는 과정은 여러 방식으로 구현될 수 있다.
+            </p>
+
+            <h3>Example: Language Modeling</h3>
+            <p>
+              RNN을 이용해 풀 수 있는 문제 중 중요한 예시로 language modeling이 있다. Language modeling은 각 time
+              step마다 글자가 하나씩 주어지고, 이 글자들의 시퀀스를 바탕으로 그 다음 step의 글자를 예측하는 문제이다.
+            </p>
+          </div>
+          <div class="post-footer">
+            <div class="post-footer-profile">
+              <img src="/asset/cover.jpg" alt="Seongmin Jung" />
+              <h1>Seongmin Jung</h1>
+            </div>
+            <h2>
+              Other posts in
+              <a href="/study/deep_learning_for_computer_vision.html">Deep Learning for Computer Vision</a> series
+            </h2>
+            <ul>
+              <li>
+                <a href="/study/deep_learning_for_computer_vision/lecture_16.html">
+                  <span><b>Lecture 16: Recurrent Networks</b></span>
+                  <time datetime="2024-06-04">June 4, 2024</time>
+                </a>
+              </li>
+              <li>
+                <a href="/study/deep_learning_for_computer_vision/lecture_15.html">
+                  <span>Lecture 15: Image Segmentation</span>
+                  <time datetime="2024-05-30">May 30, 2024</time>
+                </a>
+              </li>
+              <li>
+                <a href="/study/deep_learning_for_computer_vision/lecture_14.html">
+                  <span>Lecture 14: Object Detectors</span>
+                  <time datetime="2024-05-19">May 19, 2024</time>
+                </a>
+              </li>
+              <li>
+                <a href="/study/deep_learning_for_computer_vision/lecture_13.html">
+                  <span>Lecture 13: Object Detection</span>
+                  <time datetime="2024-05-17">May 17, 2024</time>
+                </a>
+              </li>
+              <li>
+                <a href="/study/deep_learning_for_computer_vision/lecture_12.html">
+                  <span>Lecture 12: Deep Learning Software</span>
+                  <time datetime="2024-05-15">May 15, 2024</time>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2024 Seongmin Jung<br />Designed and developed by Seongmin Jung</p>
+    </footer>
+  </body>
+</html>
