@@ -146,6 +146,86 @@
             <p>
               RNN을 이용해 풀 수 있는 문제 중 중요한 예시로 language modeling이 있다. Language modeling은 각 time
               step마다 글자가 하나씩 주어지고, 이 글자들의 시퀀스를 바탕으로 그 다음 step의 글자를 예측하는 문제이다.
+              예를 들어, 'h', 'e', 'l', 'o'의 4개의 글자가 주어지고 처음 4개의 글자가 'hell'일 때 그 다음 글자로 'o'가
+              올 것임을 예측할 수 있다. 이를 RNN 모델로 나타내면 아래와 같다.
+            </p>
+            <img
+              class="half"
+              src="/study/deep_learning_for_computer_vision/lecture_16/img4.png"
+              alt="Language Modeling"
+            />
+            <p>우선 입력된 글자들은 one-hot encoding을 통해 벡터로 변환된다.</p>
+            <p class="math-center">$h_t = \tanh(W_{hh}h_{t-1} + W_{xh}x_t)$</p>
+            <p>
+              이후 위의 수식을 통해 hidden state를 계산하게 된다. 비슷한 방식으로 output layer까지 계산할 수 있다. 이때
+              Vanilla RNN의 경우 매 입력마다 출력을 내보내기 때문에, 이를 통해 다음 글자를 예측할 수 있다. 예를 들어 첫
+              번째 시퀀스의 경우 'h'를 입력으로 받아 'e'를 출력하게 된다.
+            </p>
+            <p>
+              이를 이용하여 train 시에는 각 time step마다 출력과 GT 사이의 loss를 계산하여 학습시킬 수 있고, test 시에는
+              한 step의 출력을 그 다음 step의 입력으로 사용하여 글자를 계속 이어나갈 수 있다.
+            </p>
+            <p>
+              앞서 언급했듯 RNN은 이전의 정보를 모두 활용하여 다음 글자를 예측하기 때문에 'h'를 이용하여 'e'를 예측하고,
+              'h'와 'e'를 모두 이용하여 'l'을 예측하는 식으로 동작한다.
+            </p>
+
+            <h4>Embedding Layer</h4>
+            <p>
+              위의 예시에서는 one-hot encoding을 통해 글자를 벡터로 변환했다. 하지만 이 방법을 이용해 hidden state를
+              계산할 경우, 불필요한 연산이 많아지게 된다.
+            </p>
+            <p class="math-center">
+              $\begin{bmatrix} w_{11} & w_{12} & w_{13} & w_{14} \\ w_{21} & w_{22} & w_{23} & w_{24} \\ w_{31} & w_{32}
+              & w_{33} & w_{34} \\ w_{41} & w_{42} & w_{43} & w_{44} \end{bmatrix} \times \begin{bmatrix} 1 \\ 0 \\ 0 \\
+              0 \end{bmatrix} = \begin{bmatrix} w_{11} \\ w_{21} \\ w_{31} \\ w_{41} \end{bmatrix}$
+            </p>
+            <p>
+              그 이유는 위 수식을 보면 알 수 있는데, weight matrix에 one-hot encoding된 벡터를 곱하는 것은 해당 벡터가
+              나타내는 column을 그대로 가져오는 것과 동일하다. 따라서 column을 그대로 가져오는 연산을 별도의 layer로
+              분리하게 되는데, 이를 embedding layer라고 한다.
+            </p>
+            <img
+              class="half"
+              src="/study/deep_learning_for_computer_vision/lecture_16/img5.png"
+              alt="Embedding Layer"
+            />
+            <p>
+              Embedding layer는 보통 위 그림과 같이 input layer와 hidden layer 사이에 위치한다. 또한 embedding layer를
+              사용함으로써 input을 one-hot encoding이 아닌, 단순히 어떤 column을 가져올지를 나타내는 정수로 표현할 수
+              있게 된다.
+            </p>
+
+            <h2>Backpropagation Through Time</h2>
+            <img
+              src="/study/deep_learning_for_computer_vision/lecture_16/img6.png"
+              alt="Backpropagation Through Time"
+            />
+            <p>
+              RNN의 학습은 backpropagation through time라는 방식으로 이루어진다. RNN의 최종 loss를 구하기 위해서는 모든
+              time step에 대한 loss를 더해야 하기 때문에, backpropagation을 위해서는 time step을 거슬러 올라가며 각
+              step에서의 gradient를 계산해야 한다. 즉 위 그림에서 오른쪽에서 왼쪽 방향으로 backpropagation이 진행된다.
+            </p>
+            <p>
+              그러나 이 방식은 긴 시퀀스를 사용할 경우 모든 element에 대해 forward pass와 backward pass를 진행해야 하기
+              때문에 연산량이나 메모리 사용량이 많아진다는 단점이 있다. 이를 해결하기 위해 Truncated backpropagation
+              through time이라는 방법을 사용한다.
+            </p>
+
+            <h3>Truncated Backpropagation Through Time</h3>
+            <img
+              src="/study/deep_learning_for_computer_vision/lecture_16/img7.png"
+              alt="Truncated Backpropagation Through Time"
+            />
+            <p>
+              Truncated backpropagation through time은 시퀀스를 작은 부분으로 나누어 각 부분이 끝날 때마다 gradient
+              update를 진행하는 방법이다. 각 부분에 대해서만 update를 진행한다. 다음 부분으로 넘어갈 때는 이전 부분의
+              마지막 hidden state를 상수로 취급하여 초기 hidden state로 사용한다. 또한 다음 부분에서는 이전 부분에서
+              업데이트된 weight matrix를 사용한다.
+            </p>
+            <p>
+              Truncated backpropagation through time을 통해 아무리 긴 시퀀스를 사용하더라도 효율적으로 학습할 수 있다.
+              하지만 이 방식은 매 input에 대해 output이 출력되는 vanilla RNN과 같은 구조에서만 동작한다.
             </p>
           </div>
           <div class="post-footer">
