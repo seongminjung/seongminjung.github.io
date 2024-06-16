@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lecture 17: Attention</title>
+    <meta name="description" content="Seongmin Jung's personal website" />
+    <meta name="keywords" content="Seongmin Jung, Robotics" />
+    <meta name="author" content="Seongmin Jung" />
+    <meta name="language" content="English" />
+    <link rel="shortcut icon" href="/favicon.png" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LL44K1WZ0G"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "G-LL44K1WZ0G");
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML" async></script>
+
+    <!-- Load an icon library to show a hamburger menu (bars) on small screens -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <!-- import css -->
+    <link rel="stylesheet" href="/css/index.css" />
+    <!-- import js -->
+    <script src="/js/script.js" defer></script>
+  </head>
+
+  <body>
+    <header>
+      <img class="cover" src="/asset/cover.jpg" alt="Seongmin Jung" />
+      <h1 class="title"><a href="/index.html">Seongmin Jung</a></h1>
+      <nav class="nav">
+        <a href="/index.html">Home</a>
+        <a href="/projects.html">Projects</a>
+        <a href="/study.html" class="bold">Study</a>
+        <a href="/blog.html">Blog</a>
+        <i id="nav-toggle" class="nav-toggle fa fa-bars" onclick="toggleNav()"></i>
+      </nav>
+    </header>
+
+    <div id="nav-modal-bg" onclick="toggleNav()"></div>
+    <nav id="nav-modal">
+      <a href="/index.html">Home</a>
+      <a href="/projects.html">Projects</a>
+      <a href="/study.html" class="bold">Study</a>
+      <a href="/blog.html">Blog</a>
+    </nav>
+
+    <main>
+      <div class="container">
+        <section id="post">
+          <a id="series-tag" href="/study/deep_learning_for_computer_vision.html"
+            ><i class="fa fa-book"></i> Deep Learning for Computer Vision</a
+          >
+          <h1>Lecture 17: Attention</h1>
+          <p class="date">Posted on <time datetime="2024-06-15">June 15, 2024</time></p>
+          <div class="post-body">
+            <h2>Sequence-to-Sequence with RNNs and Attention</h2>
+            <p>
+              Attention이 등장하게 된 배경인 Sequence-to-Sequence 문제에 대해 자세히 살펴보자. Sequence-to-Sequence
+              문제에서는 입력 시퀀스와 출력 시퀀스의 길이가 다를 수 있기 때문에 아래 그림과 같이 encoder-decoder 구조로
+              네트워크를 구성한다. Encoder는 입력 시퀀스를 받아서 하나의 hidden vector로 압축하고, Decoder는 이 hidden
+              vector를 이용해 출력 시퀀스를 생성한다.
+            </p>
+            <img src="/study/deep_learning_for_computer_vision/lecture_17/img1.png" alt="Sequence-to-sequence" />
+            <p>
+              이 구조의 문제점으로는, 입력 시퀀스의 정보가 decoder의 시작 부분에만 전달되기 때문에 decoder가 출력
+              시퀀스를 생성하는 동안 입력 시퀀스의 정보를 잃어버릴 수 있다는 점이다.
+            </p>
+            <img
+              src="/study/deep_learning_for_computer_vision/lecture_17/img2.png"
+              alt="Sequence-to-sequence with context vector"
+            />
+            <p>
+              이 문제를 해결하기 위해 context vector를 도입할 수 있다. 이는 hidden state와는 별개로 입력 시퀀스의 정보를
+              담고 있는 vector이다. Hidden state만을 이용해 decoder의 시작 부분에만 입력 시퀀스를 전달하는 대신, context
+              vector를 decoder의 매 time step마다 전달하여 입력 시퀀스의 정보를 유지할 수 있다.
+            </p>
+            <p>
+              그러나 이 방식 또한 문제점을 가지고 있는데, context vector의 길이가 정해져 있기 때문에 입력 시퀀스의
+              길이가 무한정 길어질 경우 context vector에 모든 정보를 담을 수 없다는 점이다.
+            </p>
+            <p>
+              이에 대한 해결책으로, 같은 context vector를 계속 사용하는 대신, 매 출력 시퀀스마다 필요한 정보만을 가지고
+              context vector를 매번 업데이트하여 사용할 수 있다. 이것이 바로 초창기 Attention이 등장한 배경이다.
+            </p>
+
+            <h3>Attention as an add-on to Sequence-to-Sequence</h3>
+            <p>
+              앞서 설명했듯, 초창기 Attention은 Sequence-to-Sequence의 문제를 해결하기 위해 RNN에 추가적으로 도입된
+              네트워크이다. 이때의 attention은 매 decoder의 hidden state를 이용하여 그 다음 time step에 사용할 context
+              vector를 예측하는 방식으로 동작한다. 이 과정의 의의는
+              <b
+                >"현재의 hidden state를 이용해 다음 time step에서 더 집중해서 볼 입력 시퀀스의 subset을 추출해 context
+                vector에 저장하는 것"</b
+              >이다. 매 time step마다 이전 step의 output과 context vector를 이용해 hidden state를 계산하고, 이 hidden
+              state를 이용해 output과 다음 context vector를 계산하는 과정이 반복된다.
+            </p>
+            <p>
+              그렇다면 decoder hidden state를 이용해 다음 time step에 사용할 context vector를 계산하는 과정을 좀 더
+              자세히 살펴보자. 아래 그림은 t = 1일 때 context vector $c_1$를 계산하는 과정이다.
+            </p>
+            <img
+              class="half"
+              src="/study/deep_learning_for_computer_vision/lecture_17/img3.png"
+              alt="Calculating context vector"
+            />
+            <p>
+              먼저, 이전 time step의 decoder hidden state $s_0$를 가져와 각각의 encoder hidden state와 함께 MLP에
+              입력한다. 이 MLP를 $f_{att}$라 하면 아래와 같이 각 쌍에 해당하는 alignment score $e_{t,i}$를 구할 수 있다.
+            </p>
+            <p class="math-center">$e_{t,i} = f_{att}(s_{t-1}, h_i)$</p>
+            <p>
+              이 alignment score는
+              <b>"현재의 hidden state를 보았을 때, 다음 time step에서는 어떤 입력 성분에 더 집중해야 하는지"</b>를
+              나타낸다.
+            </p>
+            <p>
+              위 그림에서 $e_{11}$, $e_{12}$, $e_{13}$, $e_{14}$의 값이 클수록 다음 hidden state를 계산할 때 그 입력
+              성분을 더 많이 참조하게 되는 것이다. 이때 이 값들을 유효하게 사용하기 위해 softmax를 취하여 0과 1 사이의
+              값인 $a_{t,i}$로 변환하게 된다. 이를 attention weight라고 한다. 이후 $a_{t,i}$를 각각의 encoder hidden
+              state에 곱하여 중요도에 따라 각 입력 성분을 취한 후 이를 모두 더해 context vector를 생성한다.
+            </p>
+            <p class="math-center">$c_{t} = \sum_i a_{t,i}h_i$</p>
+            <p>
+              이렇게 계산된 context vector $c_t$는 아래와 같이 다음 hidden state를 계산하는데 사용된다. 이때 $G$는
+              decoder RNN, $U$는 decoder에 사용되는 weight matrix를 나타낸다.
+            </p>
+            <p class="math-center">$s_t = G_U(y_{t-1}, s_{t-1}, c_t)$</p>
+            <p>
+              위 예시에서는 "we are eating bread"라는 문장을 스페인어로 번역하는데, t = 1일 때 "we are"에 해당하는
+              "estamos"를 출력하기 위해서는 $h_1$과 $h_2$에 더 집중해야 한다. 따라서 $c_1$은 아마도 $a_{11} = a_{12} =
+              0.45$, $a_{13} = a_{14} = 0.05$ 정도로 계산되어 "we"와 "are"에 더 많은 가중치가 부여되었을 것이다.
+            </p>
+            <p>
+              같은 방식으로 다음 time step t = 2에서는 "eating"에 해당하는 정보가 많이 포함된 context vector $c_2$를
+              생성한다. 이 과정을 반복하여 입력 시퀀스의 길이가 아무리 늘어나더라도 효과적으로 context vector에 필요한
+              정보만을 담아 전달할 수 있다.
+            </p>
+            <p>참고로, alignment score를 계산하는 MLP는 ground truth 없이 단순 backpropagation으로 학습한다.</p>
+          </div>
+          <div class="post-footer">
+            <div class="post-footer-profile">
+              <img src="/asset/cover.jpg" alt="Seongmin Jung" />
+              <h1>Seongmin Jung</h1>
+            </div>
+            <h2>
+              Other posts in
+              <a href="/study/deep_learning_for_computer_vision.html">Deep Learning for Computer Vision</a> series
+            </h2>
+            <ul>
+              <li>
+                <a href="/study/deep_learning_for_computer_vision/lecture_17.html">
+                  <span><b>Lecture 17: Attention</b></span>
+                  <time datetime="2024-06-15">June 15, 2024</time>
+                </a>
+              </li>
+              <li>
+                <a href="/study/deep_learning_for_computer_vision/lecture_16.html">
+                  <span>Lecture 16: Recurrent Networks</span>
+                  <time datetime="2024-06-04">June 4, 2024</time>
+                </a>
+              </li>
+              <li>
+                <a href="/study/deep_learning_for_computer_vision/lecture_15.html">
+                  <span>Lecture 15: Image Segmentation</span>
+                  <time datetime="2024-05-30">May 30, 2024</time>
+                </a>
+              </li>
+              <li>
+                <a href="/study/deep_learning_for_computer_vision/lecture_14.html">
+                  <span>Lecture 14: Object Detectors</span>
+                  <time datetime="2024-05-19">May 19, 2024</time>
+                </a>
+              </li>
+              <li>
+                <a href="/study/deep_learning_for_computer_vision/lecture_13.html">
+                  <span>Lecture 13: Object Detection</span>
+                  <time datetime="2024-05-17">May 17, 2024</time>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2024 Seongmin Jung<br />Designed and developed by Seongmin Jung</p>
+    </footer>
+  </body>
+</html>
