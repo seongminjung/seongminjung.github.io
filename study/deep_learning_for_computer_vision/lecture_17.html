@@ -261,7 +261,7 @@
             <p>
               그렇다면 사전에 모든 decoder time step에 대한 query vector를 어떻게 알 수 있을지 의문이 생기는데, query
               vector에서부터는 RNN의 개념으로부터 벗어나기 때문에 단순히 각 time step에서의 context vector를 얻기 위한
-              일종의 질문이라고 생각하면 된다. 이 query vector를 어떻게 구하는지에 대해서는 아래의 Self-Attention
+              일종의 '질문'이라고 생각하면 된다. 이 query vector를 어떻게 구하는지에 대해서는 아래의 Self-Attention
               Layer에서 다룬다.
             </p>
 
@@ -314,10 +314,15 @@
             <h2>Self-Attention Layer</h2>
             <p>
               지금까지 살펴본 Attention Layer는 query vector와 input vectors를 독립적으로 입력받아 context vector를
-              계산하는 아주 일반적인 형태이다. 이를 다시 한 번 업그레이드하여 input vectors를 이용해 query vector를
-              생성하는 Self-Attention Layer를 구성할 수 있다.
+              계산하는 아주 일반적인 형태이다. 여기서 드는 한 가지 의문은 query vector를 어떻게 구하는가이다. 앞서
+              살펴본 sequence-to-sequence RNN에서는 decoder input $y_i$가 들어올 때마다 hidden state $s_i$를 생성했다.
+              반면 Self-Attention Layer에서는 input data $x_i$를 이용해 query vector를 생성한다. 그렇기에 모든 input
+              vector를 병렬적으로 계산해 query vector를 한꺼번에 생성할 수 있다.
             </p>
-            <p>여기서 추가되는 부분은 $X$에 query matrix $W_Q$를 곱해 query vectors $Q$를 생성하는 것밖에 없다.</p>
+            <p>
+              즉, 여기서 추가되는 부분은 $X$에 query matrix $W_Q$를 곱해 query vectors $Q$를 생성하는 것밖에 없다. Input
+              vectors $X$만 가지고 context vector를 만들어 내기 때문에 Self-Attention Layer라고 불리는 것이다.
+            </p>
             <ul>
               <li>Query matrix: $W_Q$ (Shape: $D_X \times D_Q$)</li>
               <li>Query vectors: $Q = XW_Q$ (Shape: $N_X \times D_Q$)</li>
@@ -346,6 +351,37 @@
               또한 self-attention에서는 query vector 또한 input vector로부터 계산되기 때문에 이 두 벡터들이 유사해지도록
               동시에 두 weight matrix $W_K$와 $W_Q$를 학습하게 된다.
             </p>
+            <p>
+              또한, 앞서 Image Captioning 부분에서 설명했듯 Self-Attention Layer는 입력 데이터의 순서에 상관이 없다는
+              점이 중요한 특징이다. 즉, 벡터들의 '집합'에 대해서 이 Self-Attention Layer를 적용할 수 있다. 다른 말로
+              하면, 이 Self-Attention Layer는 입력 데이터가 어떤 순서로 들어오는지 알지 못한다는 것이다. 언어 모델
+              등에서는 입력 데이터의 순서를 알고 있는 것이 도움이 되기 때문에 아래와 같은 트릭을 사용한다.
+            </p>
+
+            <h4>Positional Encoding</h4>
+            <img
+              class="half"
+              src="/study/deep_learning_for_computer_vision/lecture_17/img9.png"
+              alt="Positional encoding"
+            />
+            <p>
+              위와 같이 입력 데이터 $X$에 순서 정보를 담고 있는 positional encoding vector $E$를 concat하거나 add하는
+              방법이 있다.
+            </p>
+
+            <h4>Masked Self-Attention Layer</h4>
+            <img
+              class="half"
+              src="/study/deep_learning_for_computer_vision/lecture_17/img10.png"
+              alt="Masked self-attention layer"
+            />
+            <p>
+              위와 같이 Alignment score $E$를 계산할 때, 현재 time step 이후의 time step에 대한 정보를 강제로
+              $-\infty$로 만들어 버리는 방법이 있다. 이렇게 하면 softmax를 취했을 때 해당하는 값이 0이 되어 이후의 time
+              step에 대한 정보를 무시할 수 있다.
+            </p>
+
+            <h2>Multihead Self-Attention</h2>
           </div>
           <div class="post-footer">
             <div class="post-footer-profile">
