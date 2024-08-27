@@ -358,7 +358,7 @@ footer {
   }
 }
 
-/* Series Tag */
+/* Category Tag */
 #category-tag {
   font-size: 0.9rem;
   font-weight: 400;
@@ -376,40 +376,40 @@ footer {
   background-color: #e6e6e6;
 }
 
-/* Study Page */
-#study .tab {
+/* Articles Page */
+#articles .tab {
   display: flex;
   gap: 30px;
   height: 50px;
   align-items: end;
 }
 
-#study .tab p {
+#articles .tab p {
   margin-bottom: 0;
   cursor: pointer;
 }
 
-#study .tab p:hover {
+#articles .tab p:hover {
   color: #007bff;
 }
 
-#study .tab p.active {
+#articles .tab p.active {
   color: #007bff;
   border-bottom: 1px solid #007bff;
 }
 
-#study .item {
+#articles .item {
   margin-top: 50px;
   padding-top: 50px;
   border-top: 1px solid #e6e6e6;
 }
 
-#study .item:first-child {
+#articles .item:first-child {
   margin-top: 0;
   padding-top: 50px;
 }
 
-#study .item .grid {
+#articles .item .grid {
   display: grid;
   grid-template-columns: auto auto;
   column-gap: 50px;
@@ -418,11 +418,11 @@ footer {
   text-decoration: none;
 }
 
-#study .item #category-tag {
+#articles .item #category-tag {
   margin-bottom: 10px;
 }
 
-#study .item .grid .date {
+#articles .item .grid .date {
   font-size: 0.9rem;
   font-weight: 400;
   color: #666;
@@ -430,7 +430,7 @@ footer {
   margin-bottom: 20px;
 }
 
-#study .item .grid .preview {
+#articles .item .grid .preview {
   width: 100px;
   height: 100px;
   object-fit: cover;
@@ -439,49 +439,49 @@ footer {
   grid-column: 2 / 3;
 }
 
-#study .item .grid .detail {
+#articles .item .grid .detail {
   margin: 0;
 }
 
-#study .item .grid .published {
+#articles .item .grid .published {
   font-size: 0.9rem;
   color: #666;
   margin-bottom: 0;
 }
 
-#study .item .grid .author {
+#articles .item .grid .author {
   font-size: 0.8rem;
   color: #666;
   margin-bottom: 0;
 }
 
-#study .category {
+#articles .category {
   border-top: 1px solid #e6e6e6;
 }
 
-#study .category h2 {
+#articles .category h2 {
   margin-top: 50px;
 }
 
-#study .category div {
+#articles .category div {
   margin-top: 20px;
 }
 
 @media (max-width: 700px) {
-  #study .item {
+  #articles .item {
     margin-top: 30px;
     padding-top: 30px;
   }
-  #study .item .grid h2 {
+  #articles .item .grid h2 {
     font-size: 1rem;
   }
-  #study .item .grid .date {
+  #articles .item .grid .date {
     font-size: 0.8rem;
   }
-  #study .item .grid .detail {
+  #articles .item .grid .detail {
     display: none;
   }
-  #study .item:first-child {
+  #articles .item:first-child {
     padding-top: 30px;
   }
 }

@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>4. Publisher and Subscriber</title>
+    <meta name="description" content="Seongmin Jung's personal website" />
+    <meta name="keywords" content="Seongmin Jung, Robotics" />
+    <meta name="author" content="Seongmin Jung" />
+    <meta name="language" content="English" />
+    <link rel="shortcut icon" href="/favicon.png" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LL44K1WZ0G"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "G-LL44K1WZ0G");
+    </script>
+
+    <!-- Load an icon library to show a hamburger menu (bars) on small screens -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <!-- import css -->
+    <link rel="stylesheet" href="/css/index.css" />
+    <!-- import js -->
+    <script src="/js/script.js" defer></script>
+  </head>
+
+  <body>
+    <header>
+      <img class="cover" src="/asset/cover.jpg" alt="Seongmin Jung" />
+      <h1 class="title"><a href="/index.html">Seongmin Jung</a></h1>
+      <nav class="nav">
+        <a href="/index.html">Home</a>
+        <a href="/projects.html">Projects</a>
+        <a href="/articles.html" class="bold">Articles</a>
+        <a href="/blog.html">Blog</a>
+        <i id="nav-toggle" class="nav-toggle fa fa-bars" onclick="toggleNav()"></i>
+      </nav>
+    </header>
+
+    <div id="nav-modal-bg" onclick="toggleNav()"></div>
+    <nav id="nav-modal">
+      <a href="/index.html">Home</a>
+      <a href="/projects.html">Projects</a>
+      <a href="/articles.html" class="bold">Articles</a>
+      <a href="/blog.html">Blog</a>
+    </nav>
+
+    <main>
+      <div class="container">
+        <section id="post">
+          <a id="category-tag" href="/articles/ros1_tutorial.html"><i class="fa fa-book"></i> ROS1 Tutorial</a>
+          <h1>4. Publisher and Subscriber</h1>
+          <p class="date">Posted on <time datetime="2023-01-24">January 24, 2023</time></p>
+          <div class="post-body">
+            <h2>Introduction</h2>
+            <p>
+              ROS nodes are the building blocks of ROS systems. They are individual processes that perform a specific
+              task, such as sensing, control, or communication. In this article, we will cover the basics of creating
+              and running ROS nodes.
+            </p>
+            <p>
+              The structure of a ROS node is simple. It consists of a main function that initializes the node and sets
+              up any necessary communication mechanisms, such as publishers or subscribers. The main function then
+              enters a loop that processes incoming data and performs any necessary computation or control.
+            </p>
+
+            <h2>Creating a ROS Publisher Node</h2>
+            <p>
+              Let's start by creating a simple publisher node that publishes a string message to a topic. First, create
+              a new package with the following command:
+            </p>
+            <pre><code class="language-bash">cd ~/blog_ws/src
+catkin_create_pkg my_publisher std_msgs roscpp</code></pre>
+            <p>
+              This command creates a new package called "my_publisher" and depends on the "std_msgs" and "roscpp"
+              packages.
+            </p>
+            <p>
+              Next, create a new C++ file called "talker.cpp" in the "src" folder of the package. In this file, we will
+              implement the main function of the node. Here is an example of a simple publisher node:
+            </p>
+            <pre><code class="language-cpp">#include &lt;ros/ros.h&gt;
+#include &lt;std_msgs/String.h&gt;
+
+int main(int argc, char **argv)
+{
+    // Initialize the node
+    ros::init(argc, argv, "talker");
+    // Create a node handle
+    ros::NodeHandle n;
+    // Create a publisher
+    ros::Publisher chatter_pub = n.advertise&lt;std_msgs::String&gt("chatter", 1000);
+    // Set the loop rate
+    ros::Rate loop_rate(10);
+
+    int count = 0;
+    while (ros::ok())
+    {
+        // Create a message
+        std_msgs::String msg;
+        std::stringstream ss;
+        ss &lt;&lt; "hello world " &lt;&lt; count;
+        msg.data = ss.str();
+        // Publish the message
+        chatter_pub.publish(msg);
+        // Log the message
+        ROS_INFO("I said: [%s]", msg.data.c_str());
+        // Sleep for the loop rate
+        loop_rate.sleep();
+        count++;
+    }
+    return 0;
+}</code></pre>
+            <p>
+              In this example, we first initialize the node using the "ros::init()" function and create a node handle
+              using "ros::NodeHandle n;". We then create a publisher that publishes to the "chatter" topic of type
+              "std_msgs::String". In the main loop, we create a message, set its data, and publish it. We also log the
+              message using "ROS_INFO()" and sleep for the loop rate.
+            </p>
+            <p>
+              To build and run the node, navigate to the root of your catkin workspace and run the following commands:
+            </p>
+            <pre><code class="language-bash">cd ~/blog_ws
+catkin_make
+source /opt/ros/noetic/setup.bash
+source devel/setup.bash
+rosrun my_publisher talker</code></pre>
+            <p>
+              The second command builds the package, the third and fourth source the setup file, and the fifth runs the
+              node. You should see the node output "I said: [hello world 0]" in the terminal. To see the messages being
+              published, you can use the "rostopic echo /chatter" command to print the messages being published on a
+              topic.
+            </p>
+            <img class="half" src="/articles/ros1_tutorial/ros_4/img1.webp" alt="Publisher output" />
+            <p>
+              This is a very basic example of a publisher node, but it demonstrates the basic structure and
+              functionality of a ROS node.
+            </p>
+
+            <h2>Creating a ROS Subscriber Node</h2>
+            <p>
+              You can also create subscriber nodes that listen to topics and process incoming messages, using the
+              "ros::Subscriber" class.
+            </p>
+            <p>
+              To create a subscriber node, you will need to create a new C++ file and implement the main function
+              similar to the publisher node, but instead of creating a publisher, you will create a subscriber. Here is
+              an example of a simple subscriber node that subscribes to the "chatter" topic and prints the incoming
+              messages:
+            </p>
+            <pre><code class="language-cpp">#include &lt;ros/ros.h&gt;
+#include &lt;std_msgs/String.h&gt;
+
+void chatterCallback(const std_msgs::String::ConstPtr& msg)
+{
+    ROS_INFO("I heard: [%s]", msg->data.c_str());
+}
+
+int main(int argc, char **argv)
+{
+    // Initialize the node
+    ros::init(argc, argv, "listener");
+    // Create a node handle
+    ros::NodeHandle n;
+    // Create a subscriber
+    ros::Subscriber sub = n.subscribe("chatter", 1000, chatterCallback);
+    // Spin
+    ros::spin();
+    return 0;
+}</code></pre>
+            <p>
+              In this example, we first initialize the node, create a node handle, and create a subscriber that
+              subscribes to the "chatter" topic and calls the "chatterCallback" function when a message is received. The
+              "spin()" function is used to keep the node running and process incoming messages.
+            </p>
+            <p>
+              To build and run the node, navigate to the root of your catkin workspace and run the following command:
+            </p>
+            <pre><code class="language-bash">cd ~/blog_ws
+catkin_make
+source /opt/ros/noetic/setup.bash
+source devel/setup.bash
+rosrun my_publisher listener</code></pre>
+            <p>
+              You can run the publisher and subscriber nodes in different terminals and see the messages being printed
+              in both terminals.
+            </p>
+            <img class="half" src="/articles/ros1_tutorial/ros_4/img2.webp" alt="Subscriber output" />
+
+            <h2>Conclusion</h2>
+            <p>
+              In conclusion, ROS nodes are individual processes that perform specific tasks and communicate with each
+              other using topics, services, and other communication mechanisms. By understanding the basics of creating
+              and using ROS nodes, you can start building your own ROS systems and harness the power of ROS.
+            </p>
+            <img class="half" src="/articles/ros1_tutorial/ros_4/img3.webp" alt="Conclusion" />
+            <p>
+              Check out my next article about setting up the bashrc file to automatically source necessary setup files
+              <a href="/articles/ros1_tutorial/ros_5.html">HERE</a>.
+            </p>
+          </div>
+          <div class="post-footer">
+            <div class="post-footer-profile">
+              <img src="/asset/cover.jpg" alt="Seongmin Jung" />
+              <h1>Seongmin Jung</h1>
+            </div>
+            <h2>Other posts in <a href="/articles/ros1_tutorial.html">ROS1 Tutorial</a> category</h2>
+            <ul>
+              <li>
+                <a href="/articles/ros1_tutorial/ros_6.html">
+                  <span>6. URDF file - Creating Your Own Robot</span>
+                  <time datetime="2023-01-25">January 25, 2023</time>
+                </a>
+              </li>
+              <li>
+                <a href="/articles/ros1_tutorial/ros_5.html">
+                  <span>5. Setting up bashrc file</span>
+                  <time datetime="2023-01-24">January 24, 2023</time>
+                </a>
+              </li>
+              <li>
+                <a href="/articles/ros1_tutorial/ros_4.html">
+                  <span><b>4. Publisher and Subscriber</b></span>
+                  <time datetime="2023-01-24">January 24, 2023</time>
+                </a>
+              </li>
+              <li>
+                <a href="/articles/ros1_tutorial/ros_3.html">
+                  <span>3. Topic, Node, Message, and Service</span>
+                  <time datetime="2023-01-23">January 23, 2023</time>
+                </a>
+              </li>
+              <li>
+                <a href="/articles/ros1_tutorial/ros_2.html">
+                  <span>2. Workspace and Package</span>
+                  <time datetime="2023-01-20">January 20, 2023</time>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2024 Seongmin Jung<br />Designed and developed by Seongmin Jung</p>
+    </footer>
+  </body>
+</html>

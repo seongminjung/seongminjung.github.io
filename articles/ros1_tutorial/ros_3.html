@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>3. Topic, Node, Message, and Service</title>
+    <meta name="description" content="Seongmin Jung's personal website" />
+    <meta name="keywords" content="Seongmin Jung, Robotics" />
+    <meta name="author" content="Seongmin Jung" />
+    <meta name="language" content="English" />
+    <link rel="shortcut icon" href="/favicon.png" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LL44K1WZ0G"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "G-LL44K1WZ0G");
+    </script>
+
+    <!-- Load an icon library to show a hamburger menu (bars) on small screens -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <!-- import css -->
+    <link rel="stylesheet" href="/css/index.css" />
+    <!-- import js -->
+    <script src="/js/script.js" defer></script>
+  </head>
+
+  <body>
+    <header>
+      <img class="cover" src="/asset/cover.jpg" alt="Seongmin Jung" />
+      <h1 class="title"><a href="/index.html">Seongmin Jung</a></h1>
+      <nav class="nav">
+        <a href="/index.html">Home</a>
+        <a href="/projects.html">Projects</a>
+        <a href="/articles.html" class="bold">Articles</a>
+        <a href="/blog.html">Blog</a>
+        <i id="nav-toggle" class="nav-toggle fa fa-bars" onclick="toggleNav()"></i>
+      </nav>
+    </header>
+
+    <div id="nav-modal-bg" onclick="toggleNav()"></div>
+    <nav id="nav-modal">
+      <a href="/index.html">Home</a>
+      <a href="/projects.html">Projects</a>
+      <a href="/articles.html" class="bold">Articles</a>
+      <a href="/blog.html">Blog</a>
+    </nav>
+
+    <main>
+      <div class="container">
+        <section id="post">
+          <a id="category-tag" href="/articles/ros1_tutorial.html"><i class="fa fa-book"></i> ROS1 Tutorial</a>
+          <h1>3. Topic, Node, Message, and Service</h1>
+          <p class="date">Posted on <time datetime="2023-01-23">January 23, 2023</time></p>
+          <div class="post-body">
+            <h2>Introduction</h2>
+            <p>
+              ROS (Robot Operating System) is a powerful framework for building robotic systems. In order to effectively
+              work with ROS, it's important to understand some key concepts that are central to the system. This
+              includes topics, nodes, messages, and services.
+            </p>
+            <h2>Topics</h2>
+            <p>
+              A topic can be thought of as a bulletin board. Just as a person can post an article on a bulletin board
+              for others to read, a node can publish data to a topic for other nodes to receive. Each topic has a
+              specific name, and nodes can subscribe to a topic to receive the data that is being published to it.
+              Topics are used for a variety of purposes, such as sending sensor data, sending control commands, and
+              more.
+            </p>
+            <p>To see a list of active topics in the system, you can use the command:</p>
+            <pre><code class="language-bash">rostopic list</code></pre>
+            <p>
+              Make sure to run roscore beforehand. To see more detailed information about a specific topic, you can use
+              the command:
+            </p>
+            <pre><code class="language-bash">rostopic info &lt;topic_name&gt;</code></pre>
+
+            <h2>Nodes</h2>
+            <p>
+              A node can be thought of as a person. Just as a person can post an article on a bulletin board or read an
+              article on a bulletin board, a node can publish data to a topic or subscribe to a topic to receive data.
+              Each node performs a specific function, such as processing sensor data or sending control commands. Nodes
+              communicate with each other through topics and services.
+            </p>
+            <p>To see a list of currently running nodes, you can use the command:</p>
+            <pre><code class="language-bash">rosnode list</code></pre>
+            <p>To see more detailed information about a specific node, you can use the command:</p>
+            <pre><code class="language-bash">rosnode info &lt;node_name&gt;</code></pre>
+
+            <h2>Messages</h2>
+            <p>
+              A message can be thought of as the article that is posted on the bulletin board. Just as an article has a
+              specific format, such as a title, author, and content, a message also has a specific format. The format of
+              a message can include various data types, such as integers, floating point numbers, and strings.
+            </p>
+            <p>To see a list of available message types in the system, you can use the command:</p>
+            <pre><code class="language-bash">rosmsg list</code></pre>
+            <p>To see more detailed information about a specific message type, you can use the command:</p>
+            <pre><code class="language-bash">rosmsg show &lt;message_type&gt;</code></pre>
+
+            <h2>Services</h2>
+            <p>
+              A service is a way for nodes to request a specific action or receive a specific piece of information from
+              another node, using a specific request-response format defined by a service definition file.
+            </p>
+            <p>To see a list of available services in the system, you can use the command:</p>
+            <pre><code class="language-bash">rosservice list</code></pre>
+            <p>To see more detailed information about a specific service, you can use the command:</p>
+            <pre><code class="language-bash">rosservice info &lt;service_name&gt;</code></pre>
+
+            <h2>Conclusion</h2>
+            <img class="half" src="/articles/ros1_tutorial/ros_3/img1.webp" alt="Conclusion" />
+            <p>
+              In conclusion, understanding the concepts of topics, nodes, messages, and services is essential for
+              working effectively with ROS. By understanding these concepts, you can more easily navigate and work
+              within the ROS ecosystem. The analogy of a person and a bulletin board can help to illustrate the
+              relationships between topics and nodes, and make the concepts more relatable and intuitive.
+            </p>
+            <p>
+              Check out my next article about creating a publisher and a subscriber
+              <a href="/articles/ros1_tutorial/ros_4.html">HERE</a>.
+            </p>
+          </div>
+          <div class="post-footer">
+            <div class="post-footer-profile">
+              <img src="/asset/cover.jpg" alt="Seongmin Jung" />
+              <h1>Seongmin Jung</h1>
+            </div>
+            <h2>Other posts in <a href="/articles/ros1_tutorial.html">ROS1 Tutorial</a> category</h2>
+            <ul>
+              <li>
+                <a href="/articles/ros1_tutorial/ros_5.html">
+                  <span>5. Setting up bashrc file</span>
+                  <time datetime="2023-01-24">January 24, 2023</time>
+                </a>
+              </li>
+              <li>
+                <a href="/articles/ros1_tutorial/ros_4.html">
+                  <span>4. Publisher and Subscriber</span>
+                  <time datetime="2023-01-24">January 24, 2023</time>
+                </a>
+              </li>
+              <li>
+                <a href="/articles/ros1_tutorial/ros_3.html">
+                  <span><b>3. Topic, Node, Message, and Service</b></span>
+                  <time datetime="2023-01-23">January 23, 2023</time>
+                </a>
+              </li>
+              <li>
+                <a href="/articles/ros1_tutorial/ros_2.html">
+                  <span>2. Workspace and Package</span>
+                  <time datetime="2023-01-20">January 20, 2023</time>
+                </a>
+              </li>
+              <li>
+                <a href="/articles/ros1_tutorial/ros_1.html">
+                  <span>1. Installation and Environment Setup</span>
+                  <time datetime="2023-01-11">January 11, 2023</time>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2024 Seongmin Jung<br />Designed and developed by Seongmin Jung</p>
+    </footer>
+  </body>
+</html>

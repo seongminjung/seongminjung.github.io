@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Seongmin Jung | Articles</title>
+    <meta name="description" content="Seongmin Jung's personal website" />
+    <meta name="keywords" content="Seongmin Jung, Robotics" />
+    <meta name="author" content="Seongmin Jung" />
+    <meta name="language" content="English" />
+    <link rel="shortcut icon" href="/favicon.png" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LL44K1WZ0G"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "G-LL44K1WZ0G");
+    </script>
+
+    <!-- Load an icon library to show a hamburger menu (bars) on small screens -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <!-- import css -->
+    <link rel="stylesheet" href="/css/index.css" />
+    <!-- import js -->
+    <script src="/js/script.js" defer></script>
+  </head>
+
+  <body>
+    <header>
+      <img class="cover" src="/asset/cover.jpg" alt="Seongmin Jung" />
+      <h1 class="title"><a href="/index.html">Seongmin Jung</a></h1>
+      <nav class="nav">
+        <a href="/index.html">Home</a>
+        <a href="/projects.html">Projects</a>
+        <a href="/articles.html" class="bold">Articles</a>
+        <a href="/blog.html">Blog</a>
+        <i id="nav-toggle" class="nav-toggle fa fa-bars" onclick="toggleNav()"></i>
+      </nav>
+    </header>
+
+    <div id="nav-modal-bg" onclick="toggleNav()"></div>
+    <nav id="nav-modal">
+      <a href="/index.html">Home</a>
+      <a href="/projects.html">Projects</a>
+      <a href="/articles.html" class="bold">Articles</a>
+      <a href="/blog.html">Blog</a>
+    </nav>
+
+    <main>
+      <div class="container">
+        <section id="articles">
+          <h1>Articles</h1>
+          <div class="tab">
+            <p class="active">All Posts</p>
+            <p>Category</p>
+          </div>
+          <div class="tab-content">
+            <div class="all-posts">
+              <div class="item">
+                <a id="category-tag" href="/articles/deep_learning_for_computer_vision.html"
+                  ><i class="fa fa-book"></i> Deep Learning for Computer Vision</a
+                >
+                <a class="grid" href="/articles/deep_learning_for_computer_vision/lecture_18.html">
+                  <h2>Lecture 18: Vision Transformers</h2>
+                  <p class="date">Posted on <time datetime="2024-08-24">August 24, 2024</time></p>
+                  <img
+                    class="preview"
+                    src="/articles/deep_learning_for_computer_vision/lecture_18/img1.png"
+                    alt="preview"
+                  />
+                  <p class="detail">Vision Transformer (ViT), Distillation, Swin Transformer, MLP-Mixer, and DETR</p>
+                </a>
+              </div>
+              <div class="item">
+                <a id="category-tag" href="/articles/deep_learning_for_computer_vision.html"
+                  ><i class="fa fa-book"></i> Deep Learning for Computer Vision</a
+                >
+                <a class="grid" href="/articles/deep_learning_for_computer_vision/lecture_17.html">
+                  <h2>Lecture 17: Attention</h2>
+                  <p class="date">Posted on <time datetime="2024-06-15">June 15, 2024</time></p>
+                  <img
+                    class="preview"
+                    src="/articles/deep_learning_for_computer_vision/lecture_17/img1.png"
+                    alt="preview"
+                  />
+                  <p class="detail">Sequence-to-Sequence with RNNs and Attention, Self-Attention, and Transformer</p>
+                </a>
+              </div>
+              <div class="item">
+                <a id="category-tag" href="/articles/deep_learning_for_computer_vision.html"
+                  ><i class="fa fa-book"></i> Deep Learning for Computer Vision</a
+                >
+                <a class="grid" href="/articles/deep_learning_for_computer_vision/lecture_16.html">
+                  <h2>Lecture 16: Recurrent Networks</h2>
+                  <p class="date">Posted on <time datetime="2024-06-04">June 4, 2024</time></p>
+                  <img
+                    class="preview"
+                    src="/articles/deep_learning_for_computer_vision/lecture_16/img1.png"
+                    alt="preview"
+                  />
+                  <p class="detail">
+                    Recurrent Neural Networks, Backpropagation Through Time, and Long Short-Term Memory (LSTM)
+                  </p>
+                </a>
+              </div>
+              <div class="item">
+                <a id="category-tag" href="/articles/deep_learning_for_computer_vision.html"
+                  ><i class="fa fa-book"></i> Deep Learning for Computer Vision</a
+                >
+                <a class="grid" href="/articles/deep_learning_for_computer_vision/lecture_15.html">
+                  <h2>Lecture 15: Image Segmentation</h2>
+                  <p class="date">Posted on <time datetime="2024-05-30">May 30, 2024</time></p>
+                  <img
+                    class="preview"
+                    src="/articles/deep_learning_for_computer_vision/lecture_15/img1.png"
+                    alt="preview"
+                  />
+                  <p class="detail">Semantic Segmentation, Instance Segmentation, and Beyond Instance Segmentation</p>
+                </a>
+              </div>
+              <div class="item">
+                <a id="category-tag" href="/articles/deep_learning_for_computer_vision.html"
+                  ><i class="fa fa-book"></i> Deep Learning for Computer Vision</a
+                >
+                <a class="grid" href="/articles/deep_learning_for_computer_vision/lecture_14.html">
+                  <h2>Lecture 14: Object Detectors</h2>
+                  <p class="date">Posted on <time datetime="2024-05-19">May 19, 2024</time></p>
+                  <img
+                    class="preview"
+                    src="/articles/deep_learning_for_computer_vision/lecture_14/img1.png"
+                    alt="preview"
+                  />
+                  <p class="detail">Fast R-CNN, Faster R-CNN, and Feature Pyramid Network</p>
+                </a>
+              </div>
+              <div class="item">
+                <a id="category-tag" href="/articles/deep_learning_for_computer_vision.html"
+                  ><i class="fa fa-book"></i> Deep Learning for Computer Vision</a
+                >
+                <a class="grid" href="/articles/deep_learning_for_computer_vision/lecture_13.html">
+                  <h2>Lecture 13: Object Detection</h2>
+                  <p class="date">Posted on <time datetime="2024-05-17">May 17, 2024</time></p>
+                  <img
+                    class="preview"
+                    src="/articles/deep_learning_for_computer_vision/lecture_13/img1.png"
+                    alt="preview"
+                  />
+                  <p class="detail">Transfer Learning, Object Detection, and R-CNN</p>
+                </a>
+              </div>
+              <div class="item">
+                <a id="category-tag" href="/articles/deep_learning_for_computer_vision.html"
+                  ><i class="fa fa-book"></i> Deep Learning for Computer Vision</a
+                >
+                <a class="grid" href="/articles/deep_learning_for_computer_vision/lecture_12.html">
+                  <h2>Lecture 12: Deep Learning Software</h2>
+                  <p class="date">Posted on <time datetime="2024-05-15">May 15, 2024</time></p>
+                  <img
+                    class="preview"
+                    src="/articles/deep_learning_for_computer_vision/lecture_12/img1.webp"
+                    alt="preview"
+                  />
+                  <p class="detail">PyTorch and Dynamic Computation Graphs</p>
+                </a>
+              </div>
+              <div class="item">
+                <a id="category-tag" href="/articles/deep_learning_for_computer_vision.html"
+                  ><i class="fa fa-book"></i> Deep Learning for Computer Vision</a
+                >
+                <a class="grid" href="/articles/deep_learning_for_computer_vision/lecture_11.html">
+                  <h2>Lecture 11: CNN Architectures II</h2>
+                  <p class="date">Posted on <time datetime="2024-05-12">May 12, 2024</time></p>
+                  <img
+                    class="preview"
+                    src="/articles/deep_learning_for_computer_vision/lecture_11/img1.png"
+                    alt="preview"
+                  />
+                  <p class="detail">Grouped Convolution and New Architectures</p>
+                </a>
+              </div>
+              <div class="item">
+                <a id="category-tag" href="/articles/deep_learning_for_computer_vision.html"
+                  ><i class="fa fa-book"></i> Deep Learning for Computer Vision</a
+                >
+                <a class="grid" href="/articles/deep_learning_for_computer_vision/lecture_10.html">
+                  <h2>Lecture 10: Training Neural Networks II</h2>
+                  <p class="date">Posted on <time datetime="2024-05-11">May 11, 2024</time></p>
+                  <img
+                    class="preview"
+                    src="/articles/deep_learning_for_computer_vision/lecture_10/img1.png"
+                    alt="preview"
+                  />
+                  <p class="detail">
+                    Learning Rate Schedules, Hyperparameter Optimization, Model Ensembles, Transfer Learning, and
+                    Large-Batch Training
+                  </p>
+                </a>
+              </div>
+              <div class="item">
+                <a id="category-tag" href="/articles/deep_learning_for_computer_vision.html"
+                  ><i class="fa fa-book"></i> Deep Learning for Computer Vision</a
+                >
+                <a class="grid" href="/articles/deep_learning_for_computer_vision/lecture_9.html">
+                  <h2>Lecture 9: Training Neural Networks I</h2>
+                  <p class="date">Posted on <time datetime="2024-05-03">May 3, 2024</time></p>
+                  <img
+                    class="preview"
+                    src="/articles/deep_learning_for_computer_vision/lecture_9/img1.png"
+                    alt="preview"
+                  />
+                  <p class="detail">
+                    Activation Functions, Data Preprocessing, Weight Initialization, and Regularization
+                  </p>
+                </a>
+              </div>
+              <div class="item">
+                <a id="category-tag" href="/articles/deep_learning_for_computer_vision.html"
+                  ><i class="fa fa-book"></i> Deep Learning for Computer Vision</a
+                >
+                <a class="grid" href="/articles/deep_learning_for_computer_vision/lecture_8.html">
+                  <h2>Lecture 8: CNN Architectures I</h2>
+                  <p class="date">Posted on <time datetime="2024-04-30">April 30, 2024</time></p>
+                  <img
+                    class="preview"
+                    src="/articles/deep_learning_for_computer_vision/lecture_8/img1.png"
+                    alt="preview"
+                  />
+                  <p class="detail">AlexNet, VGG, GoogLeNet, and ResNet</p>
+                </a>
+              </div>
+              <div class="item">
+                <a id="category-tag" href="/articles/deep_learning_for_computer_vision.html"
+                  ><i class="fa fa-book"></i> Deep Learning for Computer Vision</a
+                >
+                <a class="grid" href="/articles/deep_learning_for_computer_vision/lecture_7.html">
+                  <h2>Lecture 7: Convolutional Networks</h2>
+                  <p class="date">Posted on <time datetime="2024-04-27">April 27, 2024</time></p>
+                  <img
+                    class="preview"
+                    src="/articles/deep_learning_for_computer_vision/lecture_7/img1.png"
+                    alt="preview"
+                  />
+                  <p class="detail">Convolutional Layers, Pooling Layers, and Batch Normalization</p>
+                </a>
+              </div>
+              <div class="item">
+                <a id="category-tag" href="/articles/visual_slam.html"><i class="fa fa-book"></i> Visual SLAM</a>
+                <a class="grid" href="/articles/visual_slam/vslam_5.html">
+                  <h2>3D Rigid Body Motion | 4. Affine and Projective Transformation</h2>
+                  <p class="date">Posted on <time datetime="2024-04-21">April 21, 2024</time></p>
+                  <img class="preview" src="/articles/visual_slam/vslam_5/img1.jpg" alt="preview" />
+                  <p class="detail">3D Transformations</p>
+                </a>
+              </div>
+              <div class="item">
+                <a id="category-tag" href="/articles/deep_learning_for_computer_vision.html"
+                  ><i class="fa fa-book"></i> Deep Learning for Computer Vision</a
+                >
+                <a class="grid" href="/articles/deep_learning_for_computer_vision/lecture_6.html">
+                  <h2>Lecture 6: Backpropagation</h2>
+                  <p class="date">Posted on <time datetime="2024-04-20">April 20, 2024</time></p>
+                  <img
+                    class="preview"
+                    src="/articles/deep_learning_for_computer_vision/lecture_6/img1.png"
+                    alt="preview"
+                  />
+                  <p class="detail">Computational Graph and Backpropagation</p>
+                </a>
+              </div>
+              <div class="item">
+                <a id="category-tag" href="/articles/visual_slam.html"><i class="fa fa-book"></i> Visual SLAM</a>
+                <a class="grid" href="/articles/visual_slam/vslam_4.html">
+                  <h2>3D Rigid Body Motion | 3. Quaternions</h2>
+                  <p class="date">Posted on <time datetime="2024-04-19">April 19, 2024</time></p>
+                  <img class="preview" src="/articles/visual_slam/vslam_4/img1.png" alt="preview" />
+                  <p class="detail">Quaternion Operations and Conversions</p>
+                </a>
+              </div>
+              <div class="item">
+                <a id="category-tag" href="/articles/visual_slam.html"><i class="fa fa-book"></i> Visual SLAM</a>
+                <a class="grid" href="/articles/visual_slam/vslam_3.html">
+                  <h2>3D Rigid Body Motion | 2. Rotation Vectors and the Euler Angles</h2>
+                  <p class="date">Posted on <time datetime="2024-04-19">April 19, 2024</time></p>
+                  <img class="preview" src="/articles/visual_slam/vslam_3/img1.png" alt="preview" />
+                  <p class="detail">Rotation Vector and Euler Angles</p>
+                </a>
+              </div>
+              <div class="item">
+                <a id="category-tag" href="/articles/deep_learning_for_computer_vision.html"
+                  ><i class="fa fa-book"></i> Deep Learning for Computer Vision</a
+                >
+                <a class="grid" href="/articles/deep_learning_for_computer_vision/lecture_5.html">
+                  <h2>Lecture 5: Neural Networks</h2>
+                  <p class="date">Posted on <time datetime="2024-04-18">April 18, 2024</time></p>
+                  <img
+                    class="preview"
+                    src="/articles/deep_learning_for_computer_vision/lecture_5/img1.png"
+                    alt="preview"
+                  />
+                  <p class="detail">Neural Networks and Universal Approximation Theorem</p>
+                </a>
+              </div>
+              <div class="item">
+                <a id="category-tag" href="/articles/deep_learning_for_computer_vision.html"
+                  ><i class="fa fa-book"></i> Deep Learning for Computer Vision</a
+                >
+                <a class="grid" href="/articles/deep_learning_for_computer_vision/lecture_4.html">
+                  <h2>Lecture 4: Regularization + Optimization</h2>
+                  <p class="date">Posted on <time datetime="2024-04-02">April 2, 2024</time></p>
+                  <img
+                    class="preview"
+                    src="/articles/deep_learning_for_computer_vision/lecture_4/img1.png"
+                    alt="preview"
+                  />
+                  <p class="detail">Gradient descent and optimizers</p>
+                </a>
+              </div>
+              <div class="item">
+                <a id="category-tag" href="/articles/visual_slam.html"><i class="fa fa-book"></i> Visual SLAM</a>
+                <a class="grid" href="/articles/visual_slam/vslam_2.html">
+                  <h2>3D Rigid Body Motion | 1. Rotation Matrix</h2>
+                  <p class="date">Posted on <time datetime="2024-03-28">March 28, 2024</time></p>
+                  <img class="preview" src="/articles/visual_slam/vslam_2/img1.png" alt="preview" />
+                  <p class="detail">Transform between coordinate systems</p>
+                </a>
+              </div>
+              <div class="item">
+                <a id="category-tag" href="/articles/visual_slam.html"><i class="fa fa-book"></i> Visual SLAM</a>
+                <a class="grid" href="/articles/visual_slam/vslam_1.html">
+                  <h2>Introduction</h2>
+                  <p class="date">Posted on <time datetime="2024-03-28">March 28, 2024</time></p>
+                  <img class="preview" src="/articles/visual_slam/vslam_1/img1.png" alt="preview" />
+                  <p class="detail">Introduction to SLAM</p>
+                </a>
+              </div>
+              <div class="item">
+                <a id="category-tag" href="/articles/deep_learning_for_computer_vision.html"
+                  ><i class="fa fa-book"></i> Deep Learning for Computer Vision</a
+                >
+                <a class="grid" href="/articles/deep_learning_for_computer_vision/lecture_3.html">
+                  <h2>Lecture 3: Linear Classifiers</h2>
+                  <p class="date">Posted on <time datetime="2024-03-28">March 28, 2024</time></p>
+                  <img
+                    class="preview"
+                    src="/articles/deep_learning_for_computer_vision/lecture_3/img1.png"
+                    alt="preview"
+                  />
+                  <p class="detail">Linear classifiers, loss function, and regularization</p>
+                </a>
+              </div>
+              <div class="item">
+                <a id="category-tag" href="/articles/deep_learning_for_computer_vision.html"
+                  ><i class="fa fa-book"></i> Deep Learning for Computer Vision</a
+                >
+                <a class="grid" href="/articles/deep_learning_for_computer_vision/lecture_2.html">
+                  <h2>Lecture 2: Image Classification</h2>
+                  <p class="date">Posted on <time datetime="2024-03-26">March 26, 2024</time></p>
+                  <img
+                    class="preview"
+                    src="/articles/deep_learning_for_computer_vision/lecture_2/img1.png"
+                    alt="preview"
+                  />
+                  <p class="detail">K-Nearest Neighbors (kNN) and data splitting</p>
+                </a>
+              </div>
+              <div class="item">
+                <a id="category-tag" href="/articles/deep_learning_for_computer_vision.html"
+                  ><i class="fa fa-book"></i> Deep Learning for Computer Vision</a
+                >
+                <a class="grid" href="/articles/deep_learning_for_computer_vision/lecture_1.html">
+                  <h2>Lecture 1: Introduction to Deep Learning for Computer Vision</h2>
+                  <p class="date">Posted on <time datetime="2024-03-26">March 26, 2024</time></p>
+                  <img
+                    class="preview"
+                    src="/articles/deep_learning_for_computer_vision/lecture_1/img1.png"
+                    alt="preview"
+                  />
+                  <p class="detail">Introduction to deep learning for computer vision</p>
+                </a>
+              </div>
+              <div class="item">
+                <a id="category-tag" href="/articles/reinforcement_learning.html"
+                  ><i class="fa fa-book"></i> Reinforcement Learning</a
+                >
+                <a class="grid" href="/articles/reinforcement_learning/reinforcement_learning_overview.html">
+                  <h2>Reinforcement Learning</h2>
+                  <p class="date">Posted on <time datetime="2024-03-22">March 22, 2024</time></p>
+                  <img
+                    class="preview"
+                    src="/articles/reinforcement_learning/reinforcement_learning_overview/img1.JPG"
+                    alt="preview"
+                  />
+                  <p class="detail">Basic concepts of reinforcement learning and its applications in robotics.</p>
+                </a>
+              </div>
+              <div class="item">
+                <a id="category-tag" href="/articles/paper_summaries.html"
+                  ><i class="fa fa-book"></i> Paper Summaries</a
+                >
+                <a class="grid" href="/articles/paper_summaries/kiss-icp.html">
+                  <h2>
+                    KISS-ICP: In Defense of Point-to-Point ICP -- Simple, Accurate, and Robust Registration If Done the
+                    Right Way
+                  </h2>
+                  <p class="published">RA-L 2023</p>
+                  <p class="author">
+                    Ignacio Vizzo, Tiziano Guadagnino, Benedikt Mersch, Louis Wiesmann, Jens Behley, Cyrill Stachniss
+                  </p>
+                  <img class="preview" src="/articles/paper_summaries/kiss-icp/img1.PNG" alt="preview" />
+                </a>
+              </div>
+              <div class="item">
+                <a id="category-tag" href="/articles/paper_summaries.html"
+                  ><i class="fa fa-book"></i> Paper Summaries</a
+                >
+                <a class="grid" href="/articles/paper_summaries/cnn-slam.html">
+                  <h2>CNN-SLAM: Real-time dense monocular SLAM with learned depth prediction</h2>
+                  <p class="published">CVPR 2017</p>
+                  <p class="author">Keisuke Tateno, Federico Tombari, Iro Laina, Nassir Navab</p>
+                  <img class="preview" src="/articles/paper_summaries/cnn-slam/preview.png" alt="preview" />
+                </a>
+              </div>
+              <div class="item">
+                <a id="category-tag" href="/articles/paper_summaries.html"
+                  ><i class="fa fa-book"></i> Paper Summaries</a
+                >
+                <a class="grid" href="/articles/paper_summaries/vmap.html">
+                  <h2>vMAP: Vectorised Object Mapping for Neural Field SLAM</h2>
+                  <p class="published">CVPR 2023</p>
+                  <p class="author">Xin Kong, Shikun Liu, Marwan Taher, Andrew J. Davison</p>
+                  <img class="preview" src="/articles/paper_summaries/vmap/img1.png" alt="preview" />
+                </a>
+              </div>
+              <div class="item">
+                <a id="category-tag" href="/articles/paper_summaries.html"
+                  ><i class="fa fa-book"></i> Paper Summaries</a
+                >
+                <a class="grid" href="/articles/paper_summaries/bundlesdf.html">
+                  <h2>BundleSDF: Neural 6-DoF Tracking and 3D Reconstruction of Unknown Objects</h2>
+                  <p class="published">CVPR 2023</p>
+                  <p class="author">
+                    Bowen Wen, Jonathan Tremblay, Valts Blukis, Stephen Tyree, Thomas Muller, Alex Evans, Dieter Fox,
+                    Jan Kautz, Stan Birchfield
+                  </p>
+                  <img class="preview" src="/articles/paper_summaries/bundlesdf/preview.png" alt="preview" />
+                </a>
+              </div>
+              <div class="item">
+                <a id="category-tag" href="/articles/icp_algorithm.html"
+                  ><i class="fa fa-book"></i> Iterative Closest Point (ICP) Algorithm</a
+                >
+                <a class="grid" href="/articles/icp_algorithm/icp_3.html">
+                  <h2>Part 3: Implementation of Basic ICP Algorithm</h2>
+                  <p class="date">Posted on <time datetime="2023-09-21">September 21, 2023</time></p>
+                  <img class="preview" src="/articles/icp_algorithm/icp_3/img1.png" alt="preview" />
+                  <p class="detail">Implementing ICP from Scratch in C++</p>
+                </a>
+              </div>
+              <div class="item">
+                <a id="category-tag" href="/articles/icp_algorithm.html"
+                  ><i class="fa fa-book"></i> Iterative Closest Point (ICP) Algorithm</a
+                >
+                <a class="grid" href="/articles/icp_algorithm/icp_2.html">
+                  <h2>Part 2: Unknown Data Association</h2>
+                  <p class="date">Posted on <time datetime="2023-09-17">September 17, 2023</time></p>
+                  <img class="preview" src="/articles/icp_algorithm/icp_2/img1.png" alt="preview" />
+                  <p class="detail">Iterative Method and ICP Variants</p>
+                </a>
+              </div>
+              <div class="item">
+                <a id="category-tag" href="/articles/icp_algorithm.html"
+                  ><i class="fa fa-book"></i> Iterative Closest Point (ICP) Algorithm</a
+                >
+                <a class="grid" href="/articles/icp_algorithm/icp_1.html">
+                  <h2>Part 1: Known Data Association & SVD</h2>
+                  <p class="date">Posted on <time datetime="2023-09-10">September 10, 2023</time></p>
+                  <img class="preview" src="/articles/icp_algorithm/icp_1/img1.png" alt="preview" />
+                  <p class="detail">ICP Overview and One-Shot Optimal Solution</p>
+                </a>
+              </div>
+              <div class="item">
+                <a id="category-tag" href="/articles/ros1_tutorial.html"><i class="fa fa-book"></i> ROS1 Tutorial</a>
+                <a class="grid" href="/articles/ros1_tutorial/ros_7.html">
+                  <h2>7. Adding Dimensions and Positions</h2>
+                  <p class="date">Posted on <time datetime="2023-01-26">January 26, 2023</time></p>
+                  <img class="preview" src="/articles/ros1_tutorial/ros_7/img1.webp" alt="preview" />
+                  <p class="detail">Detailing Basic Robot Description and Visualization in URDF</p>
+                </a>
+              </div>
+              <div class="item">
+                <a id="category-tag" href="/articles/ros1_tutorial.html"><i class="fa fa-book"></i> ROS1 Tutorial</a>
+                <a class="grid" href="/articles/ros1_tutorial/ros_6.html">
+                  <h2>6. URDF file - Creating Your Own Robot</h2>
+                  <p class="date">Posted on <time datetime="2023-01-25">January 25, 2023</time></p>
+                  <img class="preview" src="/articles/ros1_tutorial/ros_6/img1.png" alt="preview" />
+                  <p class="detail">Designing a Robot Architecture</p>
+                </a>
+              </div>
+              <div class="item">
+                <a id="category-tag" href="/articles/ros1_tutorial.html"><i class="fa fa-book"></i> ROS1 Tutorial</a>
+                <a class="grid" href="/articles/ros1_tutorial/ros_5.html">
+                  <h2>5. Setting up bashrc file</h2>
+                  <p class="date">Posted on <time datetime="2023-01-24">January 24, 2023</time></p>
+                  <img class="preview" src="/articles/ros1_tutorial/ros_5/img1.png" alt="preview" />
+                  <p class="detail">Tips for Easy ROS Setup</p>
+                </a>
+              </div>
+              <div class="item">
+                <a id="category-tag" href="/articles/ros1_tutorial.html"><i class="fa fa-book"></i> ROS1 Tutorial</a>
+                <a class="grid" href="/articles/ros1_tutorial/ros_4.html">
+                  <h2>4. Publisher and Subscriber</h2>
+                  <p class="date">Posted on <time datetime="2023-01-24">January 24, 2023</time></p>
+                  <img class="preview" src="/articles/ros1_tutorial/ros_4/img1.webp" alt="preview" />
+                  <p class="detail">Basic ROS Programming Concepts</p>
+                </a>
+              </div>
+              <div class="item">
+                <a id="category-tag" href="/articles/ros1_tutorial.html"><i class="fa fa-book"></i> ROS1 Tutorial</a>
+                <a class="grid" href="/articles/ros1_tutorial/ros_3.html">
+                  <h2>3. Topic, Node, Message, and Service</h2>
+                  <p class="date">Posted on <time datetime="2023-01-23">January 23, 2023</time></p>
+                  <img class="preview" src="/articles/ros1_tutorial/ros_3/img1.webp" alt="preview" />
+                  <p class="detail">Topic, Node, Message, and Service</p>
+                </a>
+              </div>
+              <div class="item">
+                <a id="category-tag" href="/articles/ros1_tutorial.html"><i class="fa fa-book"></i> ROS1 Tutorial</a>
+                <a class="grid" href="/articles/ros1_tutorial/ros_2.html">
+                  <h2>2. Workspace and Package</h2>
+                  <p class="date">Posted on <time datetime="2023-01-20">January 20, 2023</time></p>
+                  <img class="preview" src="/articles/ros1_tutorial/ros_2/img1.webp" alt="preview" />
+                  <p class="detail">Workspace and Package</p>
+                </a>
+              </div>
+              <div class="item">
+                <a id="category-tag" href="/articles/ros1_tutorial.html"><i class="fa fa-book"></i> ROS1 Tutorial</a>
+                <a class="grid" href="/articles/ros1_tutorial/ros_1.html">
+                  <h2>1. Installation and Environment Setup</h2>
+                  <p class="date">Posted on <time datetime="2023-01-11">January 11, 2023</time></p>
+                  <img class="preview" src="/articles/ros1_tutorial/ros_1/img1.webp" alt="preview" />
+                  <p class="detail">Introduction</p>
+                </a>
+              </div>
+            </div>
+            <div class="category">
+              <h2>Lecture Notes</h2>
+              <div>
+                <a id="category-tag" href="/articles/visual_slam.html"><i class="fa fa-book"></i> Visual SLAM</a>
+              </div>
+              <div>
+                <a id="category-tag" href="/articles/deep_learning_for_computer_vision.html"
+                  ><i class="fa fa-book"></i> Deep Learning for Computer Vision</a
+                >
+              </div>
+              <div>
+                <a id="category-tag" href="/articles/reinforcement_learning.html"
+                  ><i class="fa fa-book"></i> Reinforcement Learning</a
+                >
+              </div>
+              <h2>Others</h2>
+              <div>
+                <a id="category-tag" href="/articles/paper_summaries.html"
+                  ><i class="fa fa-book"></i> Paper Summaries</a
+                >
+              </div>
+              <div>
+                <a id="category-tag" href="/articles/icp_algorithm.html"
+                  ><i class="fa fa-book"></i> Iterative Closest Point (ICP) Algorithm</a
+                >
+              </div>
+              <div>
+                <a id="category-tag" href="/articles/ros1_tutorial.html"><i class="fa fa-book"></i> ROS1 Tutorial</a>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2024 Seongmin Jung<br />Designed and developed by Seongmin Jung</p>
+    </footer>
+  </body>
+</html>

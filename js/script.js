@@ -4,7 +4,7 @@ let header = document.querySelector("header");
 let button = document.getElementById("nav-toggle");
 let modal = document.getElementById("nav-modal");
 let modalBg = document.getElementById("nav-modal-bg");
-let tabButtons = document.querySelectorAll("#study .tab p");
+let tabButtons = document.querySelectorAll("#articles .tab p");
 
 function adjustHeader(scrollPos) {
   if (scrollPos > 230) {
@@ -116,7 +116,7 @@ tabButtons.forEach((button) => {
 
 window.addEventListener("load", (event) => {
   // Call showTabContent() on load, default tab is "all-posts" or "travel"
-  // showTabContent("all posts") if it is study.html, and "travel" if it is blog.html
+  // showTabContent("all posts") if it is articles.html, and "travel" if it is blog.html
   let tabName = "all-posts";
   if (window.location.pathname.includes("blog")) {
     tabName = "travel";

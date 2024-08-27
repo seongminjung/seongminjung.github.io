@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>vMAP: Vectorised Object Mapping for Neural Field SLAM</title>
+    <meta name="description" content="Seongmin Jung's personal website" />
+    <meta name="keywords" content="Seongmin Jung, Robotics" />
+    <meta name="author" content="Seongmin Jung" />
+    <meta name="language" content="English" />
+    <link rel="shortcut icon" href="/favicon.png" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LL44K1WZ0G"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "G-LL44K1WZ0G");
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML" async></script>
+
+    <!-- Load an icon library to show a hamburger menu (bars) on small screens -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <!-- import css -->
+    <link rel="stylesheet" href="/css/index.css" />
+    <!-- import js -->
+    <script src="/js/script.js" defer></script>
+  </head>
+
+  <body>
+    <header>
+      <img class="cover" src="/asset/cover.jpg" alt="Seongmin Jung" />
+      <h1 class="title"><a href="/index.html">Seongmin Jung</a></h1>
+      <nav class="nav">
+        <a href="/index.html">Home</a>
+        <a href="/projects.html">Projects</a>
+        <a href="/articles.html" class="bold">Articles</a>
+        <a href="/blog.html">Blog</a>
+        <i id="nav-toggle" class="nav-toggle fa fa-bars" onclick="toggleNav()"></i>
+      </nav>
+    </header>
+
+    <div id="nav-modal-bg" onclick="toggleNav()"></div>
+    <nav id="nav-modal">
+      <a href="/index.html">Home</a>
+      <a href="/projects.html">Projects</a>
+      <a href="/articles.html" class="bold">Articles</a>
+      <a href="/blog.html">Blog</a>
+    </nav>
+
+    <main>
+      <div class="container">
+        <section id="post">
+          <a id="category-tag" href="/articles/paper_summaries.html"><i class="fa fa-book"></i> Paper Summaries</a>
+          <h1>vMAP: Vectorised Object Mapping for Neural Field SLAM</h1>
+          <p class="date">Posted on <time datetime="2023-12-05">December 5, 2023</time></p>
+          <div class="post-body">
+            <img class="half" src="/articles/paper_summaries/vmap/img1.png" alt="output" />
+            <img src="/articles/paper_summaries/vmap/img2.PNG" alt="note" />
+            <img src="/articles/paper_summaries/vmap/img3.PNG" alt="note" />
+            <img src="/articles/paper_summaries/vmap/img4.PNG" alt="note" />
+            <img src="/articles/paper_summaries/vmap/img5.PNG" alt="note" />
+            <img src="/articles/paper_summaries/vmap/img6.PNG" alt="note" />
+            <img src="/articles/paper_summaries/vmap/img7.PNG" alt="note" />
+          </div>
+          <div class="post-footer">
+            <div class="post-footer-profile">
+              <img src="/asset/cover.jpg" alt="Seongmin Jung" />
+              <h1>Seongmin Jung</h1>
+            </div>
+            <h2>Other posts in <a href="/articles.html">Paper Summaries</a> category</h2>
+            <ul>
+              <li>
+                <a href="/articles/paper_summaries/kiss-icp.html">
+                  <span
+                    >KISS-ICP: In Defense of Point-to-Point ICP -- Simple, Accurate, and Robust Registration If Done the
+                    Right Way</span
+                  >
+                  <time datetime="2023-12-18">December 18, 2023</time>
+                </a>
+              </li>
+              <li>
+                <a href="/articles/paper_summaries/cnn-slam.html">
+                  <span>CNN-SLAM: Real-time dense monocular SLAM with learned depth prediction</span>
+                  <time datetime="2023-12-12">December 12, 2023</time>
+                </a>
+              </li>
+              <li>
+                <a href="/articles/paper_summaries/vmap.html">
+                  <span><b>vMAP: Vectorised Object Mapping for Neural Field SLAM</b></span>
+                  <time datetime="2023-12-05">December 5, 2023</time>
+                </a>
+              </li>
+              <li>
+                <a href="/articles/paper_summaries/bundlesdf.html">
+                  <span>BundleSDF: Neural 6-DoF Tracking and 3D Reconstruction of Unknown Objects</span>
+                  <time datetime="2023-11-09">November 9, 2023</time>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2024 Seongmin Jung<br />Designed and developed by Seongmin Jung</p>
+    </footer>
+  </body>
+</html>
