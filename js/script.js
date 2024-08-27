@@ -106,12 +106,6 @@ tabButtons.forEach((button) => {
     if (tabName == "all posts") {
       tabName = "all-posts";
     }
-    if (tabName == "paper summaries") {
-      tabName = "paper-summaries";
-    }
-    if (tabName == "background knowledge") {
-      tabName = "background-knowledge";
-    }
     showTabContent(tabName);
     // Add active class to the current button (highlight it)
     let current = document.getElementsByClassName("active");

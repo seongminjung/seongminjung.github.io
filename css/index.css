@@ -259,18 +259,18 @@ footer {
 #education .uni {
   display: flex;
   gap: 20px;
-  margin-top: 16px;
+  margin-top: 24px;
 }
 
 #education .uni .logo {
-  width: 100px;
-  height: 100px;
+  width: 75px;
+  height: 75px;
   object-fit: contain;
   object-position: center;
 }
 
 #education .uni .right {
-  padding-top: 16px;
+  padding-top: 4px;
 }
 
 #education .uni .right p {
@@ -359,7 +359,7 @@ footer {
 }
 
 /* Series Tag */
-#series-tag {
+#category-tag {
   font-size: 0.9rem;
   font-weight: 400;
   color: #666;
@@ -371,7 +371,7 @@ footer {
   text-decoration: none;
 }
 
-#series-tag:hover {
+#category-tag:hover {
   color: #212529;
   background-color: #e6e6e6;
 }
@@ -418,7 +418,7 @@ footer {
   text-decoration: none;
 }
 
-#study .item #series-tag {
+#study .item #category-tag {
   margin-bottom: 10px;
 }
 
@@ -455,6 +455,18 @@ footer {
   margin-bottom: 0;
 }
 
+#study .category {
+  border-top: 1px solid #e6e6e6;
+}
+
+#study .category h2 {
+  margin-top: 50px;
+}
+
+#study .category div {
+  margin-top: 20px;
+}
+
 @media (max-width: 700px) {
   #study .item {
     margin-top: 30px;
@@ -488,11 +500,11 @@ footer {
   text-decoration: underline;
 }
 
-#series .date {
+#series .detail {
   font-size: 0.9rem;
   color: #666;
-  margin-top: 20px; /* Adjust spacing above the date */
-  margin-bottom: 20px; /* Adjust spacing below the date */
+  margin-top: 20px;
+  margin-bottom: 20px;
 }
 
 #series .post {
@@ -519,7 +531,7 @@ footer {
   text-decoration: none;
 }
 
-#series .item #series-tag {
+#series .item #category-tag {
   margin-bottom: 10px;
 }
 
@@ -544,6 +556,18 @@ footer {
   margin: 0;
 }
 
+#series .item .grid .published {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 0;
+}
+
+#series .item .grid .author {
+  font-size: 0.8rem;
+  color: #666;
+  margin-bottom: 0;
+}
+
 @media (max-width: 700px) {
   #series .item {
     margin-top: 30px;
@@ -564,7 +588,7 @@ footer {
 }
 
 /* post page */
-#post #series-tag {
+#post #category-tag {
   margin-bottom: 20px;
 }
 
