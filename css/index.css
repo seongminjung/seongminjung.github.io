@@ -455,16 +455,16 @@ footer {
   margin-bottom: 0;
 }
 
-#articles .category {
+#articles .categories {
   border-top: 1px solid #e6e6e6;
 }
 
-#articles .category h2 {
+#articles .categories h2 {
   margin-top: 50px;
 }
 
-#articles .category div {
-  margin-top: 20px;
+#articles .categories div {
+  margin-top: 10px;
 }
 
 @media (max-width: 700px) {
