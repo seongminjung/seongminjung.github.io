@@ -229,8 +229,56 @@
               보이는 것을 확인할 수 있다. 또한, Swin Transformer는 Hierarchical Architecture를 가지고 있기 때문에 object
               detection, instance segmentation 등 다른 task에도 적용될 수 있다.
             </p>
-          </div>
 
+            <h2>MLP-Mixer</h2>
+            <img
+              class="half"
+              src="/study/deep_learning_for_computer_vision/lecture_18/img9.png"
+              alt="Transformer Block"
+            />
+            <p>
+              Transformer Block의 구조는 위와 같은데, input vector 사이에 정보 교환이 일어나는 부분은 self-attention
+              밖에 없고, MLP에서는 input vector 각각에 대해서만 연산이 이루어진다. 따라서, self-attention이 하는 정보
+              교환의 역할마저도 단순히 MLP로 대체할 수는 없을까? 라는 질문에서 MLP-Mixer가 등장하였다.
+            </p>
+            <img src="/study/deep_learning_for_computer_vision/lecture_18/img10.png" alt="MLP-Mixer" />
+            <p>
+              위 그림에서 볼 수 있듯, MLP-Mixer는 self-attention의 역할을 matrix transpose와 MLP로 대체하였다. C의
+              크기를 가지는 N개의 벡터가 있다면, 이를 $N \times C$ shape를 가지는 matrix 형태로 만든 후 transpose를
+              취하여 $C \times N$ shape로 만든다. 이후 이 matrix를 N의 크기를 가지는 C개의 벡터로 분리하고, 각각 MLP를
+              적용한다. 이 과정을 통해 각 벡터 간 정보를 교환한다. 이후 다시 transpose를 취하여 원래 shape로 복원하고,
+              두 번째 MLP layer를 적용한다.
+            </p>
+            <p>MLP-Mixer의 성능은 ViT와 비교하여 그렇게 큰 우위를 보이지는 않는 것으로 나타났다.</p>
+
+            <h2>Object Detection with Transformers: DETR</h2>
+            <p>
+              Transformer를 이용하여 Object Detection을 수행할 수 있는 모델도 등장하였다. DETR 모델은 기존 CNN 기반의
+              모델에서 많이 사용되었던 anchor나 bounding box regression 없이 바로 object detection을 수행할 수 있는
+              모델이다.
+            </p>
+            <img src="/study/deep_learning_for_computer_vision/lecture_18/img11.png" alt="DETR" />
+            <p>
+              우선 이미지를 CNN에 통과시켜 feature를 얻고, 여기에 positional embedding을 추가한다. 이를 transformer
+              encoder 모듈에 입력시키는데, 이는 기존에 보았던 ViT와 동일하게 self-attention을 이용하여 output vector를
+              만들어 낸다.
+            </p>
+            <p>
+              transformer decoder는 self-attention이 아닌 일반 attention을 수행하는 블럭이다. 즉, input vector와 query
+              vector가 별개로 입력된다. Input vector로는 encoder 모듈의 output vector가 입력되고, query vector는
+              learnable parameter이다. 이 query vector의 element들은 각각 하나의 object를 담당하는데, 각 element들이
+              input vector 전체를 보고 detection을 수행하게 된다. Query vector의 크기는 충분한 크기로 사전에 정해져
+              있다.
+            </p>
+            <p>
+              마지막으로 decoder의 output에 fast-forward network를 적용하여 classification score와 bounding box를 한번에
+              얻게 된다.
+            </p>
+            <p>
+              이 구조는 bipartite matching loss를 이용하는데, 이는 non-max suppression이나 복잡한 heuristics 없이도 box
+              matching을 효율적으로 수행할 수 있게 해 준다.
+            </p>
+          </div>
           <div class="post-footer">
             <div class="post-footer-profile">
               <img src="/asset/cover.jpg" alt="Seongmin Jung" />
