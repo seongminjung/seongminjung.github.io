@@ -167,7 +167,7 @@
 
             <h2>Variational Autoencoder (VAE)</h2>
             <p>
-              Variational Autoencoder는 Implicit density model로, 확률 분포를 직접 얻을 수 없다. 대신, 여기서는 확률
+              Variational Autoencoder는 Approximate density model로, 확률 분포를 직접 얻을 수 없다. 대신, 여기서는 확률
               분포의 최솟값을 최대화하는 방식으로 학습한다.
             </p>
 
@@ -208,8 +208,91 @@
             <p>
               이후 $z$에 대한 conditional distribution $p_{\theta^*}(x|z^{(i)})$로부터 $x$를 sampling한다. 이때
               $p_{\theta^*}(x|z^{(i)})$는 사전에 정해지는 것이 아니라 뉴럴 네트워크를 통해 학습된다. Autoencoder에서의
-              decoder 부분과 유사하다고 볼 수 있다. 이러한 과정을 통해 $x$를 생성할 수 있다.
+              decoder 부분과 유사하다고 볼 수 있다.
             </p>
+            <img
+              class="half"
+              src="/articles/deep_learning_for_computer_vision/lecture_19/img6.png"
+              alt="Mean and covariance"
+            />
+            <p>
+              이때, $z$로부터 이미지의 픽셀값 $x$ 자체를 바로 생성하는 것이 아니라, 우선 픽셀별 평균 $\mu_{x|z}$와
+              covariance $\sum_{x|z}$를 출력한다. 이렇게 정의된 Gaussian distribution으로부터 각 픽셀값을 독립적으로
+              샘플링하게 된다. 이러한 과정을 통해 $x$를 생성할 수 있다.
+            </p>
+
+            <h3>Training VAEs</h3>
+            <p>
+              가장 큰 문제는, 이러한 모델을 어떻게 학습시킬 것인가이다. $z$는 우리가 접근할 수 없는 latent vector이므로
+              여기서는 Maximum Likelihood Estimation (MLE)을 사용한다.
+            </p>
+            <p class="math-center">$p_\theta(x) = \cfrac{p_\theta(x|z)p(z)}{p_\theta(z|x)}$</p>
+            <p>
+              따라서 위 식에서 $p_\theta(x)$를 최대화하면 된다. 이때 $p_\theta(x|z)$는 decoder에 해당하는 부분을 통해
+              얻을 수 있고, $p(z)$는 prior distribution으로부터 얻을 수 있다. 하지만 $p_\theta(z|x)$는 계산하기 어렵다.
+              따라서 encoder와 유사한 네트워크를 추가하여 $q_\phi(z|x)$를 구하고, 이것이 $p_\theta(z|x)$와 최대한
+              비슷해지도록 encoder를 학습시킨다.
+            </p>
+            <img
+              class="half"
+              src="/articles/deep_learning_for_computer_vision/lecture_19/img7.png"
+              alt="Encoder and decoder"
+            />
+            <p>수학적으로 Loss function을 유도해 보자. 우선 위 식의 양변에 log를 취하면 다음과 같다.</p>
+            <p class="math-center">$\log p_\theta(x) = \log \cfrac{p_\theta(x|z)p(z)}{p_\theta(z|x)}$</p>
+            <p>분모와 분자에 각각 $q_\phi(z|x)$를 곱한다.</p>
+            <p class="math-center">
+              $\log p_\theta(x) = \log \cfrac{p_\theta(x|z)p(z)}{p_\theta(z|x)} \cdot \cfrac{q_\phi(z|x)}{q_\phi(z|x)}$
+            </p>
+            <p>이후 로그 규칙을 이용해 아래와 같이 정리한다.</p>
+            <p class="math-center">
+              $\log p_\theta(x) = \log p_\theta(x|z) - \log \cfrac{q_\phi(z|x)}{p(z)} + \log
+              \cfrac{q_\phi(z|x)}{p_\theta(z|x)}$
+            </p>
+            <p>
+              여기서 한 가지 trick으로, $\log p_\theta(x)$는 $z$와 무관하므로 $z$에 대해 expectation을 취해도 값이
+              변하지 않는다. 즉,
+            </p>
+            <p class="math-center">
+              $\log p_\theta(x) = \mathbb{E}_{z \sim q_\phi(z|x)} \left[ \log p_\theta(x) \right] = \mathbb{E}_{z \sim
+              q_\phi(z|x)} \left[ \log p_\theta(x|z) - \log \cfrac{q_\phi(z|x)}{p(z)} + \log
+              \cfrac{q_\phi(z|x)}{p_\theta(z|x)} \right]$
+            </p>
+            <p>위 식은 아래와 같이 정리된다.</p>
+            <p class="math-center">
+              $\log p_\theta(x) = \mathbb{E}_{z \sim q_\phi(z|x)} \left[ \log p_\theta(x|z) \right] - \mathbb{E}_{z \sim
+              q_\phi(z|x)} \left[ \log \cfrac{q_\phi(z|x)}{p(z)} \right] + \mathbb{E}_{z \sim q_\phi(z|x)} \left[ \log
+              \cfrac{q_\phi(z|x)}{p_\theta(z|x)} \right]$
+            </p>
+            <p>KL Divergence의 정의를 활용하면 아래와 같다.</p>
+            <p class="math-center">
+              $\log p_\theta(x) = \mathbb{E}_{z \sim q_\phi(z|x)} \left[ \log p_\theta(x|z) \right] - D_{KL} \left(
+              q_\phi(z|x) || p(z) \right) + D_{KL} \left( q_\phi(z|x) || p_\theta(z|x) \right)$
+            </p>
+            <p>
+              각 항의 의미를 생각해 보면, 첫 번째 항 $\mathbb{E}_{z \sim q_\phi(z|x)} \left[ \log p_\theta(x|z)
+              \right]$은 data reconstruction에 해당한다. Encoder의 확률분포 $q_\phi(z|x)$로부터 $z$를 sampling하고, 이
+              $z$를 활용해 decoder에서 확률분포 $p_\theta(x|z)$를 구해 $x$를 다시 sampling하기 때문이다.
+            </p>
+            <p>
+              두 번째 항은 KL Divergence로, $q_\phi(z|x)$와 $p(z)$ 사이의 차이를 의미한다. 앞에 $-$ 부호가 붙어 있으므로
+              maximum likelihood가 되려면 KL Divergence 값이 작아져야 한다. 즉, 이는 encoder로부터 나온 $z$의 분포
+              $q_\phi(z|x)$가 우리가 설정한 prior distribution $p(z)$와 유사해지도록 하는 역할을 한다.
+            </p>
+            <p>
+              마지막 항은 $q_\phi(z|x)$와 $p_\theta(z|x)$ 사이의 차이를 의미하는데, $p_\theta(z|x)$를 직접적으로 구하기
+              어렵다. 하지만 우리는 KL Divergence의 값이 항상 0 이상이라는 것을 알고 있으므로, 이 항을 제외하고 부등식을
+              세우면 아래와 같다.
+            </p>
+            <p class="math-center">
+              $\log p_\theta(x) \geq \mathbb{E}_{z \sim q_\phi(z|x)} \left[ \log p_\theta(x|z) \right] - D_{KL} \left(
+              q_\phi(z|x) || p(z) \right)$
+            </p>
+            <p>
+              따라서, 우리는 우리가 원하는 확률분포를 직접 얻을 수는 없지만 그 확률분포의 lower bound를 최대화하는
+              방향으로 학습을 진행하게 된다. 이때의 lower bound를 <b>Evidence Lower Bound (ELBO)</b>라고 한다.
+            </p>
+            <p>이것이 바로 VAE가 Approximate density model로 분류된 이유이다.</p>
           </div>
           <div class="post-footer">
             <div class="post-footer-profile">
