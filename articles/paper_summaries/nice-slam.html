@@ -127,7 +127,25 @@
               Pre-training is done as a part of ConvONet. These pre-trained decoders are frozen during the training
               process to stabilize the optimization.
             </p>
-            <p>Color</p>
+            <p>
+              Color information provides additional cues for tracking. Color is decoded by its own decoder from the
+              color feature grid. However, the color of the entire scene is represented by one decoder MLP, which may
+              lead to the forgetting issue.
+            </p>
+
+            <h4>Depth and Color Rendering</h4>
+            <p>
+              The system uses a differentiable rendering process, similar to NeRF, to integrate the predicted occupancy
+              and colors from the hierarchical feature grids. It first performs stratified sampling along the viewing
+              ray, and also performs uniform sampling near the object surface.
+            </p>
+            <p>
+              For every point, their coarse-level occupancy probability, fine-level occupancy probability, and color are
+              computed using the pre-trained MLPs. Then, along the ray, the depth and color are integrated as the NeRF
+              system does.
+            </p>
+
+            <h4>Mapping and Tracking</h4>
           </div>
           <div class="post-footer">
             <div class="post-footer-profile">
