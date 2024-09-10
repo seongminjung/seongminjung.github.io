@@ -3,9 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>
-      KISS-ICP: In Defense of Point-to-Point ICP -- Simple, Accurate, and Robust Registration If Done the Right Way
-    </title>
+    <title>NICE-SLAM: Neural Implicit Scalable Encoding for SLAM</title>
     <meta name="description" content="Seongmin Jung's personal website" />
     <meta name="keywords" content="Seongmin Jung, Robotics" />
     <meta name="author" content="Seongmin Jung" />
@@ -63,14 +61,73 @@
       <div class="container">
         <section id="post">
           <a id="category-tag" href="/articles/paper_summaries.html"><i class="fa fa-book"></i> Paper Summaries</a>
-          <h1>
-            KISS-ICP: In Defense of Point-to-Point ICP -- Simple, Accurate, and Robust Registration If Done the Right
-            Way
-          </h1>
-          <p class="date">Posted on <time datetime="2023-12-18">December 18, 2023</time></p>
+          <h1>NICE-SLAM: Neural Implicit Scalable Encoding for SLAM</h1>
+          <p class="date">Posted on <time datetime="2024-09-09">September 9, 2024</time></p>
           <div class="post-body">
-            <img src="/articles/paper_summaries/kiss-icp/img1.PNG" alt="note" />
-            <img src="/articles/paper_summaries/kiss-icp/img2.PNG" alt="note" />
+            <h2>Introduction</h2>
+            <p>
+              In order to make a SLAM system useful for real-world applications, the following properties are essential:
+            </p>
+            <ul>
+              <li>Real-time performance</li>
+              <li>Ability to predict unseen areas</li>
+              <li>Scalability</li>
+              <li>Robustness</li>
+            </ul>
+            <p>
+              However, traditional SLAM systems are unable to make plausible estimation for unobserved regions. On the
+              other hand, learning-based SLAM systems lack scalability.
+            </p>
+            <p>
+              This paper found multi-level grid-based features can help to address the scalability issue. Therefore,
+              this paper combines hierarchical scene representation with neural implicit representations to achieve the
+              desired properties above.
+            </p>
+            <p>
+              The key idea is to represent the scene geometry and appearance with hierarchical feature grids and
+              incorporate the inductive biases of neural implicit decoders pretrained at different spatial resolutions.
+            </p>
+
+            <h2>Related Works</h2>
+            <h4>Dense Visual SLAM</h4>
+            <p>
+              Traditional SLAM systems store occupancy or TSDF values in voxel grids. However, these representations
+              cannot predict unseen areas. NICE-SLAM also adopts the voxel-grid representation, however, NICE-SLAM
+              stores implicit latent codes of the geometry and directly optimize them.
+            </p>
+
+            <h4>Neural Implicit Representations</h4>
+            <p>
+              Neural implicit representations are good at predicting and representing object geometry and appearance.
+              However, some assume given camera poses and others are not suitable for real-time applications. iMAP
+              shares the same goal as NICE-SLAM, but they use single MLP to represent the entire scene, which causes the
+              forgetting issue. DI-Fusion also uses a feature grid, but it contains holes and tracking is not robust.
+              NICE-SLAM can handle large-scale scenes and is robust to challenging scenarios.
+            </p>
+
+            <h2>Method</h2>
+            <img src="/articles/paper_summaries/nice-slam/img1.png" alt="System Overview" />
+
+            <h4>Hierarchical Scene Representation</h4>
+            <p>
+              The scene geometry is encoded into total four feature grids: 1) coarse-level, 2) mid-level, 3) fine-level,
+              4) scene appearance. Four pre-trained neural implicit decoders are attached to each feature grid. These
+              feature grids themselves act as the map.
+            </p>
+            <p>
+              First, the system extracts the occupancy values by decoding the latent codes from the mid-level grid.
+              Then, the system refines the geometry by decoding the latent codes from the fine-level grid.
+            </p>
+            <p>
+              Second, the coarse-level grid is used to predict the appoximate occupancy values of the unseen areas. It
+              aims to capture high-level geometry, such as walls and floors. The occupancy values are also decoded from
+              the feature grid. The optimization of this coarse-level grid is independent from the other grids.
+            </p>
+            <p>
+              Pre-training is done as a part of ConvONet. These pre-trained decoders are frozen during the training
+              process to stabilize the optimization.
+            </p>
+            <p>Color</p>
           </div>
           <div class="post-footer">
             <div class="post-footer-profile">
@@ -81,7 +138,7 @@
             <ul>
               <li>
                 <a href="/articles/paper_summaries/nice-slam.html">
-                  <span>NICE-SLAM: Neural Implicit Scalable Encoding for SLAM</span>
+                  <span><b>NICE-SLAM: Neural Implicit Scalable Encoding for SLAM</b></span>
                   <time datetime="2024-09-09">September 9, 2024</time>
                 </a>
               </li>
@@ -94,10 +151,8 @@
               <li>
                 <a href="/articles/paper_summaries/kiss-icp.html">
                   <span
-                    ><b
-                      >KISS-ICP: In Defense of Point-to-Point ICP -- Simple, Accurate, and Robust Registration If Done
-                      the Right Way</b
-                    ></span
+                    >KISS-ICP: In Defense of Point-to-Point ICP -- Simple, Accurate, and Robust Registration If Done the
+                    Right Way</span
                   >
                   <time datetime="2023-12-18">December 18, 2023</time>
                 </a>
