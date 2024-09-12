@@ -129,8 +129,9 @@
             </p>
             <p>
               Color information provides additional cues for tracking. Color is decoded by its own decoder from the
-              color feature grid. However, the color of the entire scene is represented by one decoder MLP, which may
-              lead to the forgetting issue.
+              color feature grid. This decoder is not frozen during the training, but is optimized during the mapping
+              process. The color of the entire scene is represented by one decoder MLP, which may lead to the forgetting
+              issue.
             </p>
 
             <h4>Depth and Color Rendering</h4>
@@ -146,6 +147,144 @@
             </p>
 
             <h4>Mapping and Tracking</h4>
+            <p>
+              Depth loss and color loss are used to track the camera pose and optimize the feature grids. These losses
+              are computed every frame. For each frame, the system samples total $M$ pixels from the current frame and
+              the selected keyframes to calculate losses.
+            </p>
+            <p>
+              The depth loss is an $L_1$ loss between the predicted depth of the current frame and the ground truth
+              depth. The color loss is an $L_1$ loss between the predicted color of the current frame and the ground
+              truth color.
+            </p>
+            <p>
+              The camera tracking is formulated as the minimization problem that searches for the optimal camera pose
+              $\{\mathbf{R},\mathbf{t}\}$ that minimizes the depth and color losses.
+            </p>
+            <p>
+              For mapping, the system conducts a local bundle adjustment to jointly optimize feature grids, the color
+              decoder, as well as the camera poses of all selected keyframes. This is also a minimization problem.
+            </p>
+            <p>Finally, the system filters out pixels with large depth/color losses to avoid dynamic objects.</p>
+
+            <h4>Keyframe Selection</h4>
+            <p>
+              The system maintains a global keyframe list similar to iMAP. For mapping and tracking, however, only a
+              subset of keyframes are selected for optimization. The keyframe selection strategy is as follows:
+            </p>
+            <ul>
+              <li>The most recent keyframe is selected.</li>
+              <li>
+                $K-2$ Keyframes are randomly selected among those that have visual overlap with the current frame .
+              </li>
+            </ul>
+            <p>
+              Including the current frame, total $K$ frames are involved in the optimization process. Thanks to this
+              keyframe selection strategy, the system is able to make local updates to the feature grids. That is, the
+              geometry outside of the current view remains static. This results in a very efficient optmization process.
+            </p>
+
+            <h2>Experiments</h2>
+
+            <h4>Experimental Setup</h4>
+            <p>
+              Datasets &ndash; Replica, ScanNet, TUM RGB-D, Co-Fusion, and a self-captured multi-room dataset are used
+              for evaluation.
+            </p>
+            <p>
+              Baselines &ndash; TSDF-Fusion, DI-Fusion, iMAP, and the re-implementation version of iMAP are used as
+              baselines.
+            </p>
+            <p>
+              Metrics &ndash; For 2D metric, the L1 loss is used on 1000 randomly-sampled points from both
+              reconstruction and the ground truth. For 3D metrics, Accuracy [cm], Completion [cm], and Completion Ratio
+              [< 5cm%] are used. For tracking metric, ATE RMSE is used.
+            </p>
+
+            <h4>Evaluation of Mapping and Tracking</h4>
+            <img class="half" src="/articles/paper_summaries/nice-slam/img2.png" alt="Mapping Evaluation" />
+            <p>
+              In mapping, NICE-SLAM significantly outperforms baseline methods on almost all metrics, while keeping a
+              reasonable memory consumption. Qualitatively, NICE-SLAM produces sharper geometry and less artifacts. The
+              reconstruction results are shown in the figure above.
+            </p>
+            <img class="half" src="/articles/paper_summaries/nice-slam/img3.png" alt="Tracking Evaluation" />
+            <p>
+              The table above shows ATE RMSE of the tracking results on the TUM RGB-D dataset. NICE-SLAM outperforms all
+              of the baselines in the neural implicit representation family. Although the traditional feature-based
+              methods, such as ORB-SLAM2, outperform NICE-SLAM, NICE-SLAM reduces the gap between these two categories.
+            </p>
+            <img src="/articles/paper_summaries/nice-slam/img4.png" alt="Scalability Evaluation" />
+            <img class="half" src="/articles/paper_summaries/nice-slam/img5.png" alt="Scalability Evaluation Table" />
+            <p>
+              The figure and table above shows the scalability evaluation results on ScanNet, which contains large-scale
+              scenes. ATE RMSE is used for evaluation in the table.
+            </p>
+            <p>
+              For the geometry shown in the figure above, NICE-SLAM produces sharper and more detailed geometry over the
+              baseline methods.
+            </p>
+            <p>
+              In terms of tracking, iMAP* and DI-Fusion either completely fails or introduces large drifting, while
+              NICE-SLAM successfully reconstructs the entire scene. Quantitatively, as shown in the table above, the
+              tracking results of NICE-SLAM are also significantly more accurate than the baseline methods .
+            </p>
+            <img src="/articles/paper_summaries/nice-slam/img6.png" alt="Larger Scenes" />
+            <p>
+              The figure above shows the reconstruction results of larger scenes from self-captured multi-room dataset.
+              NICE-SLAM has comparable results with the offline method, while iMAP* and DI-Fusion fails to reconstruct
+              the full sequence.
+            </p>
+
+            <h4>Performance Analysis</h4>
+            <img class="half" src="/articles/paper_summaries/nice-slam/img7.png" alt="Performance Analysis" />
+            <p>
+              The table above compares the number of floating point operations (FLOPs) needed for one 3D point and the
+              runtime for tracking and mapping using the same number of pixel samples.
+            </p>
+            <p>
+              NICE-SLAM requires only 1/4 FLOPs of iMAP and is over 2x and 3x faster than iMAP in tracking and mapping.
+              This indicates the advantage of using feature grids with shallow MLP decoders over a single heavy MLP.
+            </p>
+            <img
+              class="half"
+              src="/articles/paper_summaries/nice-slam/img8.png"
+              alt="Geometry Forecast and Hole Filling"
+            />
+            <p>
+              The white colored area is the region with observations, and cyan indicates the unobserved but predicted
+              region. Thanks to the use of coarse-level scene prior, NICE-SLAM has better prediction capability compared
+              to iMAP*. This in turn also improves the tracking performance.
+            </p>
+
+            <h4>Ablation Study</h4>
+            <img
+              class="half"
+              src="/articles/paper_summaries/nice-slam/img9.png"
+              alt="Hierarchical Architecture Ablation"
+            />
+            <p>
+              The hierarchical architecture is first evaluated. The figure above shows the convergence trend of the
+              hierarchical, high-only, and low-only architectures. The hierarchical architecture converges better.
+            </p>
+            <img class="half" src="/articles/paper_summaries/nice-slam/img10.png" alt="Ablation Study" />
+            <p>
+              The usefulness of local BA, color representation, and the keyframe selection strategy is also
+              investigated. The table above shows the ATE RSME results of each ablation study. All three components play
+              important roles in camera tracking.
+            </p>
+
+            <h2>Conclusion</h2>
+            <p>
+              NICE-SLAM is a dense visual SLAM system that combines hierarchical scene representation with neural
+              implicit representations. The system is more scalable, fine-detailed, accurate, fast, and less
+              computationally expensive thanks to local scene updates. Besides, NICE-SLAM is able to fill small holes
+              and predict unobserved regions which stabilizes the camera tracking.
+            </p>
+            <p>
+              There are also some limitations. The predictive ability of NICE-SLAM is restricted to the scale of the
+              coarse representation. In addition, NICE-SLAM does not perform loop closures.
+            </p>
           </div>
           <div class="post-footer">
             <div class="post-footer-profile">
