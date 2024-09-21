@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NeRF: Representing Scenes as Neural Radiance Fields for View Synthesis</title>
+    <meta name="description" content="Seongmin Jung's personal website" />
+    <meta name="keywords" content="Seongmin Jung, Robotics" />
+    <meta name="author" content="Seongmin Jung" />
+    <meta name="language" content="English" />
+    <link rel="shortcut icon" href="/favicon.png" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LL44K1WZ0G"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "G-LL44K1WZ0G");
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML" async></script>
+
+    <!-- Load an icon library to show a hamburger menu (bars) on small screens -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <!-- import css -->
+    <link rel="stylesheet" href="/css/index.css" />
+    <!-- import js -->
+    <script src="/js/script.js" defer></script>
+  </head>
+
+  <body>
+    <header>
+      <img class="cover" src="/asset/cover.jpg" alt="Seongmin Jung" />
+      <h1 class="title"><a href="/index.html">Seongmin Jung</a></h1>
+      <nav class="nav">
+        <a href="/index.html">Home</a>
+        <a href="/projects.html">Projects</a>
+        <a href="/articles.html" class="bold">Articles</a>
+        <a href="/blog.html">Blog</a>
+        <i id="nav-toggle" class="nav-toggle fa fa-bars" onclick="toggleNav()"></i>
+      </nav>
+    </header>
+
+    <div id="nav-modal-bg" onclick="toggleNav()"></div>
+    <nav id="nav-modal">
+      <a href="/index.html">Home</a>
+      <a href="/projects.html">Projects</a>
+      <a href="/articles.html" class="bold">Articles</a>
+      <a href="/blog.html">Blog</a>
+    </nav>
+
+    <main>
+      <div class="container">
+        <section id="post">
+          <a id="category-tag" href="/articles/paper_summaries.html"><i class="fa fa-book"></i> Paper Summaries</a>
+          <h1>NeRF: Representing Scenes as Neural Radiance Fields for View Synthesis</h1>
+          <p class="date">Posted on <time datetime="2024-09-14">September 14, 2024</time></p>
+          <div class="post-body">
+            <h2>Introduction</h2>
+            <img src="/articles/paper_summaries/nerf/img1.png" alt="NeRF preview" />
+            <p>
+              Neural Radiance Fields (NeRF) is a new method for synthesizing novel views of complex scenes. NeRF
+              represents a static scene as a single MLP that outputs the volume density and view-dependent emitted
+              radiance at any 3D point and viewing direction. The system uses classic volume rendering techniques to
+              project the output colors and densities into an image. Since volume rendering is naturally differentiable,
+              the entire system can be trained end-to-end with a set of images with known camera poses. The authors
+              effectively optimized neural radiance fields to render photorealistic novel views of scenes with
+              complicated geometry and appearance.
+            </p>
+            <p>The main contributions of this system are:</p>
+            <ul>
+              <li>
+                An approach for representing continuous scenes as 5D neural radiance fields, parameterized as basic MLP
+                networks.
+              </li>
+              <li>
+                A differentiable rendering procedure based on classical volume rendering techniques, which is used to
+                optimize NeRF from standard RGB images.
+              </li>
+              <li>
+                A hierarchical sampling strategy to allocate the MLP's capacity towards space with visible scene
+                content.
+              </li>
+              <li>A positional encoding to optimize NeRF to represent high-frequency scene content.</li>
+            </ul>
+
+            <h2>Related Work</h2>
+            <p>
+              Recent direction of view synthesis is to encode objects and scenes into the weights of an MLP, which
+              directly produces 3D implicit representation of the shape. However, these methods are unable to reproduce
+              the same fidelity as explicit methods such as meshes or voxel grids.
+            </p>
+
+            <h4>Neural 3D shape representations</h4>
+            <p>
+              Recent methods uses deep networks that directly generates continuous 3D shapes, such as Signed Distance
+              Functions (SDFs) or occupancy fields. The downside of these methods is that they require ground truth 3D
+              geometry for training, which is difficult to obtain for real-world scenes. Subsequent works have proposed
+              to train these networks from 2D images. Still, these methods have so far been limited to simple shapes
+              with low geometric complexity, resulting in oversmoothed renderings.
+            </p>
+
+            <h4>View synthesis and image-based rendering</h4>
+            <p>
+              A lot of works have been done on novel view synthesis with sparser view sampling. One popular family of
+              approaches uses mesh-based representations. Predicted meshes are rasterized into 2D images, which are then
+              compared with the ground truth 2D images to train the model by gradient descent. However, gradient descent
+              on meshes is often difficult and requires a template mesh with fixed topology, which is typically not
+              available for real-world scenes.
+            </p>
+            <p>
+              Another class of methods use voxel grids. They are able to realistically represent complex shapes and
+              materials, are well-suited for gradient-based optimization, and tend to produce less visually distracting
+              artifacts than mesh-based methods. Large datasets of scenes are used to train deep networks that predict a
+              sampled volumetric representation, and novel views are rendered by using either alpha-compositing or
+              learned compositing along rays. However, these methods requires a large amount of computation and memory
+              due to their explicit nature.
+            </p>
+            <p>
+              NeRF is a continuous representation that does not suffer from computation and memory limitations. NeRF
+              produces significantly higher quality renderings than prior volumetric approaches, with just a fraction of
+              the storage cost of those sampled volumetric representations.
+            </p>
+
+            <h2>Neural Radiance Field Scene Representation</h2>
+            <img class="half" src="/articles/paper_summaries/nerf/img2.png" alt="NeRF MLP input and output" />
+            <p>
+              The scene is represented as a function whose input is a 3D location $\mathbf{x} = (x, y, z)$ and 2D
+              viewing direction $\mathbf{d} = (\theta, \phi)$, and whose output is an emitted color $\mathbf{c} = (r, g,
+              b)$ and volume density $\sigma$.
+            </p>
+            <p>
+              A single MLP is used to represent the entire scene. The network takes $(\mathbf{x}, \mathbf{d})$ as input
+              and outputs $(\mathbf{c}, \sigma)$. The network predicts the volume density $\sigma$ as a function of only
+              the location $\mathbf{x}$, while allowing the RGB color $\mathbf{c}$ to be predicted as a function of both
+              location and viewing direction.
+            </p>
+            <p>
+              To accomplish this, the MLP first processes the input 3D coordinate $\mathbf{x}$ with 8 fully-connected
+              layers, and outputs $\sigma$ and a 256-dimensional feature vector. This feature vector is then
+              concatenated with the camera ray's viewing direction $\mathbf{d}$ and passed to one additional
+              fully-connected layer that outputs the view-dependent RGB color $\mathbf{c}$.
+            </p>
+          </div>
+          <div class="post-footer">
+            <div class="post-footer-profile">
+              <img src="/asset/cover.jpg" alt="Seongmin Jung" />
+              <h1>Seongmin Jung</h1>
+            </div>
+            <h2>Other posts in <a href="/articles/paper_summaries.html">Paper Summaries</a> category</h2>
+            <ul>
+              <li>
+                <a href="/articles/paper_summaries/nerf.html">
+                  <span><b>NeRF: Representing Scenes as Neural Radiance Fields for View Synthesis</b></span>
+                  <time datetime="2024-09-14">September 14, 2024</time>
+                </a>
+              </li>
+              <li>
+                <a href="/articles/paper_summaries/nice-slam.html">
+                  <span>NICE-SLAM: Neural Implicit Scalable Encoding for SLAM</span>
+                  <time datetime="2024-09-09">September 9, 2024</time>
+                </a>
+              </li>
+              <li>
+                <a href="/articles/paper_summaries/orb-slam.html">
+                  <span>ORB-SLAM: a Versatile and Accurate Monocular SLAM System</span>
+                  <time datetime="2024-08-28">August 28, 2024</time>
+                </a>
+              </li>
+              <li>
+                <a href="/articles/paper_summaries/kiss-icp.html">
+                  <span
+                    >KISS-ICP: In Defense of Point-to-Point ICP -- Simple, Accurate, and Robust Registration If Done the
+                    Right Way</span
+                  >
+                  <time datetime="2023-12-18">December 18, 2023</time>
+                </a>
+              </li>
+              <li>
+                <a href="/articles/paper_summaries/cnn-slam.html">
+                  <span>CNN-SLAM: Real-time dense monocular SLAM with learned depth prediction</span>
+                  <time datetime="2023-12-12">December 12, 2023</time>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2024 Seongmin Jung<br />Designed and developed by Seongmin Jung</p>
+    </footer>
+  </body>
+</html>
