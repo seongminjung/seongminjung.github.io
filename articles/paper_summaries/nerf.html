@@ -149,6 +149,151 @@
               concatenated with the camera ray's viewing direction $\mathbf{d}$ and passed to one additional
               fully-connected layer that outputs the view-dependent RGB color $\mathbf{c}$.
             </p>
+
+            <h2>Volume Rendering with Radiance Fields</h2>
+            <p>
+              Volume rendering means integrating the radiance along the viewing ray to produce the final pixel value.
+              Radiance is the amount of light that passes through a surface in a given direction, and the radiance of a
+              point is obtained from the output of the MLP. Viewing ray is a ray that starts at the camera center and
+              passes through a pixel in the image plane.
+            </p>
+            <p>
+              Formally, the expected pixel color $C(\mathbf{r})$ of camera ray $\mathbf{r} = (\mathbf{o} + t\mathbf{d})$
+              with near and far bounds $t_n$ and $t_f$ is:
+            </p>
+            <p class="math-center">
+              $C(\mathbf{r}) = \int_{t_n}^{t_f}T(t)\sigma(\mathbf{r}(t))\mathbf{c}(\mathbf{r}(t), \mathbf{d})dt$
+            </p>
+            <p>where</p>
+            <p class="math-center">$T(t) = \exp\left(-\int_{t_n}^{t}\sigma(\mathbf{r}(t'))dt'\right).$</p>
+            <p>
+              The function $T(t)$ is the transmittance, which is a probability that the ray travels from $t_n$ to $t$
+              without hitting any other particle.
+            </p>
+            <p>
+              $\sigma(\mathbf{r}(t))$ is a probability that the ray hits a particle at $\mathbf{r}(t)$, and
+              $\mathbf{c}(\mathbf{r}(t), \mathbf{d})$ is the RGB color emitted by the particle at $\mathbf{r}(t)$ in the
+              direction $\mathbf{d}$.
+            </p>
+            <p>
+              To implement this continuous integral in practice, the system uses a stratified sampling approach where
+              $[t_n, t_f]$ is partitioned into $N$ evenly-spaced bins and then draw one sample uniformly at random from
+              within each bin.
+            </p>
+            <p>
+              This stratified sampling enables a continuous scene representation because it results in the MLP being
+              evaluated at continuous positions over the course of optimization.
+            </p>
+
+            <h2>Optimizing a Neural Radiance Field</h2>
+            <p>
+              Before getting into the loss function, two important strategies are used: positional encoding and
+              hierarchical volume sampling.
+            </p>
+
+            <h4>Positional Encoding</h4>
+            <p>
+              Since deep networks are biased towards learning lower frequency functions, mapping the inputs to a higher
+              dimensional space using high frequency functions before passing them to the network enables better fitting
+              of data that contains high frequency variation. Having the network directly operate on the input results
+              in poor representation of high-frequency variation in color and geometry.
+            </p>
+            <p>
+              The paper introduces a positional encoding function $\gamma(p)$ that maps a coordinate value $p$ to a
+              higher dimension space $\mathbb{R}^{2L}$:
+            </p>
+            <p class="math-center">
+              $\gamma(p) = \left[\sin(2^0p), \cos(2^0p), \sin(2^1p), \cos(2^1p), \ldots, \sin(2^{L-1}p),
+              \cos(2^{L-1}p)\right]$
+            </p>
+            <p>
+              This function is applied separately to both coordinate and viewing direction inputs, which are normalized
+              beforehand. Then the output of the positional encoding is concatenated with the input before passing it to
+              the network. The authors used $L = 10$ for $\gamma(\mathbf{x})$ and $L = 4$ for $\gamma(\mathbf{d})$.
+            </p>
+
+            <h4>Hierarchical Volume Sampling</h4>
+            <p>
+              The stratified sampling approach is used to sample the radiance along the viewing ray. However, this
+              approach is inefficient in that points in free space and occluded region are still sampled repeatedly.
+            </p>
+            <p>
+              Instead of using only one MLP to represent the entire scene, they use two MLPs together to represent the
+              scene: one coarse, one fine. They first run the coarse network on a set of $N_c$ locations using
+              stratified sampling to produce a more informed sampling of points along each ray. These samples are biased
+              towards the relevant parts of the volume. $N_f$ additional samples are then drawn from the relevant parts
+              of the volume based on the result of the coarse network. The fine network is then ran on all $N_c + N_f$
+              samples to produce the final output.
+            </p>
+
+            <h4>Optimization and Loss Function</h4>
+            <p>
+              Optimization requires a dataset of captured RGB images of the scene, the corresponding camera poses and
+              intrinsic parameters, and scene bounds. At each optimization iteration, a batch of camera rays are
+              randomly sampled from the set of all pixels in the dataset. Then the points are sampled along the camera
+              rays following the hierarchical sampling strategy above; $N_c$ points for the coarse network and $N_c +
+              N_f$ points for the fine network. The volume rendering procedure is used to render the color of each ray
+              from both sets of samples.
+            </p>
+            <p>
+              The loss is simply the total squared error between the rendered and true pixel colors for both the coarse
+              and fine renderings:
+            </p>
+            <p class="math-center">
+              $L = \sum_{\mathbf{r}\in\mathcal{R}} \left[ ||\hat{C}_c(\mathbf{r}) - C(\mathbf{r})||_2^2 +
+              ||\hat{C}_f(\mathbf{r}) - C(\mathbf{r})||_2^2 \right]$
+            </p>
+            <p>
+              where $\hat{C}_c(\mathbf{r})$ and $\hat{C}_f(\mathbf{r})$ are the colors predicted by the coarse and fine
+              networks, respectively, and $C(\mathbf{r})$ is the true pixel color. Even though the final rendering comes
+              from $\hat{C}_f(\mathbf{r})$, the loss of $\hat{C}_c(\mathbf{r})$ is also minimized so that the weight
+              distribution from the coarse network can be used to allocate samples in the fine network.
+            </p>
+
+            <h2>Results</h2>
+
+            <h4>Datasets</h4>
+            <p>
+              DeepVoxels dataset is used for synthetic renderings, and LLFF dataset is used for real-world scenes. They
+              also generated their own datasets for both synthetic and real-world scenes.
+            </p>
+
+            <h4>Baselines</h4>
+            <p>
+              Neural Volumes (NV), Scene Representation Networks (SRNs), and Local Light Field Fusion (LLFF) are used as
+              baselines.
+            </p>
+
+            <h4>Quantitative Results</h4>
+            <img src="/articles/paper_summaries/nerf/img3.png" alt="NeRF quantitative results" />
+            <p>NeRF quantitatively outperforms prior work on datasets of both synthetic and real images.</p>
+
+            <h4>Qualitative Results</h4>
+            <img src="/articles/paper_summaries/nerf/img4.png" alt="NeRF qualitative results 1" />
+            <img src="/articles/paper_summaries/nerf/img5.png" alt="NeRF qualitative results 2" />
+            <p>
+              NeRF achieves better multiview consistency and produces fewer artifacts than all baselines, in both
+              synthetic and real-world scenes. NeRF is able to represent fine geometry more consistently across rendered
+              views. NeRF also correctly reconstructs partially occluded regions that LLFF struggles to render cleanly.
+            </p>
+
+            <h4>Ablation Studies</h4>
+            <img src="/articles/paper_summaries/nerf/img6.png" alt="NeRF ablation studies" />
+            <p>
+              Positional encoding (row 2) and view-dependence (row 3) provide the largest quantitative benefit followed
+              by hierarchical sampling (row 4). Rows 5-6 show how the performance decreases as the number of input
+              images is reduced. Rows 7-8 validates the choice of the frequency used in the positional encoding.
+            </p>
+
+            <h2>Conclusion</h2>
+            <p>
+              Representing scenes as 5D neural radiance fields produces better renderings than the previously-dominant
+              approaches. However, there is still much more progress to be made in efficiently optimizing and rendering
+              neural radiance fields. Another direction for future work is interpretability: explicit representations
+              such as voxel grids and meshes admit reasoning about the expected quality of rendered views and failure
+              modes, but it is unclear how to analyze these issues when the scenes are encoded in the weights of a deep
+              neural network.
+            </p>
           </div>
           <div class="post-footer">
             <div class="post-footer-profile">
