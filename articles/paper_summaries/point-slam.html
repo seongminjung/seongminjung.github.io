@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Point-SLAM: Dense Neural Point Cloud-based SLAM</title>
+    <meta name="description" content="Seongmin Jung's personal website" />
+    <meta name="keywords" content="Seongmin Jung, Robotics" />
+    <meta name="author" content="Seongmin Jung" />
+    <meta name="language" content="English" />
+    <link rel="shortcut icon" href="/favicon.png" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LL44K1WZ0G"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "G-LL44K1WZ0G");
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML" async></script>
+
+    <!-- Load an icon library to show a hamburger menu (bars) on small screens -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <!-- import css -->
+    <link rel="stylesheet" href="/css/index.css" />
+    <!-- import js -->
+    <script src="/js/script.js" defer></script>
+  </head>
+
+  <body>
+    <header>
+      <img class="cover" src="/asset/cover.jpg" alt="Seongmin Jung" />
+      <h1 class="title"><a href="/index.html">Seongmin Jung</a></h1>
+      <nav class="nav">
+        <a href="/index.html">Home</a>
+        <a href="/projects.html">Projects</a>
+        <a href="/articles.html" class="bold">Articles</a>
+        <a href="/blog.html">Blog</a>
+        <i id="nav-toggle" class="nav-toggle fa fa-bars" onclick="toggleNav()"></i>
+      </nav>
+    </header>
+
+    <div id="nav-modal-bg" onclick="toggleNav()"></div>
+    <nav id="nav-modal">
+      <a href="/index.html">Home</a>
+      <a href="/projects.html">Projects</a>
+      <a href="/articles.html" class="bold">Articles</a>
+      <a href="/blog.html">Blog</a>
+    </nav>
+
+    <main>
+      <div class="container">
+        <section id="post">
+          <a id="category-tag" href="/articles/paper_summaries.html"><i class="fa fa-book"></i> Paper Summaries</a>
+          <h1>Point-SLAM: Dense Neural Point Cloud-based SLAM</h1>
+          <p class="date">Posted on <time datetime="2024-09-24">September 24, 2024</time></p>
+          <div class="post-body">
+            <h2>Introduction</h2>
+            <p>
+              Point-SLAM is a dense neural SLAM system for monocular RGBD input that directly operates on point clouds.
+              Neural feature is anchored in each point itself and describe the geometry and appearance of each point
+              location. This strategy allows the system to be more accurate while being more memory-efficient than
+              previous works. Since the system is point-based, the point cloud map can be directly used for tracking,
+              while other methods employ off-the-shelf methods for tracking which causes a data redundancy.
+            </p>
+            <p>
+              The main contribution of this work is their point-based feature anchoring method, which can be used for
+              both tracking and mapping.
+            </p>
+
+            <h2>Related Work</h2>
+
+            <h4>Dense Visual SLAM and Mapping</h4>
+            <p>
+              Traditional 3D reconstruction strategies employed truncated signed distance functions (TSDF). Lately,
+              methods relying on test time optimization have become popular since they can generalize to unseen
+              environments. Neural Radiance Fields (NeRF) is one of the most popular methods in this category. However,
+              none of the neural SLAM approaches supports a point-based scene encoding with high fidelity.
+            </p>
+
+            <h4>Scene Representations</h4>
+            <p>
+              Most dense 3D reconstruction works can be separated into three categories: (1) gridbased, (2) point-based,
+              (3) network-based.
+            </p>
+            <p>
+              Grid-based representations use dense grids, hierarchical octrees, or voxel hashing. This enables fast
+              neighborhood lookups and context aggregation. However, their fixed resolution can cause memory
+              inefficiency in low-complexity areas and insufficient detail in high-complexity regions.
+            </p>
+            <p>
+              Point-based representations address grid limitations and are effective for 3D reconstruction, as point
+              density can vary across the scene without preset resolution. By focusing points around surfaces, memory
+              usage is minimized. However, neighborhood searches are challenging due to the lack of structure. For dense
+              SLAM, this can be mitigated by projecting points onto 2D keyframes or registering them in a grid.
+              Point-SLAM propose a hybrid approach combining point flexibility with grid-based search.
+            </p>
+            <p>
+              Network-based methods provide a continuous, compressed 3D scene representation using MLP weights, enabling
+              high-quality map and texture recovery. However, they struggle with online reconstruction due to limited
+              local updates and fixed network capacity. We address this by using neural implicit representations
+              anchored to 3D points, enabling scalability and local updates.
+            </p>
+
+            <h2>Method</h2>
+
+            <h4>Neural Point Cloud Representation</h4>
+            <p>The neural point cloud consists of a set of N points defined as:</p>
+            <p class="math-center">$p = \{ (p_i, f^g_i, f^c_i) | i = 1, ..., N \}$</p>
+            <p>
+              where $p_i$ is the 3D point location, and $f^g_i$ and $f^c_i$ are geometric and color feature descriptors.
+            </p>
+            <p>
+              During each mapping phase, pixels are sampled across the image, some uniformly and others among pixels
+              with the highest color gradient. Using depth information, these pixels are unprojected into 3D, and
+              neighbors are searched within a radius $r$.
+            </p>
+            <p>
+              If no neighbors are found, three neural points are added along the ray adjacent to the input depth value.
+              If neighbors exist, no points are added. Feature vectors $f^g_i$ and $f^c_i$ are initialized with normal
+              distribution.
+            </p>
+            <p>
+              To optimize memory and computation, neighbor search radius $r$ is adjusted based on scene complexity,
+              which is estimated by the color gradient. Therefore, the system can maintain low density in simple areas
+              and high density in detailed regions.
+            </p>
+
+            <h4>Rendering</h4>
+            <img class="half" src="/articles/paper_summaries/point-slam/img1.png" alt="Point-SLAM sampling" />
+            <p>
+              To render depth and color, Point-SLAM adopts a volume rendering strategy. Given a camera origin $O$ and
+              direction $d$, points along the ray are defined as:
+            </p>
+            <p class="math-center">$x_i = O + z_id, \quad i \in \{ 1, ..., M \},$</p>
+            <p>
+              where $z_i$ is the point depth. Unlike feature grid-based methods, Point-SLAM only samples 5 points near
+              the sensor depth per ray. This can be done since the system knows the depth of the surface.
+            </p>
+            <p>
+              Since any point in the space can be sampled by the nature, the geometric and color features should be
+              interpolated from the neighboring points. This is done by a weighted sum of the features, where the weight
+              is the inverse distance to the point.
+            </p>
+            <p>
+              Next, the interpolated feature is decoded by the MLP. For each sampled point $x_i$, the occupancy $o_i$
+              and color $c_i$ are decoded using MLPs. The MLP for the occupancy is pretrained, and the MLP for the color
+              is trainable. Gaussian positional encoding is used here.
+            </p>
+            <p>
+              Finally, these occupancy and color values are accumulated along the ray using the volume rendering
+              equation.
+            </p>
+
+            <h4>Mapping and Tracking</h4>
+            <p>
+              During mapping, we render $M$ uniformly sampled pixels and minimize the re-rendering loss to the ground
+              truth depth and color using:
+            </p>
+            <p class="math-center">
+              $L_{map} = \sum\limits_{m=1}^M | D_m - \hat{D}_m |_1 + \lambda_m | I_m - \hat{I}_m |_1,$
+            </p>
+            <p>
+              where $D_m$ and $I_m$ are the ground truth depth and color values, and $\hat{D}_m$ and $\hat{I}_m$ are the
+              rendered estimates. The hyperparameter $λ_m$ balances the depth and color losses. This loss optimizes both
+              geometric and color features $(f^g, f^cv)$ and the decoder parameters.
+            </p>
+            <p>
+              For tracking, we first initialize the new pose using a constant speed assumption based on the previous
+              poses. We then sample $M_t$ points from the incoming image and use them to optimize the camera pose $(R,
+              t)$ by a separate loss:
+            </p>
+            <p class="math-center">
+              $L_{track} = \sum\limits_{m=1}^{M_t} \cfrac{|D_m - \hat{D}_m|_1}{\sqrt{\hat{S}_D}} + \lambda_t |I_m -
+              \hat{I}_m|_1,$
+            </p>
+            <p>
+              where $\hat{S}_D$ is the depth variance along the ray, and $λ_t$ adjusts the weight of the color term.
+            </p>
+
+            <h2>Experiments</h2>
+            <p>
+              For datasets, Replica, TUM-RGBD, and ScanNet datasets are used. For evaluation, different types of metrics
+              are used. For mesh quality, F-score is used. For depth accuracy, L1 error is used. For tracking, ATE RMSE
+              is used. For rendering quality, PSNR, SSIM, LPIPS are used. Baseline methods are NICE-SLAM, Vox-Fusion,
+              and E-SLAM.
+            </p>
+            <img
+              class="half"
+              src="/articles/paper_summaries/point-slam/img2.png"
+              alt="Geometric reconstruction accuracy"
+            />
+            <p>
+              The table above shows the geometric reconstruction accuracy. Point-SLAM outperforms outperform all methods
+              on all metrics.
+            </p>
+            <img class="half" src="/articles/paper_summaries/point-slam/img3.png" alt="Tracking quality" />
+            <p>
+              On average, Point-SLAM outperform the existing methods. Nevertheless, there is still a gap to traditional
+              methods which employ more sophisticated tracking schemes including loop closures when evaluated on the
+              TUM-RGBD dataset.
+            </p>
+            <img src="/articles/paper_summaries/point-slam/img4.png" alt="Rendering quality" />
+            <p>Point-SLAM yields more accurate details than the baselines.</p>
+
+            <h2>Conclusion</h2>
+            <p>
+              Point-SLAM is a dense SLAM system that uses a neural point cloud for mapping and tracking. By anchoring
+              features to actual surface locations, Point-SLAM efficiently balances memory and computation, resulting in
+              a more accurate 3D scene representation. Point-SLAM significantly improves reconstruction and rendering
+              accuracy while remaining competitive in tracking performance, runtime, and memory usage compared to
+              state-of-the-art methods.
+            </p>
+            <p>
+              Robustness against depth noise could be enhanced by allowing on-the-fly optimization of point locations.
+              Also, our heuristic-based local density adaptation and several hyperparameters could benefit from adaptive
+              learning. Additionally, our system is sensitive to motion blur and specularities.
+            </p>
+          </div>
+          <div class="post-footer">
+            <div class="post-footer-profile">
+              <img src="/asset/cover.jpg" alt="Seongmin Jung" />
+              <h1>Seongmin Jung</h1>
+            </div>
+            <h2>Other posts in <a href="/articles/paper_summaries.html">Paper Summaries</a> category</h2>
+            <ul>
+              <li>
+                <a href="/articles/paper_summaries/point-slam.html">
+                  <span><b>Point-SLAM: Dense Neural Point Cloud-based SLAM</b></span>
+                  <time datetime="2024-09-24">September 24, 2024</time>
+                </a>
+              </li>
+              <li>
+                <a href="/articles/paper_summaries/nerf.html">
+                  <span>NeRF: Representing Scenes as Neural Radiance Fields for View Synthesis</span>
+                  <time datetime="2024-09-14">September 14, 2024</time>
+                </a>
+              </li>
+              <li>
+                <a href="/articles/paper_summaries/nice-slam.html">
+                  <span>NICE-SLAM: Neural Implicit Scalable Encoding for SLAM</span>
+                  <time datetime="2024-09-09">September 9, 2024</time>
+                </a>
+              </li>
+              <li>
+                <a href="/articles/paper_summaries/orb-slam.html">
+                  <span>ORB-SLAM: a Versatile and Accurate Monocular SLAM System</span>
+                  <time datetime="2024-08-28">August 28, 2024</time>
+                </a>
+              </li>
+              <li>
+                <a href="/articles/paper_summaries/kiss-icp.html">
+                  <span
+                    >KISS-ICP: In Defense of Point-to-Point ICP -- Simple, Accurate, and Robust Registration If Done the
+                    Right Way</span
+                  >
+                  <time datetime="2023-12-18">December 18, 2023</time>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2024 Seongmin Jung<br />Designed and developed by Seongmin Jung</p>
+    </footer>
+  </body>
+</html>

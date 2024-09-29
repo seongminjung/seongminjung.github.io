@@ -641,14 +641,14 @@ footer {
 
 #post .post-body img {
   width: 100%;
-  margin-top: 20px;
-  margin-bottom: 20px;
+  margin-top: 40px;
+  margin-bottom: 40px;
+  display: block;
 }
 
 #post .post-body img.half {
   width: 50%;
-  display: block;
-  margin: 20px auto;
+  margin: 40px auto;
 }
 
 @media (max-width: 700px) {
