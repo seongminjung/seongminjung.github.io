@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Loopy-SLAM: Dense Neural SLAM with Loop Closures</title>
+    <meta name="description" content="Seongmin Jung's personal website" />
+    <meta name="keywords" content="Seongmin Jung, Robotics" />
+    <meta name="author" content="Seongmin Jung" />
+    <meta name="language" content="English" />
+    <link rel="shortcut icon" href="/favicon.png" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-LL44K1WZ0G"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "G-LL44K1WZ0G");
+    </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML" async></script>
+
+    <!-- Load an icon library to show a hamburger menu (bars) on small screens -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <!-- import css -->
+    <link rel="stylesheet" href="/css/index.css" />
+    <!-- import js -->
+    <script src="/js/script.js" defer></script>
+  </head>
+
+  <body>
+    <header>
+      <img class="cover" src="/asset/cover.jpg" alt="Seongmin Jung" />
+      <h1 class="title"><a href="/index.html">Seongmin Jung</a></h1>
+      <nav class="nav">
+        <a href="/index.html">Home</a>
+        <a href="/projects.html">Projects</a>
+        <a href="/articles.html" class="bold">Articles</a>
+        <a href="/blog.html">Blog</a>
+        <i id="nav-toggle" class="nav-toggle fa fa-bars" onclick="toggleNav()"></i>
+      </nav>
+    </header>
+
+    <div id="nav-modal-bg" onclick="toggleNav()"></div>
+    <nav id="nav-modal">
+      <a href="/index.html">Home</a>
+      <a href="/projects.html">Projects</a>
+      <a href="/articles.html" class="bold">Articles</a>
+      <a href="/blog.html">Blog</a>
+    </nav>
+
+    <main>
+      <div class="container">
+        <section id="post">
+          <a id="category-tag" href="/articles/paper_summaries.html"><i class="fa fa-book"></i> Paper Summaries</a>
+          <h1>Loopy-SLAM: Dense Neural SLAM with Loop Closures</h1>
+          <p class="date">Posted on <time datetime="2024-09-30">September 30, 2024</time></p>
+          <div class="post-body">
+            <h2>Introduction</h2>
+            <p>
+              Loopy-SLAM is a dense RGBD SLAM system equipped with loop closing. This system inherits the point-based
+              scene encoding of Point-SLAM, since point-based representations are especially suitable for performing map
+              corrections.
+            </p>
+            <p>
+              Recent online dense 3D reconstruction methods are either <b>coupled</b> (using the same representation for
+              tracking and mapping) or <b>decoupled</b> (using independent frameworks). While decoupled methods
+              currently achieve better tracking accuracy, they suffer from data redundancy since tracking is performed
+              independently of the estimated dense map.
+            </p>
+            <p>
+              In terms of loop closure and map corrections, almost all of the coupled methods often implement only
+              frame-to-model tracking, leading to significant camera drift on noisy real-world data and resulting in
+              corrupted maps. Decoupled methods use multi-resolution hash grids, which are not easily transformable for
+              map corrections, requiring expensive gradient-based updates and storage of input frames.
+            </p>
+            <p>
+              Point-based representations are especially suitable for map corrections, as they can be transformed
+              quickly and independently.
+            </p>
+            <p>
+              The main contribution of this work is the direct way of implementing loop closure for dense neural SLAM
+              that does not require any gradient updates of the scene representation. They also introduce a feature
+              fusion strategy of the submaps in the overlapping regions to avoid visible seams.
+            </p>
+
+            <h2>Related Work</h2>
+
+            <h4>Dense Visual SLAM and Online Mapping</h4>
+            <p>
+              Test-time optimization techniques have gained popularity due to differentiable renderers that enable
+              effective reprojection error minimization. Inspired by Neural Radiance Fields, these methods have evolved
+              into full dense SLAM pipelines that use a coupled scene representation for both mapping and tracking. The
+              inherent coupling of these tasks suggests they should be addressed together.
+            </p>
+            <p>
+              This work builds upon the Point-SLAM framework, which is particularly suited for loop closure due to its
+              simple, point-based scene representation. This allows for map corrections without needing to reintegrate
+              each frame, avoiding the resource demands of storing the entire history of input frames in larger scenes.
+            </p>
+
+            <h4>Loop Closure on Dense Maps</h4>
+            <p>
+              To achieve globally consistent maps, many dense SLAM methods divide the map into submaps that are rigidly
+              registered using pose graph optimization. Sometimes they are followed by global bundle adjustment for
+              refinement. Loopy-SLAM also splits the map into submaps and employs online pose graph optimization.
+            </p>
+            <p>
+              Among recent dense neural SLAM approaches, Orbeez-SLAM and NEWTON use a decoupled strategy by integrating
+              ORB-SLAM2 for tracking and utilize multi-resolution hash grids. GO-SLAM also uses a decoupled approach by
+              extending DROID-SLAM for online loop closure and couples it with a map via Instant-NGP.
+            </p>
+            <p>
+              A common limitation among these hash grid-based methods is that they require additional training
+              iterations for map corrections and necessitate storing all input frames, limiting scalability. In
+              contrast, Loopy-SLAM rigidly aligns submaps without these restrictions.
+            </p>
+
+            <h2>Method</h2>
+
+            <h4>Neural Point Cloud-based SLAM</h4>
+            <img class="half" src="/articles/paper_summaries/loopy-slam/img1.png" alt="Loopy-SLAM overview 1" />
+            <p>
+              Extending from Point-SLAM, Loopy-SLAM uses a same neural point cloud-based scene representation. The
+              difference is that the neural point cloud is redefined as a set of $s$ submaps, each containing a neural
+              point cloud $P_s$.
+            </p>
+            <p class="math-center">$P_s = \{ (p_i, f^{s, g}_i, f^{s, c}_i) | i = 1, ..., N \}$</p>
+            <p>Each neural point contain its position and geometric and color feature descriptors.</p>
+            <p>
+              Mapping and tracking are performed on the active submap &ndash; the most recently created one. The first
+              frame of each submap serves as a global keyframe, defining the submap's pose in the global reference
+              frame. Submaps grow progressively as points are added to the active submap using the dynamic resolution
+              strategy from Point-SLAM.
+            </p>
+            <p>
+              Rendering also follows the Point-SLAM framework. Points are sampled along the ray based on the camera
+              pose, and occupancies and colors are decoded using MLPs. Here, to support the map correction, Gaussian
+              positional encodings became learnable. They are optimized on the fly to handle point shifts during loop
+              closure without expensive feature updates.
+            </p>
+            <p>
+              Tracking and mapping are alternated on the active submap. The basic methodology is same as Point-SLAM.
+            </p>
+            <p>
+              A new submap is created when a new global keyframe is added. Global keyframe selection is based on the
+              camera movement, e.g. when rotation or translation exceeds a certain amount. Each new submap is
+              initialized by projecting the previous submap's neural point cloud into the new global keyframe, speeding
+              up the mapping process.
+            </p>
+            <p>
+              Within each submap, local keyframes are generated at regular intervals to constrain mapping, similar to
+              previous methods but on a per-submap basis. These local keyframes are deleted when a new submap is
+              initialized to manage computational resources efficiently.
+            </p>
+
+            <h4>Loop Closure and Refinement</h4>
+            <img class="half" src="/articles/paper_summaries/loopy-slam/img2.png" alt="Loopy-SLAM overview 2" />
+            <p>
+              At the end of each submap creation, loop closure system is triggered. First, global place recognition is
+              performed. Every time a global keyframe is created, it is added to the BoW database.
+            </p>
+            <p>
+              Then, the pose graph is built upon the global keyframes. The object function of the pose graph
+              optimization is as follows:
+            </p>
+            <p class="math-center">
+              $E(\mathbb{T}, \mathbb{L}) = \sum\limits_s f(T_s, T_{s + 1}, I_s) + \lambda \left( \sum\limits_{s, t}
+              l_{st} f(T_s, T_t, T_{s + 1}) + \mu(\sum\limits_{s, t} (\sqrt{l_{st} - 1})^2) \right)$
+            </p>
+            <p>
+              The first term is the odometry constraints between consecutive nodes. It measures the difference between
+              the transformed points of submap $s$ and submap $s + 1$ using the identity transformation $I_s$.
+            </p>
+            <p>
+              The second term is the loop closure constraints. It measures the difference between the transformed points
+              of submap $s$ and submap $t$ using the estimated transformation $T_{st}$, which is obtained by querying
+              the BoW database.
+            </p>
+            <p>
+              The last term is the line process regularization term to prevent the trivial solution. It encourages the
+              weights $l_st$ to be close to 1, meaning that loop closure constraints are trusted by default. However,
+              during optimization, if a loop closure constraint does not fit well (i.e., introduces high error), the
+              optimization can reduce $l_st$ towards 0, effectively down-weighting or rejecting that constraint.
+            </p>
+            <p>
+              The function $f$ is the dense surface registration term. It is defined as the sum of squared distances
+              between corresponding points in submaps $P_s$ and $P_t$.
+            </p>
+            <p>Finally, this objective function is optimized with Levenberg-Marquardt.</p>
+            <p>
+              In this loop closure system, a few tricks are used to make it more robust. First, when performing the
+              dense surface registration, the points are sampled from TSDF Fusion result, to suppress individual point's
+              depth noise. Second, when calculating $T_{st}$, coarse-to-fine registration is used. As coarse alignment,
+              Rusu <i>et al.</i>'s method is used. As fine alignment, ICP is used on the full-resolution point cloud.
+            </p>
+            <p>
+              After the loop closure is completed, the neural features of the overlapping regions are fused. This is
+              done by averaging the features of the overlapping points. This prevents visible seams between submaps.
+            </p>
+
+            <h2>Experiments</h2>
+            <p>
+              For datasets, Replica, TUM-RGBD, and ScanNet datasets are used. For evaluation, different types of metrics
+              are used. For mesh quality, F-score is used. For depth accuracy, depth L1 is used. For tracking, ATE RMSE
+              is used. For rendering quality, PSNR, SSIM, LPIPS are used. Baseline methods are ESLAM, Point-SLAM, and
+              GO-SLAM.
+            </p>
+
+            <h4>Reconstruction</h4>
+            <img class="half" src="/articles/paper_summaries/loopy-slam/img3.png" alt="Reconstruction results" />
+            <p>
+              The table above compares Loopy-SLAM to state-of-the-art dense RGBD neural SLAM methods in terms of the
+              geometric reconstruction accuracy. We outperform all methods on the majority of scenes.
+            </p>
+
+            <h4>Tracking</h4>
+            <img class="half" src="/articles/paper_summaries/loopy-slam/img4.png" alt="Tracking results 1" />
+            <p>
+              Loopy-SLAM outperforms the existing methods on all scenes except one. The authors attribute this to robust
+              frame-to-model local pose estimation coupled with pose graph optimization which globally aligns the submap
+              frames.
+            </p>
+            <img class="half" src="/articles/paper_summaries/loopy-slam/img5.png" alt="Tracking results 2" />
+            <p>
+              When evaluated on real-world data of the TUM-RGBD dataset, Loopy-SLAM outperforms the existing neural SLAM
+              methods on average, but still not as good as traditional methods such as ORB-SLAM2.
+            </p>
+
+            <h4>Rendering</h4>
+            <img class="half" src="/articles/paper_summaries/loopy-slam/img6.png" alt="Rendering results" />
+            <p>Loopy-SLAM achieves the best rendering quality among all methods.</p>
+
+            <h2>Conclusion</h2>
+            <p>
+              Loopy-SLAM is a dense RGBD SLAM system that utilizes submaps of neural point clouds for local mapping and
+              tracking, along with loop closure. This point-based representation allows for efficient local map updates
+              by shifting points. Also, this submap-based integration strategy offers better scalability.
+            </p>
+            <p>
+              As for limitations, a more robust tracker can be built with a combination of frame-to-model and
+              frame-to-frame queues. Also, more robust and faster registrations can be obtained by making use of not
+              only 3D point features, but also image features from the associated keyframes. Currently, the
+              implementation is using Pytorch and Open3D via python bindings and not optimized for real-time operation.
+              A direct CUDA implementation can be used to improve the runtime speed. Finally, the system does not
+              implement relocalization, which is an important part of a robust SLAM system.
+            </p>
+          </div>
+          <div class="post-footer">
+            <div class="post-footer-profile">
+              <img src="/asset/cover.jpg" alt="Seongmin Jung" />
+              <h1>Seongmin Jung</h1>
+            </div>
+            <h2>Other posts in <a href="/articles/paper_summaries.html">Paper Summaries</a> category</h2>
+            <ul>
+              <li>
+                <a href="/articles/paper_summaries/loopy-slam.html">
+                  <span><b>Loopy-SLAM: Dense Neural SLAM with Loop Closures</b></span>
+                  <time datetime="2024-09-30">September 30, 2024</time>
+                </a>
+              </li>
+              <li>
+                <a href="/articles/paper_summaries/point-slam.html">
+                  <span>Point-SLAM: Dense Neural Point Cloud-based SLAM</span>
+                  <time datetime="2024-09-24">September 24, 2024</time>
+                </a>
+              </li>
+              <li>
+                <a href="/articles/paper_summaries/nerf.html">
+                  <span>NeRF: Representing Scenes as Neural Radiance Fields for View Synthesis</span>
+                  <time datetime="2024-09-14">September 14, 2024</time>
+                </a>
+              </li>
+              <li>
+                <a href="/articles/paper_summaries/nice-slam.html">
+                  <span>NICE-SLAM: Neural Implicit Scalable Encoding for SLAM</span>
+                  <time datetime="2024-09-09">September 9, 2024</time>
+                </a>
+              </li>
+              <li>
+                <a href="/articles/paper_summaries/orb-slam.html">
+                  <span>ORB-SLAM: a Versatile and Accurate Monocular SLAM System</span>
+                  <time datetime="2024-08-28">August 28, 2024</time>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2024 Seongmin Jung<br />Designed and developed by Seongmin Jung</p>
+    </footer>
+  </body>
+</html>
