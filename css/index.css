@@ -588,7 +588,7 @@ footer {
 }
 
 /* ArXiv card */
-#arxiv-card {
+.arxiv-card {
   width: 100%;
   max-width: 800px;
   border: 1px solid #e6e6e6;
@@ -597,57 +597,61 @@ footer {
   transition: box-shadow 0.3s ease;
   background-color: #fff;
   overflow: hidden;
+  margin: 0 0 50px;
 }
 
-#arxiv-card:hover {
+.arxiv-card:hover {
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
-#arxiv-card a {
+.arxiv-card a {
   display: flex;
   align-items: center;
   padding: 15px 20px;
 }
 
-#arxiv-card .logo-wrapper {
+.arxiv-card .logo-wrapper {
   flex: 0 0 20%;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-#arxiv-card .logo {
+.arxiv-card .logo {
   width: 100%;
   max-width: 80px;
   height: auto;
   object-fit: contain;
 }
 
-#arxiv-card .detail {
+.arxiv-card .detail {
   flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding-left: 20px;
+  padding: 0 20px;
 }
 
-#arxiv-card .detail strong {
+.arxiv-card .detail strong {
   color: #212529;
+  margin: 10px 0;
 }
 
-#arxiv-card .detail p {
+.arxiv-card .detail p {
   font-size: 0.9rem;
   color: #666;
   line-height: 1.4;
+  margin: 0 !important;
 }
 
-#arxiv-card .detail span {
+.arxiv-card .detail span {
   font-size: 0.9rem;
   color: #007bff;
+  margin: 10px 0;
 }
 
 @media (max-width: 700px) {
-  #arxiv-card a {
+  .arxiv-card a {
     flex-direction: column;
   }
 }
