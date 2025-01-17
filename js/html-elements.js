@@ -1,3 +1,39 @@
+class ArticleItem extends HTMLElement {
+  constructor() {
+    super();
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'item';
+
+    const title = this.getAttribute('title') || 'Article Title';
+    const date = this.getAttribute('date') || 'Posted Date';
+    const category = this.getAttribute('category') || 'Category';
+    const folder = this.getAttribute('folder') || 'Folder';
+    const filename = this.getAttribute('filename') || 'Example';
+    const detail = this.getAttribute('detail') || 'Detail Text';
+
+    // Format date string
+    const dateObj = new Date(date);
+    const formattedDate = dateObj.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+
+    wrapper.innerHTML = `
+      <a id="category-tag" href="/articles/${folder}.html"><i class="fa fa-book"></i> ${category}</a>
+      <a class="grid" href="/articles/${folder}/${filename}.html">
+        <h2>${title}</h2>
+        <p class="date">Posted on <time datetime="${date}">${formattedDate}</time></p>
+        <img class="preview" src="/articles/${folder}/${filename}/img1.png" alt="preview" />
+        <p class="detail">${detail}</p>
+      </a>
+    `;
+    this.appendChild(wrapper);
+  }
+}
+customElements.define('article-item', ArticleItem);
+
 class ArxivCard extends HTMLElement {
   constructor() {
     super();
@@ -6,7 +42,7 @@ class ArxivCard extends HTMLElement {
     wrapper.className = 'arxiv-card';
 
     const title = this.getAttribute('title') || 'Paper Title';
-    const published = this.getAttribute('published') || 'Published';
+    const venue = this.getAttribute('venue') || 'Venue';
     const authors = this.getAttribute('authors') || 'Authors';
     const link = this.getAttribute('link') || '#';
 
@@ -17,7 +53,7 @@ class ArxivCard extends HTMLElement {
         </div>
         <div class="detail">
           <strong>${title}</strong>
-          <p class="published">${published}</p>
+          <p class="venue">${venue}</p>
           <p class="authors">${authors}</p>
           <span>${link}</span>
         </div>

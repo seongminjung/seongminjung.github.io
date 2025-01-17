@@ -27,6 +27,7 @@
     <link rel="stylesheet" href="/css/index.css" />
     <!-- import js -->
     <script src="/js/script.js" defer></script>
+    <script src="/js/html-elements.js" defer></script>
   </head>
 
   <body>
@@ -60,15 +61,14 @@
           </div>
           <div class="tab-content">
             <div class="all-posts">
-              <div class="item">
-                <a id="category-tag" href="/articles/ros1_tutorial.html"><i class="fa fa-book"></i> ROS1 Tutorial</a>
-                <a class="grid" href="/articles/ros1_tutorial/install_opencv.html">
-                  <h2>How to Install OpenCV on a Fresh Ubuntu 20.04</h2>
-                  <p class="date">Posted on <time datetime="2024-10-01">October 1, 2024</time></p>
-                  <img class="preview" src="/articles/ros1_tutorial/install_opencv/img1.png" alt="preview" />
-                  <p class="detail">Installing CuDNN and OpenCV on Ubuntu 20.04</p>
-                </a>
-              </div>
+              <article-item
+                title="How to Install OpenCV on a Fresh Ubuntu 20.04"
+                date="2024-10-01"
+                category="ROS1 Tutorial"
+                folder="ros1_tutorial"
+                filename="install_opencv"
+                detail="Installing CuDNN and OpenCV on Ubuntu 20.04">
+              </article-item>
               <div class="item">
                 <a id="category-tag" href="/articles/paper_summaries.html"
                   ><i class="fa fa-book"></i> Paper Summaries</a

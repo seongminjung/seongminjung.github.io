@@ -613,7 +613,7 @@ footer {
   margin: 10px 0;
 }
 
-.arxiv-card .detail p.published {
+.arxiv-card .detail p.venue {
   font-size: 0.95rem;
   color: #212529;
   line-height: 1.4;
