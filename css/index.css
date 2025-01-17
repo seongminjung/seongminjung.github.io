@@ -587,6 +587,71 @@ footer {
   }
 }
 
+/* ArXiv card */
+#arxiv-card {
+  width: 100%;
+  max-width: 800px;
+  border: 1px solid #e6e6e6;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+  background-color: #fff;
+  overflow: hidden;
+}
+
+#arxiv-card:hover {
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+#arxiv-card a {
+  display: flex;
+  align-items: center;
+  padding: 15px 20px;
+}
+
+#arxiv-card .logo-wrapper {
+  flex: 0 0 20%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#arxiv-card .logo {
+  width: 100%;
+  max-width: 80px;
+  height: auto;
+  object-fit: contain;
+}
+
+#arxiv-card .detail {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-left: 20px;
+}
+
+#arxiv-card .detail strong {
+  color: #212529;
+}
+
+#arxiv-card .detail p {
+  font-size: 0.9rem;
+  color: #666;
+  line-height: 1.4;
+}
+
+#arxiv-card .detail span {
+  font-size: 0.9rem;
+  color: #007bff;
+}
+
+@media (max-width: 700px) {
+  #arxiv-card a {
+    flex-direction: column;
+  }
+}
+
 /* post page */
 #post #category-tag {
   margin-bottom: 20px;
