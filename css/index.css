@@ -637,7 +637,14 @@ footer {
   margin: 10px 0;
 }
 
-.arxiv-card .detail p {
+.arxiv-card .detail p.published {
+  font-size: 0.95rem;
+  color: #212529;
+  line-height: 1.4;
+  margin: 0 !important;
+}
+
+.arxiv-card .detail p.authors {
   font-size: 0.9rem;
   color: #666;
   line-height: 1.4;

@@ -6,6 +6,7 @@ class ArxivCard extends HTMLElement {
     wrapper.className = 'arxiv-card';
 
     const title = this.getAttribute('title') || 'Paper Title';
+    const published = this.getAttribute('published') || 'Published';
     const authors = this.getAttribute('authors') || 'Authors';
     const link = this.getAttribute('link') || '#';
 
@@ -16,7 +17,8 @@ class ArxivCard extends HTMLElement {
         </div>
         <div class="detail">
           <strong>${title}</strong>
-          <p>${authors}</p>
+          <p class="published">${published}</p>
+          <p class="authors">${authors}</p>
           <span>${link}</span>
         </div>
       </a>
