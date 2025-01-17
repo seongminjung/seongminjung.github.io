@@ -443,18 +443,6 @@ footer {
   margin: 0;
 }
 
-#articles .item .grid .published {
-  font-size: 0.9rem;
-  color: #666;
-  margin-bottom: 0;
-}
-
-#articles .item .grid .author {
-  font-size: 0.8rem;
-  color: #666;
-  margin-bottom: 0;
-}
-
 #articles .categories {
   border-top: 1px solid #e6e6e6;
 }
@@ -554,18 +542,6 @@ footer {
 
 #series .item .grid .detail {
   margin: 0;
-}
-
-#series .item .grid .published {
-  font-size: 0.9rem;
-  color: #666;
-  margin-bottom: 0;
-}
-
-#series .item .grid .author {
-  font-size: 0.8rem;
-  color: #666;
-  margin-bottom: 0;
 }
 
 @media (max-width: 700px) {
