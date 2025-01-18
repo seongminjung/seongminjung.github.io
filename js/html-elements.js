@@ -23,7 +23,7 @@ class ArticleItem extends HTMLElement {
     });
 
     wrapper.innerHTML = `
-      <a id="category-tag" href="/articles/${folder}.html"><i class="fa fa-book"></i> ${category}</a>
+      <a class="category-tag" href="/articles/${folder}.html"><i class="fa fa-book"></i> ${category}</a>
       <a class="grid" href="/articles/${folder}/${filename}.html">
         <h2>${title}</h2>
         <p class="date">Posted on <time datetime="${date}">${formattedDate}</time></p>

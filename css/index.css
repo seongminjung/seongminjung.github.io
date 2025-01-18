@@ -359,7 +359,7 @@ footer {
 }
 
 /* Category Tag */
-#category-tag {
+.category-tag {
   font-size: 0.9rem;
   font-weight: 400;
   color: #666;
@@ -371,7 +371,7 @@ footer {
   text-decoration: none;
 }
 
-#category-tag:hover {
+.category-tag:hover {
   color: #212529;
   background-color: #e6e6e6;
 }
@@ -417,7 +417,7 @@ footer {
   text-decoration: none;
 }
 
-#articles .item #category-tag {
+#articles .item .category-tag {
   margin-bottom: 10px;
 }
 
@@ -518,7 +518,7 @@ footer {
   text-decoration: none;
 }
 
-#series .item #category-tag {
+#series .item .category-tag {
   margin-bottom: 10px;
 }
 
@@ -639,7 +639,7 @@ footer {
 }
 
 /* post page */
-#post #category-tag {
+#post .category-tag {
   margin-bottom: 20px;
 }
 
