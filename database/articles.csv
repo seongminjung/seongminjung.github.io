@@ -1,47 +1,47 @@
-title,date,category,folder,filename,detail
-1. Installation and Environment Setup,2023-01-11,ROS1 Tutorial,ros1_tutorial,ros_1,Introduction
-2. Workspace and Package,2023-01-20,ROS1 Tutorial,ros1_tutorial,ros_2,Workspace and Package
-"3. Topic, Node, Message, and Service",2023-01-23,ROS1 Tutorial,ros1_tutorial,ros_3,"Topic, Node, Message, and Service"
-4. Publisher and Subscriber,2023-01-24,ROS1 Tutorial,ros1_tutorial,ros_4,Basic ROS Programming Concepts
-5. Setting up bashrc file,2023-01-24,ROS1 Tutorial,ros1_tutorial,ros_5,Tips for Easy ROS Setup
-6. URDF file - Creating Your Own Robot,2023-01-25,ROS1 Tutorial,ros1_tutorial,ros_6,Designing a Robot Architecture
-7. Adding Dimensions and Positions,2023-01-26,ROS1 Tutorial,ros1_tutorial,ros_7,Detailing Basic Robot Description and Visualization in URDF
-Part 1: Known Data Association & SVD,2023-09-10,Iterative Closest Point (ICP) Algorithm,icp_algorithm,icp_1,ICP Overview and One-Shot Optimal Solution
-Part 2: Unknown Data Association,2023-09-17,Iterative Closest Point (ICP) Algorithm,icp_algorithm,icp_2,Iterative Method and ICP Variants
-Part 3: Implementation of Basic ICP Algorithm,2023-09-21,Iterative Closest Point (ICP) Algorithm,icp_algorithm,icp_3,Implementing ICP from Scratch in C++
-BundleSDF: Neural 6-DoF Tracking and 3D Reconstruction of Unknown Objects,2023-11-09,Paper Summaries,paper_summaries,bundlesdf,CVPR 2023
-vMAP: Vectorised Object Mapping for Neural Field SLAM,2023-12-05,Paper Summaries,paper_summaries,vmap,CVPR 2023
-CNN-SLAM: Real-time dense monocular SLAM with learned depth prediction,2023-12-12,Paper Summaries,paper_summaries,cnn-slam,CVPR 2017
-"KISS-ICP: In Defense of Point-to-Point ICP -- Simple, Accurate, and Robust Registration If Done the Right Way",2023-12-18,Paper Summaries,paper_summaries,kiss-icp,RA-L 2023
-Reinforcement Learning Overview,2024-03-22,Reinforcement Learning,reinforcement_learning,reinforcement_learning_overview,Basic concepts of reinforcement learning and its applications in robotics
-Lecture 1: Introduction to Deep Learning for Computer Vision,2024-03-26,Deep Learning for Computer Vision,deep_learning_for_computer_vision,lecture_1,Introduction to deep learning for computer vision
-Lecture 2: Image Classification,2024-03-26,Deep Learning for Computer Vision,deep_learning_for_computer_vision,lecture_2,K-Nearest Neighbors (kNN) and data splitting
-Lecture 3: Linear Classifiers,2024-03-28,Deep Learning for Computer Vision,deep_learning_for_computer_vision,lecture_3,"Linear classifiers, loss function, and regularization"
-Introduction,2024-03-28,Visual SLAM,visual_slam,vslam_1,Introduction to SLAM
-3D Rigid Body Motion | 1. Rotation Matrix,2024-03-28,Visual SLAM,visual_slam,vslam_2,Transform between coordinate systems
-Lecture 4: Regularization + Optimization,2024-04-02,Deep Learning for Computer Vision,deep_learning_for_computer_vision,lecture_4,Gradient descent and optimizers
-Lecture 5: Neural Networks,2024-04-18,Deep Learning for Computer Vision,deep_learning_for_computer_vision,lecture_5,Neural Networks and Universal Approximation Theorem
-3D Rigid Body Motion | 2. Rotation Vectors and the Euler Angles,2024-04-19,Visual SLAM,visual_slam,vslam_3,Rotation Vector and Euler Angles
-3D Rigid Body Motion | 3. Quaternions,2024-04-19,Visual SLAM,visual_slam,vslam_4,Quaternion Operations and Conversions
-Lecture 6: Backpropagation,2024-04-20,Deep Learning for Computer Vision,deep_learning_for_computer_vision,lecture_6,Computational Graph and Backpropagation
-3D Rigid Body Motion | 4. Affine and Projective Transformation,2024-04-21,Visual SLAM,visual_slam,vslam_5,3D Transformations
-Lecture 7: Convolutional Networks,2024-04-27,Deep Learning for Computer Vision,deep_learning_for_computer_vision,lecture_7,"Convolutional Layers, Pooling Layers, and Batch Normalization"
-Lecture 8: CNN Architectures I,2024-04-30,Deep Learning for Computer Vision,deep_learning_for_computer_vision,lecture_8,"AlexNet, VGG, GoogLeNet, and ResNet"
-Lecture 9: Training Neural Networks I,2024-05-03,Deep Learning for Computer Vision,deep_learning_for_computer_vision,lecture_9,"Activation Functions, Data Preprocessing, Weight Initialization, and Regularization"
-Lecture 10: Training Neural Networks II,2024-05-11,Deep Learning for Computer Vision,deep_learning_for_computer_vision,lecture_10,"Learning Rate Schedules, Hyperparameter Optimization, Model Ensembles, Transfer Learning, and Large-Batch Training"
-Lecture 11: CNN Architectures II,2024-05-12,Deep Learning for Computer Vision,deep_learning_for_computer_vision,lecture_11,Grouped Convolution and New Architectures
-Lecture 12: Deep Learning Software,2024-05-15,Deep Learning for Computer Vision,deep_learning_for_computer_vision,lecture_12,PyTorch and Dynamic Computation Graphs
-Lecture 13: Object Detection,2024-05-17,Deep Learning for Computer Vision,deep_learning_for_computer_vision,lecture_13,"Transfer Learning, Object Detection, and R-CNN"
-Lecture 14: Object Detectors,2024-05-19,Deep Learning for Computer Vision,deep_learning_for_computer_vision,lecture_14,"Fast R-CNN, Faster R-CNN, and Feature Pyramid Network"
-Lecture 15: Image Segmentation,2024-05-30,Deep Learning for Computer Vision,deep_learning_for_computer_vision,lecture_15,"Semantic Segmentation, Instance Segmentation, and Beyond Instance Segmentation"
-Lecture 16: Recurrent Networks,2024-06-04,Deep Learning for Computer Vision,deep_learning_for_computer_vision,lecture_16,"Recurrent Neural Networks, Backpropagation Through Time, and Long Short-Term Memory (LSTM)"
-Lecture 17: Attention,2024-06-15,Deep Learning for Computer Vision,deep_learning_for_computer_vision,lecture_17,"Sequence-to-Sequence with RNNs and Attention, Self-Attention, and Transformer"
-Lecture 18: Vision Transformers,2024-08-24,Deep Learning for Computer Vision,deep_learning_for_computer_vision,lecture_18,"Vision Transformer (ViT), Distillation, Swin Transformer, MLP-Mixer, and DETR"
-ORB-SLAM: a Versatile and Accurate Monocular SLAM System,2024-08-28,Paper Summaries,paper_summaries,orb-slam,IEEE Transactions on Robotics 2015
-Lecture 19: Generative Models I,2024-08-29,Deep Learning for Computer Vision,deep_learning_for_computer_vision,lecture_19,"Supervised vs Unsupervised learning, Discriminative vs Generative models, Autoregressive Models, and Variational Autoencoders"
-NICE-SLAM: Neural Implicit Scalable Encoding for SLAM,2024-09-09,Paper Summaries,paper_summaries,nice-slam,CVPR 2022
-NeRF: Representing Scenes as Neural Radiance Fields for View Synthesis,2024-09-14,Paper Summaries,paper_summaries,nerf,ECCV 2020
-Point-SLAM: Dense Neural Point Cloud-based SLAM,2024-09-24,Paper Summaries,paper_summaries,point-slam,ICCV 2023
-Loopy-SLAM: Dense Neural SLAM with Loop Closures,2024-09-30,Paper Summaries,paper_summaries,loopy-slam,CVPR 2024
-Neural Graph Mapping for Dense SLAM with Efficient Loop Closure,2024-09-30,Paper Summaries,paper_summaries,neural_graph_mapping,ArXiv 2024
-How to Install OpenCV on a Fresh Ubuntu 20.04,2024-10-01,ROS1 Tutorial,ros1_tutorial,install_opencv,Installing CuDNN and OpenCV on Ubuntu 20.04
+date,category_id,filename,title,detail
+2023-01-11,1,ros_1,1. Installation and Environment Setup,Introduction
+2023-01-20,1,ros_2,2. Workspace and Package,Workspace and Package
+2023-01-23,1,ros_3,"3. Topic, Node, Message, and Service","Topic, Node, Message, and Service"
+2023-01-24,1,ros_4,4. Publisher and Subscriber,Basic ROS Programming Concepts
+2023-01-24,1,ros_5,5. Setting up bashrc file,Tips for Easy ROS Setup
+2023-01-25,1,ros_6,6. URDF file - Creating Your Own Robot,Designing a Robot Architecture
+2023-01-26,1,ros_7,7. Adding Dimensions and Positions,Detailing Basic Robot Description and Visualization in URDF
+2023-09-10,2,icp_1,Part 1: Known Data Association & SVD,ICP Overview and One-Shot Optimal Solution
+2023-09-17,2,icp_2,Part 2: Unknown Data Association,Iterative Method and ICP Variants
+2023-09-21,2,icp_3,Part 3: Implementation of Basic ICP Algorithm,Implementing ICP from Scratch in C++
+2023-11-09,3,bundlesdf,BundleSDF: Neural 6-DoF Tracking and 3D Reconstruction of Unknown Objects,CVPR 2023
+2023-12-05,3,vmap,vMAP: Vectorised Object Mapping for Neural Field SLAM,CVPR 2023
+2023-12-12,3,cnn-slam,CNN-SLAM: Real-time dense monocular SLAM with learned depth prediction,CVPR 2017
+2023-12-18,3,kiss-icp,"KISS-ICP: In Defense of Point-to-Point ICP -- Simple, Accurate, and Robust Registration If Done the Right Way",RA-L 2023
+2024-03-22,4,reinforcement_learning_overview,Reinforcement Learning Overview,Basic concepts of reinforcement learning and its applications in robotics
+2024-03-26,5,lecture_1,Lecture 1: Introduction to Deep Learning for Computer Vision,Introduction to deep learning for computer vision
+2024-03-26,5,lecture_2,Lecture 2: Image Classification,K-Nearest Neighbors (kNN) and data splitting
+2024-03-28,5,lecture_3,Lecture 3: Linear Classifiers,"Linear classifiers, loss function, and regularization"
+2024-03-28,6,vslam_1,Introduction,Introduction to SLAM
+2024-03-28,6,vslam_2,3D Rigid Body Motion | 1. Rotation Matrix,Transform between coordinate systems
+2024-04-02,5,lecture_4,Lecture 4: Regularization + Optimization,Gradient descent and optimizers
+2024-04-18,5,lecture_5,Lecture 5: Neural Networks,Neural Networks and Universal Approximation Theorem
+2024-04-19,6,vslam_3,3D Rigid Body Motion | 2. Rotation Vectors and the Euler Angles,Rotation Vector and Euler Angles
+2024-04-19,6,vslam_4,3D Rigid Body Motion | 3. Quaternions,Quaternion Operations and Conversions
+2024-04-20,5,lecture_6,Lecture 6: Backpropagation,Computational Graph and Backpropagation
+2024-04-21,6,vslam_5,3D Rigid Body Motion | 4. Affine and Projective Transformation,3D Transformations
+2024-04-27,5,lecture_7,Lecture 7: Convolutional Networks,"Convolutional Layers, Pooling Layers, and Batch Normalization"
+2024-04-30,5,lecture_8,Lecture 8: CNN Architectures I,"AlexNet, VGG, GoogLeNet, and ResNet"
+2024-05-03,5,lecture_9,Lecture 9: Training Neural Networks I,"Activation Functions, Data Preprocessing, Weight Initialization, and Regularization"
+2024-05-11,5,lecture_10,Lecture 10: Training Neural Networks II,"Learning Rate Schedules, Hyperparameter Optimization, Model Ensembles, Transfer Learning, and Large-Batch Training"
+2024-05-12,5,lecture_11,Lecture 11: CNN Architectures II,Grouped Convolution and New Architectures
+2024-05-15,5,lecture_12,Lecture 12: Deep Learning Software,PyTorch and Dynamic Computation Graphs
+2024-05-17,5,lecture_13,Lecture 13: Object Detection,"Transfer Learning, Object Detection, and R-CNN"
+2024-05-19,5,lecture_14,Lecture 14: Object Detectors,"Fast R-CNN, Faster R-CNN, and Feature Pyramid Network"
+2024-05-30,5,lecture_15,Lecture 15: Image Segmentation,"Semantic Segmentation, Instance Segmentation, and Beyond Instance Segmentation"
+2024-06-04,5,lecture_16,Lecture 16: Recurrent Networks,"Recurrent Neural Networks, Backpropagation Through Time, and Long Short-Term Memory (LSTM)"
+2024-06-15,5,lecture_17,Lecture 17: Attention,"Sequence-to-Sequence with RNNs and Attention, Self-Attention, and Transformer"
+2024-08-24,5,lecture_18,Lecture 18: Vision Transformers,"Vision Transformer (ViT), Distillation, Swin Transformer, MLP-Mixer, and DETR"
+2024-08-28,3,orb-slam,ORB-SLAM: a Versatile and Accurate Monocular SLAM System,IEEE Transactions on Robotics 2015
+2024-08-29,5,lecture_19,Lecture 19: Generative Models I,"Supervised vs Unsupervised learning, Discriminative vs Generative models, Autoregressive Models, and Variational Autoencoders"
+2024-09-09,3,nice-slam,NICE-SLAM: Neural Implicit Scalable Encoding for SLAM,CVPR 2022
+2024-09-14,3,nerf,NeRF: Representing Scenes as Neural Radiance Fields for View Synthesis,ECCV 2020
+2024-09-24,3,point-slam,Point-SLAM: Dense Neural Point Cloud-based SLAM,ICCV 2023
+2024-09-30,3,loopy-slam,Loopy-SLAM: Dense Neural SLAM with Loop Closures,CVPR 2024
+2024-09-30,3,neural_graph_mapping,Neural Graph Mapping for Dense SLAM with Efficient Loop Closure,ArXiv 2024
+2024-10-01,1,install_opencv,How to Install OpenCV on a Fresh Ubuntu 20.04,Installing CuDNN and OpenCV on Ubuntu 20.04

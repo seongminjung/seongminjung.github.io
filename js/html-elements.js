@@ -40,37 +40,76 @@ class ArticleItemList extends HTMLElement {
   constructor() {
     super();
 
-    const csvPath = this.getAttribute('src');
-    const filterCategory = this.getAttribute('category');
+    const articlesPath = '/database/articles.csv';
+    const categoriesPath = '/database/categories.csv';
+    this.filterCategory = this.getAttribute('category');
 
-    if (csvPath) {
-      this.loadCSV(csvPath, filterCategory);
+    if (articlesPath && categoriesPath) {
+      this.loadCSV(articlesPath, categoriesPath);
     } else {
-      console.error('CSV file path is required.');
+      console.error('CSV file paths are required.');
     }
   }
 
-  loadCSV(filePath, filterCategory) {
-    fetchCSV(filePath, (articles) => {
-      if (filterCategory) {
-        articles = articles.filter(article =>
-          article.category === filterCategory
-        );
+  loadCSV(articlesPath, categoriesPath) {
+    Promise.all([
+      fetchCSV(articlesPath),
+      fetchCSV(categoriesPath)
+    ])
+    .then(([articles, categories]) => {
+      this.categoryMap = this.createCategoryMap(categories);
+
+      if (this.filterCategory) {
+        const categoryId = this.getCategoryId(this.filterCategory);
+        if (categoryId) {
+          const filteredArticles = articles.filter(article => article.category_id === categoryId);
+          this.renderArticles(filteredArticles.reverse());
+        } else {
+          console.error(`Category "${this.filterCategory}" not found.`);
+        }
+      } else {
+        this.renderArticles(articles.reverse());
       }
-      this.renderArticles(articles);
+    })
+    .catch(error => console.error('Error loading CSV files:', error));
+  }
+
+  createCategoryMap(categories) {
+    const map = {};
+    categories.forEach(category => {
+      map[category.id] = {
+        name: category.name,
+        folder: category.folder
+      };
     });
+    return map;
+  }
+
+  getCategoryId(categoryName) {
+    for (const [id, info] of Object.entries(this.categoryMap)) {
+      if (info.name === categoryName) {
+        return id;
+      }
+    }
+    return null;
   }
 
   renderArticles(articles) {
     articles.forEach(article => {
-      const item = document.createElement('article-item');
-      item.setAttribute('title', article.title);
-      item.setAttribute('date', article.date);
-      item.setAttribute('category', article.category);
-      item.setAttribute('folder', article.folder);
-      item.setAttribute('filename', article.filename);
-      item.setAttribute('detail', article.detail);
-      this.appendChild(item);
+      const category = this.categoryMap[article.category_id];
+
+      if (category) {
+        const item = document.createElement('article-item');
+        item.setAttribute('title', article.title);
+        item.setAttribute('date', article.date);
+        item.setAttribute('category', category.name);
+        item.setAttribute('folder', category.folder);
+        item.setAttribute('filename', article.filename);
+        item.setAttribute('detail', article.detail);
+        this.appendChild(item);
+      } else {
+        console.error(`Category ID "${article.category_id}" not found in categories.`);
+      }
     });
   }
 }
