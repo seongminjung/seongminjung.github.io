@@ -26,7 +26,7 @@ function setNavModalTop(scrollPos) {
   }
 }
 
-function toggleNav() {
+export function toggleNav() {
   if (button.classList.contains("fa-bars")) {
     button.classList.remove("fa-bars");
     button.classList.add("fa-times");
@@ -39,6 +39,7 @@ function toggleNav() {
     modalBg.style.display = "none";
   }
 }
+window.toggleNav = toggleNav;
 
 document.addEventListener("scroll", (event) => {
   lastKnownScrollPosition = window.scrollY;
