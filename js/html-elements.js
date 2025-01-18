@@ -1,7 +1,9 @@
 class ArticleItem extends HTMLElement {
   constructor() {
     super();
+  }
 
+  connectedCallback() {
     const wrapper = document.createElement('div');
     wrapper.className = 'item';
 
@@ -33,6 +35,39 @@ class ArticleItem extends HTMLElement {
   }
 }
 customElements.define('article-item', ArticleItem);
+
+class ArticleItemList extends HTMLElement {
+  constructor() {
+    super();
+
+    const csvPath = this.getAttribute('src');
+    if (csvPath) {
+      this.loadCSV(csvPath);
+    } else {
+      console.error('CSV file path is required.');
+    }
+  }
+
+  loadCSV(filePath) {
+    fetchCSV(filePath, (articles) => {
+      this.renderArticles(articles);
+    });
+  }
+
+  renderArticles(articles) {
+    articles.forEach(article => {
+      const item = document.createElement('article-item');
+      item.setAttribute('title', article.title);
+      item.setAttribute('date', article.date);
+      item.setAttribute('category', article.category);
+      item.setAttribute('folder', article.folder);
+      item.setAttribute('filename', article.filename);
+      item.setAttribute('detail', article.detail);
+      this.appendChild(item);
+    });
+  }
+}
+customElements.define('article-item-list', ArticleItemList);
 
 class ArxivCard extends HTMLElement {
   constructor() {

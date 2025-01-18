@@ -1,0 +1,4 @@
+title,date,category,folder,filename,detail
+How to Install OpenCV on a Fresh Ubuntu 20.04,2024-10-01,ROS1 Tutorial,ros1_tutorial,install_opencv,Installing CuDNN and OpenCV on Ubuntu 20.04
+Neural Graph Mapping for Dense SLAM with Efficient Loop Closure,2024-09-30,Paper Summaries,paper_summaries,neural_graph_mapping,ArXiv 2024
+Loopy-SLAM: Dense Neural SLAM with Loop Closures,2024-09-30,Paper Summaries,paper_summaries,loopy-slam,CVPR 2024
