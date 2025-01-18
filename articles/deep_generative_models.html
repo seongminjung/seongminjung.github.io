@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Seongmin Jung | Articles</title>
+    <title>Deep Generative Models</title>
     <meta name="description" content="Seongmin Jung's personal website" />
     <meta name="keywords" content="Seongmin Jung, Robotics" />
     <meta name="author" content="Seongmin Jung" />
@@ -20,6 +20,13 @@
       gtag("js", new Date());
       gtag("config", "G-LL44K1WZ0G");
     </script>
+
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({
+        tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}
+      });
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-MML-AM_CHTML" async></script>
 
     <!-- Load an icon library to show a hamburger menu (bars) on small screens -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
@@ -52,52 +59,14 @@
 
     <main>
       <div class="container">
-        <section id="articles">
-          <h1>Articles</h1>
-          <div class="tab">
-            <p class="active">All Posts</p>
-            <p>Categories</p>
-          </div>
-          <div class="tab-content">
-            <div class="all-posts">
-              <article-item-list></article-item-list>
-            </div>
-            <div class="categories">
-              <h2>Theory</h2>
-              <div>
-                <a class="category-tag" href="/articles/deep_learning_for_computer_vision.html"
-                  ><i class="fa fa-book"></i> Deep Learning for Computer Vision</a
-                >
-              </div>
-              <div>
-                <a class="category-tag" href="/articles/visual_slam.html"><i class="fa fa-book"></i> Visual SLAM</a>
-              </div>
-              <div>
-                <a class="category-tag" href="/articles/reinforcement_learning.html"
-                  ><i class="fa fa-book"></i> Reinforcement Learning</a
-                >
-              </div>
-              <div>
-                <a class="category-tag" href="/articles/deep_generative_models.html"
-                  ><i class="fa fa-book"></i> Deep Generative Models</a
-                >
-              </div>
-              <h2>Application</h2>
-              <div>
-                <a class="category-tag" href="/articles/icp_algorithm.html"
-                  ><i class="fa fa-book"></i> Iterative Closest Point (ICP) Algorithm</a
-                >
-              </div>
-              <div>
-                <a class="category-tag" href="/articles/ros1_tutorial.html"><i class="fa fa-book"></i> ROS1 Tutorial</a>
-              </div>
-              <h2>Other</h2>
-              <div>
-                <a class="category-tag" href="/articles/paper_summaries.html"
-                  ><i class="fa fa-book"></i> Paper Summaries</a
-                >
-              </div>
-            </div>
+        <section id="series">
+          <a class="back" href="/articles.html"><i class="fa fa-chevron-left"></i> Back to Articles Page</a>
+          <h1>Deep Generative Models</h1>
+          <p class="detail">
+            Summary of YouTube online lecture "Deep Generative Models" by Prof. Stefano Ermon, Stanford University
+          </p>
+          <div class="post">
+            <article-item-list category="Deep Generative Models"></article-item-list>
           </div>
         </section>
       </div>
