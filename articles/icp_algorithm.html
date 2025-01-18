@@ -34,6 +34,7 @@
     <link rel="stylesheet" href="/css/index.css" />
     <!-- import js -->
     <script src="/js/script.js" defer></script>
+    <script src="/js/read-csv.js" defer></script>
     <script src="/js/html-elements.js" defer></script>
   </head>
 
@@ -67,39 +68,7 @@
             Summary of YouTube online lecture "ICP & Point Cloud Registration" by Prof. Cyrill Stachniss
           </p>
           <div class="post">
-            <div class="item">
-              <a id="category-tag" href="/articles/icp_algorithm.html"
-                ><i class="fa fa-book"></i> Iterative Closest Point (ICP) Algorithm</a
-              >
-              <a class="grid" href="/articles/icp_algorithm/icp_3.html">
-                <h2>Part 3: Implementation of Basic ICP Algorithm</h2>
-                <p class="date">Posted on <time datetime="2023-09-21">September 21, 2023</time></p>
-                <img class="preview" src="/articles/icp_algorithm/icp_3/img1.png" alt="preview" />
-                <p class="detail">Implementing ICP from Scratch in C++</p>
-              </a>
-            </div>
-            <div class="item">
-              <a id="category-tag" href="/articles/icp_algorithm.html"
-                ><i class="fa fa-book"></i> Iterative Closest Point (ICP) Algorithm</a
-              >
-              <a class="grid" href="/articles/icp_algorithm/icp_2.html">
-                <h2>Part 2: Unknown Data Association</h2>
-                <p class="date">Posted on <time datetime="2023-09-17">September 17, 2023</time></p>
-                <img class="preview" src="/articles/icp_algorithm/icp_2/img1.png" alt="preview" />
-                <p class="detail">Iterative Method and ICP Variants</p>
-              </a>
-            </div>
-            <div class="item">
-              <a id="category-tag" href="/articles/icp_algorithm.html"
-                ><i class="fa fa-book"></i> Iterative Closest Point (ICP) Algorithm</a
-              >
-              <a class="grid" href="/articles/icp_algorithm/icp_1.html">
-                <h2>Part 1: Known Data Association & SVD</h2>
-                <p class="date">Posted on <time datetime="2023-09-10">September 10, 2023</time></p>
-                <img class="preview" src="/articles/icp_algorithm/icp_1/img1.png" alt="preview" />
-                <p class="detail">ICP Overview and One-Shot Optimal Solution</p>
-              </a>
-            </div>
+            <article-item-list src="/database/articles.csv" category="Iterative Closest Point (ICP) Algorithm"></article-item-list>
           </div>
         </section>
       </div>

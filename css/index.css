@@ -504,7 +504,7 @@ footer {
   border-top: 1px solid #e6e6e6;
 }
 
-#series .item:first-child {
+#series article-item:first-child .item {
   margin-top: 0;
   padding-top: 50px;
 }

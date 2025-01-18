@@ -41,15 +41,22 @@ class ArticleItemList extends HTMLElement {
     super();
 
     const csvPath = this.getAttribute('src');
+    const filterCategory = this.getAttribute('category');
+
     if (csvPath) {
-      this.loadCSV(csvPath);
+      this.loadCSV(csvPath, filterCategory);
     } else {
       console.error('CSV file path is required.');
     }
   }
 
-  loadCSV(filePath) {
+  loadCSV(filePath, filterCategory) {
     fetchCSV(filePath, (articles) => {
+      if (filterCategory) {
+        articles = articles.filter(article =>
+          article.category === filterCategory
+        );
+      }
       this.renderArticles(articles);
     });
   }

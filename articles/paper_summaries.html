@@ -34,6 +34,7 @@
     <link rel="stylesheet" href="/css/index.css" />
     <!-- import js -->
     <script src="/js/script.js" defer></script>
+    <script src="/js/read-csv.js" defer></script>
     <script src="/js/html-elements.js" defer></script>
   </head>
 
@@ -65,99 +66,7 @@
           <h1>Paper Summaries</h1>
           <p class="detail">My summaries of papers I have read</p>
           <div class="post">
-            <div class="item">
-              <a id="category-tag" href="/articles/paper_summaries.html"><i class="fa fa-book"></i> Paper Summaries</a>
-              <a class="grid" href="/articles/paper_summaries/neural_graph_mapping.html">
-                <h2>Neural Graph Mapping for Dense SLAM with Efficient Loop Closure</h2>
-                <p class="date">Posted on <time datetime="2024-09-30">September 30, 2024</time></p>
-                <p class="detail">ArXiv 2024</p>
-                <img class="preview" src="/articles/paper_summaries/neural_graph_mapping/img1.png" alt="preview" />
-              </a>
-            </div>
-            <div class="item">
-              <a id="category-tag" href="/articles/paper_summaries.html"><i class="fa fa-book"></i> Paper Summaries</a>
-              <a class="grid" href="/articles/paper_summaries/loopy-slam.html">
-                <h2>Loopy-SLAM: Dense Neural SLAM with Loop Closures</h2>
-                <p class="date">Posted on <time datetime="2024-09-30">September 30, 2024</time></p>
-                <p class="detail">CVPR 2024</p>
-                <img class="preview" src="/articles/paper_summaries/loopy-slam/img1.png" alt="preview" />
-              </a>
-            </div>
-            <div class="item">
-              <a id="category-tag" href="/articles/paper_summaries.html"><i class="fa fa-book"></i> Paper Summaries</a>
-              <a class="grid" href="/articles/paper_summaries/point-slam.html">
-                <h2>Point-SLAM: Dense Neural Point Cloud-based SLAM</h2>
-                <p class="date">Posted on <time datetime="2024-09-24">September 24, 2024</time></p>
-                <p class="detail">ICCV 2023</p>
-                <img class="preview" src="/articles/paper_summaries/point-slam/img1.png" alt="preview" />
-              </a>
-            </div>
-            <div class="item">
-              <a id="category-tag" href="/articles/paper_summaries.html"><i class="fa fa-book"></i> Paper Summaries</a>
-              <a class="grid" href="/articles/paper_summaries/nerf.html">
-                <h2>NeRF: Representing Scenes as Neural Radiance Fields for View Synthesis</h2>
-                <p class="date">Posted on <time datetime="2024-09-14">September 14, 2024</time></p>
-                <p class="detail">ECCV 2020</p>
-                <img class="preview" src="/articles/paper_summaries/nerf/img1.png" alt="preview" />
-              </a>
-            </div>
-            <div class="item">
-              <a id="category-tag" href="/articles/paper_summaries.html"><i class="fa fa-book"></i> Paper Summaries</a>
-              <a class="grid" href="/articles/paper_summaries/nice-slam.html">
-                <h2>NICE-SLAM: Neural Implicit Scalable Encoding for SLAM</h2>
-                <p class="date">Posted on <time datetime="2024-09-09">September 9, 2024</time></p>
-                <p class="detail">CVPR 2022</p>
-                <img class="preview" src="/articles/paper_summaries/nice-slam/img1.png" alt="preview" />
-              </a>
-            </div>
-            <div class="item">
-              <a id="category-tag" href="/articles/paper_summaries.html"><i class="fa fa-book"></i> Paper Summaries</a>
-              <a class="grid" href="/articles/paper_summaries/orb-slam.html">
-                <h2>ORB-SLAM: a Versatile and Accurate Monocular SLAM System</h2>
-                <p class="date">Posted on <time datetime="2024-08-28">August 28, 2024</time></p>
-                <p class="detail">IEEE Transactions on Robotics 2015</p>
-                <img class="preview" src="/articles/paper_summaries/orb-slam/img1.png" alt="preview" />
-              </a>
-            </div>
-            <div class="item">
-              <a id="category-tag" href="/articles/paper_summaries.html"><i class="fa fa-book"></i> Paper Summaries</a>
-              <a class="grid" href="/articles/paper_summaries/kiss-icp.html">
-                <h2>
-                  KISS-ICP: In Defense of Point-to-Point ICP -- Simple, Accurate, and Robust Registration If Done the
-                  Right Way
-                </h2>
-                <p class="date">Posted on <time datetime="2023-12-18">December 18, 2023</time></p>
-                <p class="detail">RA-L 2023</p>
-                <img class="preview" src="/articles/paper_summaries/kiss-icp/img1.PNG" alt="preview" />
-              </a>
-            </div>
-            <div class="item">
-              <a id="category-tag" href="/articles/paper_summaries.html"><i class="fa fa-book"></i> Paper Summaries</a>
-              <a class="grid" href="/articles/paper_summaries/cnn-slam.html">
-                <h2>CNN-SLAM: Real-time dense monocular SLAM with learned depth prediction</h2>
-                <p class="date">Posted on <time datetime="2023-12-12">December 12, 2023</time></p>
-                <p class="detail">CVPR 2017</p>
-                <img class="preview" src="/articles/paper_summaries/cnn-slam/preview.png" alt="preview" />
-              </a>
-            </div>
-            <div class="item">
-              <a id="category-tag" href="/articles/paper_summaries.html"><i class="fa fa-book"></i> Paper Summaries</a>
-              <a class="grid" href="/articles/paper_summaries/vmap.html">
-                <h2>vMAP: Vectorised Object Mapping for Neural Field SLAM</h2>
-                <p class="date">Posted on <time datetime="2023-12-05">December 5, 2023</time></p>
-                <p class="detail">CVPR 2023</p>
-                <img class="preview" src="/articles/paper_summaries/vmap/img1.png" alt="preview" />
-              </a>
-            </div>
-            <div class="item">
-              <a id="category-tag" href="/articles/paper_summaries.html"><i class="fa fa-book"></i> Paper Summaries</a>
-              <a class="grid" href="/articles/paper_summaries/bundlesdf.html">
-                <h2>BundleSDF: Neural 6-DoF Tracking and 3D Reconstruction of Unknown Objects</h2>
-                <p class="date">Posted on <time datetime="2023-11-09">November 9, 2023</time></p>
-                <p class="detail">CVPR 2023</p>
-                <img class="preview" src="/articles/paper_summaries/bundlesdf/preview.png" alt="preview" />
-              </a>
-            </div>
+            <article-item-list src="/database/articles.csv" category="Paper Summaries"></article-item-list>
           </div>
         </section>
       </div>

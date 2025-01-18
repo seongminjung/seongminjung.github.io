@@ -34,6 +34,7 @@
     <link rel="stylesheet" href="/css/index.css" />
     <!-- import js -->
     <script src="/js/script.js" defer></script>
+    <script src="/js/read-csv.js" defer></script>
     <script src="/js/html-elements.js" defer></script>
   </head>
 
@@ -65,21 +66,7 @@
           <h1>Reinforcement Learning</h1>
           <p class="detail">My personal notes on reinforcement learning</p>
           <div class="post">
-            <div class="item">
-              <a id="category-tag" href="/articles/reinforcement_learning.html"
-                ><i class="fa fa-book"></i> Reinforcement Learning</a
-              >
-              <a class="grid" href="/articles/reinforcement_learning/reinforcement_learning_overview.html">
-                <h2>Reinforcement Learning Overview</h2>
-                <p class="date">Posted on <time datetime="2024-03-22">March 22, 2024</time></p>
-                <img
-                  class="preview"
-                  src="/articles/reinforcement_learning/reinforcement_learning_overview/img1.JPG"
-                  alt="preview"
-                />
-                <p class="detail">Basic concepts of reinforcement learning and its applications in robotics.</p>
-              </a>
-            </div>
+            <article-item-list src="/database/articles.csv" category="Reinforcement Learning"></article-item-list>
           </div>
         </section>
       </div>
