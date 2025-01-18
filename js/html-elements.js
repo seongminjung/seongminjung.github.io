@@ -1,3 +1,5 @@
+import { fetchCSV } from './csv-reader.js';
+
 class ArticleItem extends HTMLElement {
   constructor() {
     super();
@@ -36,7 +38,7 @@ class ArticleItem extends HTMLElement {
 }
 customElements.define('article-item', ArticleItem);
 
-class ArticleItemList extends HTMLElement {
+export class ArticleItemList extends HTMLElement {
   constructor() {
     super();
 
@@ -115,7 +117,7 @@ class ArticleItemList extends HTMLElement {
 }
 customElements.define('article-item-list', ArticleItemList);
 
-class ArxivCard extends HTMLElement {
+export class ArxivCard extends HTMLElement {
   constructor() {
     super();
 

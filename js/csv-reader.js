@@ -1,4 +1,4 @@
-async function fetchCSV(filePath) {
+export async function fetchCSV(filePath) {
   try {
     const response = await fetch(filePath);
     if (!response.ok) throw new Error(`Cannot read CSV file: ${filePath}`);
