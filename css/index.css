@@ -439,6 +439,8 @@ footer {
 }
 
 #articles .item .grid .detail {
+  font-size: 0.9rem;
+  color: #666;
   margin: 0;
 }
 
@@ -488,8 +490,7 @@ footer {
 }
 
 #series .detail {
-  font-size: 0.9rem;
-  color: #666;
+  color: #212529;
   margin-top: 20px;
   margin-bottom: 20px;
 }
@@ -540,6 +541,8 @@ footer {
 }
 
 #series .item .grid .detail {
+  font-size: 0.9rem;
+  color: #666;
   margin: 0;
 }
 
