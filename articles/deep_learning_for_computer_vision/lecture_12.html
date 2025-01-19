@@ -79,7 +79,7 @@
             <p>이 강의에서는 PyTorch에 대해 자세히 알아본다.</p>
 
             <h2>PyTorch</h2>
-            <img class="half" src="/articles/deep_learning_for_computer_vision/lecture_12/img1.webp" alt="PyTorch" />
+            <img class="half" src="/articles/deep_learning_for_computer_vision/lecture_12/img1.png" alt="PyTorch" />
             <p>PyTorch는 아래 세 단계의 추상화 계층(Abstraction layer)으로 구성된다.</p>
             <ol>
               <li>Tensor: 가장 기본이 되는 계층으로, GPU에서 동작 가능한 다차원 배열</li>
@@ -374,7 +374,7 @@ for t in range(500):
             <pre><code class="language-python">import torch
 from torch.utils.data import TensorDataset, DataLoader
 
-N, D_in, H, D_out = 64, 1000, 100, 10
+N, D_in, H, D_out = 64, 1000, 100, 10, True, None
 x = torch.randn(N, D_in)
 y = torch.randn(N, D_out)
 

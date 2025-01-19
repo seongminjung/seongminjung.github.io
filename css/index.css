@@ -2,6 +2,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Lobster&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Lobster+Two&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap");
+@import url("./prism.css");
 
 body {
   margin: 0;
@@ -712,8 +713,7 @@ footer {
 }
 
 #post .post-body pre {
-  margin-top: 20px;
-  margin-bottom: 20px;
+  margin: 20px 0;
   padding: 20px;
   background-color: #f2f2f2;
   overflow-x: auto;
