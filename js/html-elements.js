@@ -15,6 +15,15 @@ function parseURL() {
   }
 }
 
+function formatDate(date) {
+  const dateObj = new Date(date);
+  return dateObj.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+}
+
 class ArticleItem extends HTMLElement {
   constructor() {
     super();
@@ -31,19 +40,11 @@ class ArticleItem extends HTMLElement {
     const filename = this.getAttribute('filename') || 'Example';
     const detail = this.getAttribute('detail') || 'Detail Text';
 
-    // Format date string
-    const dateObj = new Date(date);
-    const formattedDate = dateObj.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-
     wrapper.innerHTML = `
       <a class="category-tag" href="/articles/${folder}.html"><i class="fa fa-book"></i> ${category}</a>
       <a class="grid" href="/articles/${folder}/${filename}.html">
         <h2>${title}</h2>
-        <p class="date">Posted on <time datetime="${date}">${formattedDate}</time></p>
+        <p class="date">Posted on <time datetime="${date}">${formatDate(date)}</time></p>
         <img class="preview" src="/articles/${folder}/${filename}/img1.png" alt="preview" />
         <p class="detail">${detail}</p>
       </a>
@@ -110,3 +111,69 @@ export class ArxivCard extends HTMLElement {
   }
 }
 customElements.define('arxiv-card', ArxivCard);
+
+export class PostFooter extends HTMLElement {
+  constructor() {
+    super();
+    const { category, filename } = parseURL();
+    this.category = category;
+    this.filename = filename;
+    loadCSV(this.category, this.renderPostFooter.bind(this));
+  }
+
+  renderPostFooter(articles, categoryMap) {
+    const index = articles.findIndex(article => article.filename === this.filename);
+
+    let visibleArticles;
+    if (articles.length <= 5) {
+      visibleArticles = articles;
+    } else {
+      if (index <= 1) {
+        visibleArticles = articles.slice(0, 5);
+      }
+      else if (index >= articles.length - 2) {
+        visibleArticles = articles.slice(articles.length - 5);
+      }
+      else {
+        visibleArticles = articles.slice(index - 2, index + 3);
+      }
+    }
+    visibleArticles.reverse();
+
+    const categoryInfo = categoryMap[articles[index]?.category_id];
+    const categoryName = categoryInfo?.name || '';
+    const folder = categoryInfo?.folder || '';
+
+    const profileHTML = `
+      <div class="post-footer-profile">
+        <img src="/asset/cover.jpg" alt="Seongmin Jung" />
+        <h1>Seongmin Jung</h1>
+      </div>
+      <h2>Other posts in <a href="/articles/${folder}.html">${categoryName}</a> category</h2>
+    `;
+
+    const listHTML = visibleArticles
+      .map(article => {
+        const isCurrent = article.filename === this.filename;
+        return `
+          <li>
+            <a href="/articles/${folder}/${article.filename}.html">
+              <span>${isCurrent ? `<b>${article.title}</b>` : article.title}</span>
+              <time datetime="${article.date}">${formatDate(article.date)}</time>
+            </a>
+          </li>
+        `;
+      })
+      .join('');
+
+    this.innerHTML = `
+      <div class="post-footer">
+        ${profileHTML}
+        <ul>
+          ${listHTML}
+        </ul>
+      </div>
+    `;
+  }
+}
+customElements.define('post-footer', PostFooter);
