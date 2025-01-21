@@ -1,4 +1,4 @@
-import { fetchCSV } from './csv-reader.js';
+import { loadCSV } from './csv-reader.js';
 
 class ArticleItem extends HTMLElement {
   constructor() {
@@ -41,64 +41,13 @@ customElements.define('article-item', ArticleItem);
 export class ArticleItemList extends HTMLElement {
   constructor() {
     super();
-
-    const articlesPath = '/database/articles.csv';
-    const categoriesPath = '/database/categories.csv';
-    this.filterCategory = this.getAttribute('category');
-
-    if (articlesPath && categoriesPath) {
-      this.loadCSV(articlesPath, categoriesPath);
-    } else {
-      console.error('CSV file paths are required.');
-    }
+    const filterCategory = this.getAttribute('category');
+    loadCSV(filterCategory, this.renderArticles.bind(this));
   }
 
-  loadCSV(articlesPath, categoriesPath) {
-    Promise.all([
-      fetchCSV(articlesPath),
-      fetchCSV(categoriesPath)
-    ])
-    .then(([articles, categories]) => {
-      this.categoryMap = this.createCategoryMap(categories);
-
-      if (this.filterCategory) {
-        const categoryId = this.getCategoryId(this.filterCategory);
-        if (categoryId) {
-          const filteredArticles = articles.filter(article => article.category_id === categoryId);
-          this.renderArticles(filteredArticles.reverse());
-        } else {
-          console.error(`Category "${this.filterCategory}" not found.`);
-        }
-      } else {
-        this.renderArticles(articles.reverse());
-      }
-    })
-    .catch(error => console.error('Error loading CSV files:', error));
-  }
-
-  createCategoryMap(categories) {
-    const map = {};
-    categories.forEach(category => {
-      map[category.id] = {
-        name: category.name,
-        folder: category.folder
-      };
-    });
-    return map;
-  }
-
-  getCategoryId(categoryName) {
-    for (const [id, info] of Object.entries(this.categoryMap)) {
-      if (info.name === categoryName) {
-        return id;
-      }
-    }
-    return null;
-  }
-
-  renderArticles(articles) {
-    articles.forEach(article => {
-      const category = this.categoryMap[article.category_id];
+  renderArticles(articles, categoryMap) {
+    articles.reverse().forEach(article => {
+      const category = categoryMap[article.category_id];
 
       if (category) {
         const item = document.createElement('article-item');

@@ -1,4 +1,4 @@
-export async function fetchCSV(filePath) {
+async function fetchCSV(filePath) {
   try {
     const response = await fetch(filePath);
     if (!response.ok) throw new Error(`Cannot read CSV file: ${filePath}`);
@@ -42,4 +42,50 @@ function parseCSV(data) {
   });
 
   return items;
+}
+
+function createCategoryMap(categories) {
+  const map = {};
+  categories.forEach(category => {
+    map[category.id] = {
+      name: category.name,
+      folder: category.folder
+    };
+  });
+  return map;
+}
+
+function getCategoryId(categoryName, categoryMap) {
+  for (const [id, info] of Object.entries(categoryMap)) {
+    if (info.name === categoryName) {
+      return id;
+    }
+  }
+  return null;
+}
+
+export function loadCSV(filterCategory, callback) {
+  const articlesPath = '/database/articles.csv';
+  const categoriesPath = '/database/categories.csv';
+
+  Promise.all([
+    fetchCSV(articlesPath),
+    fetchCSV(categoriesPath)
+  ])
+  .then(([articles, categories]) => {
+    const categoryMap = createCategoryMap(categories);
+    
+    if (filterCategory) {
+      const categoryId = getCategoryId(filterCategory, categoryMap);
+      if (categoryId) {
+        const filteredArticles = articles.filter(article => article.category_id === categoryId);
+        callback(filteredArticles, categoryMap);
+      } else {
+        console.error(`Category "${filterCategory}" not found.`);
+      }
+    } else {
+      callback(articles, categoryMap);
+    }
+  })
+  .catch(error => console.error('Error loading CSV files:', error));
 }
