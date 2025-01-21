@@ -55,9 +55,9 @@ function createCategoryMap(categories) {
   return map;
 }
 
-function getCategoryId(categoryName, categoryMap) {
+function getCategoryId(filterCategory, categoryMap) {
   for (const [id, info] of Object.entries(categoryMap)) {
-    if (info.name === categoryName) {
+    if (info.folder === filterCategory) {
       return id;
     }
   }

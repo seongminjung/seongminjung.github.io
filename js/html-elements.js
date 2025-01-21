@@ -1,5 +1,20 @@
 import { loadCSV } from './csv-reader.js';
 
+function parseURL() {
+  try {
+    const url = window.location.href;
+    const pathParts = new URL(url).pathname.split('/').filter(part => part);
+
+    const category = pathParts.length > 1 ? pathParts[1].replace('.html', '') : null;
+    const filename = pathParts.length > 2 ? pathParts[2].replace('.html', '') : null;
+
+    return { category, filename };
+  } catch (error) {
+    console.error('Error parsing blog URL:', error);
+    return { category: null, filename: null };
+  }
+}
+
 class ArticleItem extends HTMLElement {
   constructor() {
     super();
@@ -41,8 +56,8 @@ customElements.define('article-item', ArticleItem);
 export class ArticleItemList extends HTMLElement {
   constructor() {
     super();
-    const filterCategory = this.getAttribute('category');
-    loadCSV(filterCategory, this.renderArticles.bind(this));
+    const { category } = parseURL();
+    loadCSV(category, this.renderArticles.bind(this));
   }
 
   renderArticles(articles, categoryMap) {
