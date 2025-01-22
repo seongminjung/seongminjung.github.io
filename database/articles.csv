@@ -45,3 +45,4 @@ date,category_id,filename,title,detail
 2024-09-30,3,loopy-slam,Loopy-SLAM: Dense Neural SLAM with Loop Closures,CVPR 2024
 2024-09-30,3,neural_graph_mapping,Neural Graph Mapping for Dense SLAM with Efficient Loop Closure,ArXiv 2024
 2024-10-01,1,install_opencv,How to Install OpenCV on a Fresh Ubuntu 20.04,Installing CuDNN and OpenCV on Ubuntu 20.04
+2025-01-22,7,lecture_1,Lecture 1: Introduction,Introduction to Deep Generative Models
