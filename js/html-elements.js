@@ -112,6 +112,32 @@ export class ArxivCard extends HTMLElement {
 }
 customElements.define('arxiv-card', ArxivCard);
 
+export class PostHeader extends HTMLElement {
+  constructor() {
+    super();
+    const { category, filename } = parseURL();
+    this.category = category;
+    this.filename = filename;
+    loadCSV(this.category, this.renderPostFooter.bind(this));
+  }
+
+  renderPostFooter(articles, categoryMap) {
+    const article = articles.find(article => article.filename === this.filename);
+    const categoryInfo = categoryMap[article.category_id];
+    const categoryName = categoryInfo?.name || '';
+    const folder = categoryInfo?.folder || '';
+
+    this.innerHTML = `
+      <a class="category-tag" href="/articles/${folder}.html"
+        ><i class="fa fa-book"></i> ${categoryName}</a
+      >
+      <h1>${article.title}</h1>
+      <p class="date">Posted on <time datetime="${article.date}">${formatDate(article.date)}</time></p>
+    `;
+  }
+}
+customElements.define('post-header', PostHeader);
+
 export class PostFooter extends HTMLElement {
   constructor() {
     super();
