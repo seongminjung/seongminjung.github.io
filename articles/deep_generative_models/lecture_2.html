@@ -135,19 +135,20 @@
               조건부 확률으로 쪼갤 수 있다.
             </p>
             <p class="math-center">
-              $P(x_1, x_2, \cdots, x_n) = P(x_1)P(x_2|x_1)P(x_3|x_1, x_2)\cdots P(x_n|x_1, x_2, \cdots, x_{n-1})$
+              $P(x_1, x_2, \cdots, x_n) = P(x_1)P(x_2 \mid x_1)P(x_3 \mid x_1, x_2)\cdots P(x_n \mid x_1, x_2, \cdots,
+              x_{n-1})$
             </p>
             <p>
               Chain rule 그 자체로는 파라미터의 수를 줄이지 못한다. 위의 예시에서 $P(x_1)$은 파라미터가 1개 필요하지만
-              $P(x_2|x_1)$은 $x_1 = 0$일 때와 $x_1 = 1$일 때 각각에 대해 확률을 저장해야 하므로 파라미터가 2개 필요하다.
-              즉, 총 파라미터의 수는 여전히 $1 + 2 + 2^2 + \cdots + 2^{n-1} = 2^n - 1$이 된다.
+              $P(x_2 \mid x_1)$은 $x_1 = 0$일 때와 $x_1 = 1$일 때 각각에 대해 확률을 저장해야 하므로 파라미터가 2개
+              필요하다. 즉, 총 파라미터의 수는 여전히 $1 + 2 + 2^2 + \cdots + 2^{n-1} = 2^n - 1$이 된다.
             </p>
             <p>
               하지만 이 조건부 확률을 변형해서 conditional independence 가정을 적용할 수 있다. 즉, 각각의 변수 $x_i$가
               순차적으로 이전 변수들에 dependent하는 것이 아니라 특정 몇몇 변수들에만 dependent하다는 가정이다. 이
               변수들을 parents라 하는데, $x_{A_i}$라고 표시하면 joint distribution은 아래와 같이 표현할 수 있다.
             </p>
-            <p class="math-center">$P(x_1, x_2, \cdots, x_n) = \prod\limits_{i=1}^n P(x_i|x_{A_i})$</p>
+            <p class="math-center">$P(x_1, x_2, \cdots, x_n) = \prod\limits_{i=1}^n P(x_i \mid x_{A_i})$</p>
             <p>
               이때의 파라미터 수는 parents set의 크기에 비례하게 되므로 총 파라미터의 수를 크게 줄일 수 있다. 이러한
               형태의 joint distribution을 <b>Bayes Network</b>라고 한다. 이때 각 변수들이 어떤 변수들에 dependent한지를
@@ -163,12 +164,12 @@
               Difficulty와 Intelligence에, SAT는 Intelligence에 의존한다. Letter는 Grade에 의존한다. 이러한 경우 전체
               joint distribution은 아래와 같이 쓸 수 있다.
             </p>
-            <p class="math-center">$P(D, I, G, S, L) = P(D)P(I)P(G|D, I)P(S|I)P(L|G)$</p>
+            <p class="math-center">$P(D, I, G, S, L) = P(D)P(I)P(G \mid D, I)P(S \mid I)P(L \mid G)$</p>
             <p>
               즉, 서로 연관이 있는 변수들 사이의 조건부 확률만을 위 그림과 같이 표와 같은 방식으로 저장하면 되기 때문에,
               모든 경우의 수를 5차원 공간에 저장해야 하는 최초의 접근법보다 훨씬 효율적이다.
             </p>
-            <p class="math-center">$D \perp I, \quad S \perp \{D, G\} | I, \quad L \perp \{D, I, S\} | G$</p>
+            <p class="math-center">$D \perp I, \quad S \perp \{D, G\} \mid I, \quad L \perp \{D, I, S\} \mid G$</p>
             <p>
               이때의 conditional independence를 위와 같이 표현할 수 있다. 즉, "$I$가 주어졌을 때" $S$는 $D$와 $G$에 대해
               독립이고 "$G$가 주어졌을 때" $L$은 $D$, $I$, $S$에 대해 독립이다.
@@ -211,34 +212,36 @@
               이때 Bayesian Network를 위의 그림과 같이 표현한다면, $Y$가 주어졌을 때 이메일의 단어들은 각각 독립적인
               것이 되고 joint distribution은 아래와 같이 표현할 수 있다.
             </p>
-            <p class="math-center">$P(Y, x_1, x_2, \cdots, x_n) = P(Y)P(x_1|Y)P(x_2|Y)\cdots P(x_n|Y)$</p>
+            <p class="math-center">
+              $P(Y, x_1, x_2, \cdots, x_n) = P(Y)P(x_1 \mid Y)P(x_2 \mid Y)\cdots P(x_n \mid Y)$
+            </p>
             <p>
-              $P(x_i|Y)$는 training dataset으로부터 셀 수 있으므로 Bayes' rule을 이용해 데이터로부터 label을 예측할 수
-              있다.
+              $P(x_i \mid Y)$는 training dataset으로부터 셀 수 있으므로 Bayes' rule을 이용해 데이터로부터 label을 예측할
+              수 있다.
             </p>
             <p class="math-center">
-              $P(Y = 1|x_1, x_2, \cdots, x_n) = \cfrac{P(Y = 1)\prod\limits_{i=1}^n P(x_i|Y = 1)}{\sum\limits_{y \in
-              \{0, 1\}} P(Y = y)\prod\limits_{i=1}^n P(x_i|Y = y)}$
+              $P(Y = 1 \mid x_1, x_2, \cdots, x_n) = \cfrac{P(Y = 1)\prod\limits_{i=1}^n P(x_i \mid Y =
+              1)}{\sum\limits_{y \in \{0, 1\}} P(Y = y)\prod\limits_{i=1}^n P(x_i \mid Y = y)}$
             </p>
             <p>
               위 그림을 살펴보면 화살표의 방향이 $Y$에서 $x_i$로 향하고 있으므로 $Y$가 주어졌을 때 $x_i$의 분포를
               결정하는 생성형 모델이다. 이 생성형 모델을 classification에 이용하기 위해서는 위 수식에서처럼 $P(Y)$를
-              알아야 하고 $P(X|Y)$를 표현할 수 있어야 한다는 어려움이 있다.
+              알아야 하고 $P(X \mid Y)$를 표현할 수 있어야 한다는 어려움이 있다.
             </p>
             <p>
-              반대로 화살표가 $x_i$에서 $Y$로 향하는 discriminative model을 생각해 보면, $P(Y|X)$를 바로 표현하면 되므로
-              수식이 훨씬 간단해진다. 이때 단어 $x_i$ 사이의 연관관계는 고려되지 않는데, 그 이유는 우리가 원하는 것이
-              이메일의 생성 과정을 모델링하는 것이 아니라 조건부 확률 $P(Y|X)$뿐이기 때문이다. 즉, 모델의 입력으로 항상
-              데이터 $X$가 주어지기 때문에 데이터 자체의 분포 $P(X)$는 모델링할 필요가 없다.
+              반대로 화살표가 $x_i$에서 $Y$로 향하는 discriminative model을 생각해 보면, $P(Y \mid X)$를 바로 표현하면
+              되므로 수식이 훨씬 간단해진다. 이때 단어 $x_i$ 사이의 연관관계는 고려되지 않는데, 그 이유는 우리가 원하는
+              것이 이메일의 생성 과정을 모델링하는 것이 아니라 조건부 확률 $P(Y \mid X)$뿐이기 때문이다. 즉, 모델의
+              입력으로 항상 데이터 $X$가 주어지기 때문에 데이터 자체의 분포 $P(X)$는 모델링할 필요가 없다.
             </p>
 
             <h3>Logistic Regression</h3>
             <p>
-              Discriminative model에서 $P(Y|X)$를 조금 더 간단히 표현할 수 있는 방법은 logistic regression을 이용하는
-              것이다. 기존에는 $P(Y, x_1, x_2, \cdots, x_n)$를 표로 나타내고 각각의 경우의 수를 하나의 파라미터로
-              표현했는데, 이를 특정 함수의 형태로 나타내는 것이다.
+              Discriminative model에서 $P(Y \mid X)$를 조금 더 간단히 표현할 수 있는 방법은 logistic regression을
+              이용하는 것이다. 기존에는 $P(Y, x_1, x_2, \cdots, x_n)$를 표로 나타내고 각각의 경우의 수를 하나의
+              파라미터로 표현했는데, 이를 특정 함수의 형태로 나타내는 것이다.
             </p>
-            <p class="math-center">$P(Y = 1|X; \alpha) = f(X, \alpha)$</p>
+            <p class="math-center">$P(Y = 1 \mid X; \alpha) = f(X, \alpha)$</p>
             <p>
               이렇게 표현함으로써 확률분포가 특정 함수의 형태로 고정되어 유연성이 떨어진다는 단점이 있지만 파라미터의
               수가 크게 줄어든다. Logistic regression의 경우 $X$의 크기가 $n$이라면 weight $n$개와 bias 1개로 총
@@ -259,13 +262,13 @@
               동작한다.
             </p>
             <p>
-              하지만 여전히 discriminative model이기 때문에, $P(Y|X)$만을 표현할 뿐 $P(X)$는 모델링하지 않는다. 즉
+              하지만 여전히 discriminative model이기 때문에, $P(Y \mid X)$만을 표현할 뿐 $P(X)$는 모델링하지 않는다. 즉
               이메일을 분류할 수만 있지 새로운 이메일을 생성할 수는 없다.
             </p>
 
             <h3>Discriminative Neural Models</h3>
-            <p>Neural network 또한 Logistic regression와 같이 확률분포 $P(Y|X)$를 함수로 표현하는 모델이다.</p>
-            <p class="math-center">$P(Y = 1|X; \alpha) = f(X, \alpha)$</p>
+            <p>Neural network 또한 Logistic regression와 같이 확률분포 $P(Y \mid X)$를 함수로 표현하는 모델이다.</p>
+            <p class="math-center">$P(Y = 1 \mid X; \alpha) = f(X, \alpha)$</p>
             <p>
               이때 차이점은 함수 $f$의 복잡도이다. Logistic regression의 경우 $X$와 $Y$ 사이에 선형적인 관계를 가정한다.
               Neural Network의 경우 이러한 assumtion을 더욱 약하게 하기 위해 hidden layer와 nonlinear function을
@@ -283,7 +286,8 @@
               모델을 만들 수 있다.
             </p>
             <p class="math-center">
-              $P(x_1, x_2, x_3, x_4) = P(x_1)P(x_2|x_1)P_\text{neural}(x_3|x_1, x_2)P_\text{neural}(x_4|x_1, x_2, x_3)$
+              $P(x_1, x_2, x_3, x_4) = P(x_1)P(x_2 \mid x_1)P_\text{neural}(x_3 \mid x_1, x_2)P_\text{neural}(x_4 \mid
+              x_1, x_2, x_3)$
             </p>
             <p>
               예를 들어 Autoregressive models의 경우 위 수식과 같이 복잡한 확률분포에 해당하는 부분들을 뉴럴 네트워크로
@@ -293,7 +297,7 @@
               Bayesian Network나 Neural Network를 함께 이용해 joint distribution을 모델링할 수 있다. 예를 들어 Bayesian
               Network가 $Z \rightarrow X$이라면 아래와 같이 표현할 수 있다.
             </p>
-            <p class="math-center">$P(X, Z) = P(Z)P(X|Z)$</p>
+            <p class="math-center">$P(X, Z) = P(Z)P(X \mid Z)$</p>
             <p>
               $Z$가 Bernoulli distribution을 따른다면, $X$는 $Z$ 값에 따라 다른 파라미터를 가지는 형태로 모델링할 수
               있다.
