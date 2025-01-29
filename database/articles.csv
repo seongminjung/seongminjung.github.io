@@ -45,6 +45,7 @@ date,category_id,filename,title,detail
 2024-09-30,3,loopy-slam,Loopy-SLAM: Dense Neural SLAM with Loop Closures,CVPR 2024
 2024-10-01,1,install_opencv,How to Install OpenCV on a Fresh Ubuntu 20.04,Installing CuDNN and OpenCV on Ubuntu 20.04
 2024-10-04,3,langsplat,LangSplat: 3D Language Gaussian Splatting,CVPR 2024 Highlight
+2024-10-10,3,gaussian_grouping,Gaussian Grouping: Segment and Edit Anything in 3D Scenes,ECCV 2024
 2025-01-09,3,ovgaussian,OVGaussian: Generalizable 3D Gaussian Segmentation with Open Vocabularies,ArXiv 2025.01
 2025-01-22,7,lecture_1,Lecture 1: Introduction,Introduction to Deep Generative Models
 2025-01-24,7,lecture_2,Lecture 2: Background,"Representing probability distributions for discriminative and generative models"
