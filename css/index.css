@@ -141,7 +141,7 @@ header.shrink .nav {
   transform: translate(0, -50%);
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 1400px) {
   header .nav a {
     display: none;
   }

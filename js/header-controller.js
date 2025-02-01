@@ -79,11 +79,11 @@ document.addEventListener("DOMContentLoaded", () => {
   window.scrollBy(0, -68);
 });
 
-// When the modal is open and resizing the window bigger than 1200px, close the modal
+// When the modal is open and resizing the window bigger than 1400px, close the modal
 window.addEventListener("resize", (event) => {
   adjustHeader(lastKnownScrollPosition);
   setNavModalTop(lastKnownScrollPosition);
-  if (window.innerWidth > 1200) {
+  if (window.innerWidth > 1400) {
     if (button.classList.contains("fa-times")) {
       toggleNav();
     }
