@@ -242,7 +242,33 @@
               RNN의 장점으로는 데이터의 길이와 관계없이 사용 가능하며 파라미터 수가 데이터의 길이에 관계없이 고정되어
               있다는 것, 그리고 어떤 함수 또는 확률분포든 RNN으로 모델링할 수 있다는 것이 있다. 단점으로는 여전히
               데이터의 순서를 정해 주어야 한다는 것과 sequential하게 데이터를 생성해야 하기 때문에 속도가 매우 느리다는
-              것이 있다.
+              것이 있다. 또한 exploding/vanishing gradient 문제도 있다.
+            </p>
+
+            <h2>Attention-Based Models</h2>
+            <img class="half" src="/articles/deep_generative_models/lecture_3/img6.png" alt="Attention-based models" />
+            <p>
+              최신 모델들은 attention mechanism을 주로 사용하는데, RNN에서는 하나의 hidden state로 모든 입력을
+              요약했다면, attention은 NADE와 같이 이전에 입력된 sequence 전체를 사용할 수 있다.
+            </p>
+            <p>
+              먼저 query vector와 key vector 사이의 similarity score를 구해야 하는데, 두 벡터의 dot product를 통해
+              구한다. 이 similarity score를 softmax하여 attention weight를 구한다. 이 attention weight를 이용, value
+              vector를 weighted sum하여 위 그림에서의 맨 위 벡터를 얻게 되고, 이 벡터와 현재의 입력을 조합하여
+              prediction을 하게 된다.
+            </p>
+            <p>
+              Training 시에는 모든 토큰에 대한 output을 한번에 계산할 수 있는데, autoregressive autoencoders와 비슷하게
+              masking 처리를 하여 output이 미래의 값에 의존하지 못하게 한다. 다만 이 또한 autoregressive 모델이므로
+              inference 시에는 recursive하게 출력을 계산해야 한다.
+            </p>
+
+            <h2>Summary of Autoregressive Models</h2>
+            <p>
+              Autoregressive model은 특정 입력에 대해 그 확률분포 값을 직접 구할 수 있으므로 sampling하기 쉽고 anomaly
+              detection도 자연스럽게 할 수 있다는 장점이 있다. 본문에서 살펴본 베르누이 분포는 직접 확률값을 구했지만,
+              가우시안 분포 등 더 복잡한 분포에서는 평균과 분산 등 파라미터를 예측하는 방식으로 작동한다. 단점으로는 각
+              입력에 대한 latent vector를 구하거나 unsupervised learning을 하는 것은 어렵다는 것이 있다.
             </p>
           </div>
 
