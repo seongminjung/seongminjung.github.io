@@ -37,25 +37,7 @@
   </head>
 
   <body>
-    <header>
-      <img class="cover" src="/asset/cover.jpg" alt="Seongmin Jung" />
-      <h1 class="title"><a href="/index.html">Seongmin Jung</a></h1>
-      <nav class="nav">
-        <a href="/index.html">Home</a>
-        <a href="/projects.html">Projects</a>
-        <a href="/articles.html" class="bold">Articles</a>
-        <a href="/blog.html">Blog</a>
-        <i id="nav-toggle" class="nav-toggle fa fa-bars" onclick="toggleNav()"></i>
-      </nav>
-    </header>
-
-    <div id="nav-modal-bg" onclick="toggleNav()"></div>
-    <nav id="nav-modal">
-      <a href="/index.html">Home</a>
-      <a href="/projects.html">Projects</a>
-      <a href="/articles.html" class="bold">Articles</a>
-      <a href="/blog.html">Blog</a>
-    </nav>
+    <web-header></web-header>
 
     <main>
       <div class="container">
@@ -416,7 +398,7 @@ for t in range(num_steps):
             </ol>
             <p>다음 강의에서는 Linear Classifier를 대체할 Neural Network에 대해 배울 것이다.</p>
           </div>
-          
+
           <post-footer></post-footer>
         </section>
       </div>

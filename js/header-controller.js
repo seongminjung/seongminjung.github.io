@@ -1,9 +1,5 @@
 let lastKnownScrollPosition = 0;
 let ticking = false;
-let header = document.querySelector("header");
-let button = document.getElementById("nav-toggle");
-let modal = document.getElementById("nav-modal");
-let modalBg = document.getElementById("nav-modal-bg");
 let tabButtons = document.querySelectorAll("#articles .tab p");
 
 function adjustHeader(scrollPos) {
@@ -53,7 +49,22 @@ document.addEventListener("scroll", (event) => {
   }
 });
 
-window.addEventListener("load", (event) => {
+document.addEventListener("DOMContentLoaded", () => {
+  let header = document.querySelector("header");
+  let button = document.getElementById("nav-toggle");
+  let modal = document.getElementById("nav-modal");
+  let modalBg = document.getElementById("nav-modal-bg");
+
+  if (!header || !button || !modal || !modalBg) {
+    console.error("Header or navigation elements not found. Make sure <web-header> is loaded.");
+    return;
+  }
+
+  window.header = header;
+  window.button = button;
+  window.modal = modal;
+  window.modalBg = modalBg;
+
   // Call setNavModalTop() on load
   adjustHeader(lastKnownScrollPosition);
   setNavModalTop(lastKnownScrollPosition);
@@ -116,11 +127,11 @@ tabButtons.forEach((button) => {
 });
 
 window.addEventListener("load", (event) => {
-  // Call showTabContent() on load, default tab is "all-posts" or "travel"
-  // showTabContent("all posts") if it is articles.html, and "travel" if it is blog.html
+  // Call showTabContent() on load, default tab is "all-posts" or "all"
+  // showTabContent("all posts") if it is articles.html, and "all" if it is publications.html
   let tabName = "all-posts";
-  if (window.location.pathname.includes("blog")) {
-    tabName = "travel";
+  if (window.location.pathname.includes("publications")) {
+    tabName = "all";
   }
   showTabContent(tabName);
 });

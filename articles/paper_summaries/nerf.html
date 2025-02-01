@@ -37,25 +37,7 @@
   </head>
 
   <body>
-    <header>
-      <img class="cover" src="/asset/cover.jpg" alt="Seongmin Jung" />
-      <h1 class="title"><a href="/index.html">Seongmin Jung</a></h1>
-      <nav class="nav">
-        <a href="/index.html">Home</a>
-        <a href="/projects.html">Projects</a>
-        <a href="/articles.html" class="bold">Articles</a>
-        <a href="/blog.html">Blog</a>
-        <i id="nav-toggle" class="nav-toggle fa fa-bars" onclick="toggleNav()"></i>
-      </nav>
-    </header>
-
-    <div id="nav-modal-bg" onclick="toggleNav()"></div>
-    <nav id="nav-modal">
-      <a href="/index.html">Home</a>
-      <a href="/projects.html">Projects</a>
-      <a href="/articles.html" class="bold">Articles</a>
-      <a href="/blog.html">Blog</a>
-    </nav>
+    <web-header></web-header>
 
     <main>
       <div class="container">
@@ -67,7 +49,8 @@
               title="NeRF: Representing Scenes as Neural Radiance Fields for View Synthesis"
               venue="ECCV 2020"
               authors="Ben Mildenhall, Pratul P. Srinivasan, Matthew Tancik, Jonathan T. Barron, Ravi Ramamoorthi, Ren Ng"
-              link="https://arxiv.org/abs/2003.08934">
+              link="https://arxiv.org/abs/2003.08934"
+            >
             </arxiv-card>
             <h2>Introduction</h2>
             <img src="/articles/paper_summaries/nerf/img1.png" alt="NeRF preview" />
@@ -300,7 +283,7 @@
               neural network.
             </p>
           </div>
-          
+
           <post-footer></post-footer>
         </section>
       </div>

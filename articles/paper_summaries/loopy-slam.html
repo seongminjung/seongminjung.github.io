@@ -37,25 +37,7 @@
   </head>
 
   <body>
-    <header>
-      <img class="cover" src="/asset/cover.jpg" alt="Seongmin Jung" />
-      <h1 class="title"><a href="/index.html">Seongmin Jung</a></h1>
-      <nav class="nav">
-        <a href="/index.html">Home</a>
-        <a href="/projects.html">Projects</a>
-        <a href="/articles.html" class="bold">Articles</a>
-        <a href="/blog.html">Blog</a>
-        <i id="nav-toggle" class="nav-toggle fa fa-bars" onclick="toggleNav()"></i>
-      </nav>
-    </header>
-
-    <div id="nav-modal-bg" onclick="toggleNav()"></div>
-    <nav id="nav-modal">
-      <a href="/index.html">Home</a>
-      <a href="/projects.html">Projects</a>
-      <a href="/articles.html" class="bold">Articles</a>
-      <a href="/blog.html">Blog</a>
-    </nav>
+    <web-header></web-header>
 
     <main>
       <div class="container">
@@ -67,7 +49,8 @@
               title="Loopy-SLAM: Dense Neural SLAM with Loop Closures"
               venue="CVPR 2024"
               authors="Lorenzo Liso, Erik Sandström, Vladimir Yugay, Luc Van Gool, Martin R. Oswald"
-              link="https://arxiv.org/abs/2402.09944">
+              link="https://arxiv.org/abs/2402.09944"
+            >
             </arxiv-card>
             <h2>Introduction</h2>
             <p>
@@ -259,7 +242,7 @@
               implement relocalization, which is an important part of a robust SLAM system.
             </p>
           </div>
-          
+
           <post-footer></post-footer>
         </section>
       </div>

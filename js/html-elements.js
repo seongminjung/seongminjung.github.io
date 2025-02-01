@@ -2,8 +2,7 @@ import { loadCSV } from './csv-reader.js';
 
 function parseURL() {
   try {
-    const url = window.location.href;
-    const pathParts = new URL(url).pathname.split('/').filter(part => part);
+    const pathParts = window.location.pathname.split('/').filter(part => part);
 
     const category = pathParts.length > 1 ? pathParts[1].replace('.html', '') : null;
     const filename = pathParts.length > 2 ? pathParts[2].replace('.html', '') : null;
@@ -111,6 +110,46 @@ export class ArxivCard extends HTMLElement {
   }
 }
 customElements.define('arxiv-card', ArxivCard);
+
+export class WebHeader extends HTMLElement {
+  constructor() {
+    super();
+    const currentPath = window.location.pathname.split('/').filter(part => part)[0].replace('.html', '')
+    const navItems = [
+      { name: 'Home', path: 'index' },
+      { name: 'Publications', path: 'publications' },
+      { name: 'Projects', path: 'projects' },
+      { name: 'Articles', path: 'articles' }
+    ];
+
+    this.innerHTML = `
+      <header>
+        <img class="cover" src="/asset/cover.jpg" alt="Seongmin Jung" />
+        <h1 class="title"><a href="/index.html">Seongmin Jung</a></h1>
+        <nav class="nav">
+          ${navItems
+            .map(
+              item =>
+                `<a href="/${item.path}.html" class="${currentPath === item.path ? 'bold' : ''}">${item.name}</a>`
+            )
+            .join('')}
+          <i id="nav-toggle" class="nav-toggle fa fa-bars" onclick="toggleNav()"></i>
+        </nav>
+      </header>
+
+      <div id="nav-modal-bg" onclick="toggleNav()"></div>
+      <nav id="nav-modal">
+        ${navItems
+          .map(
+            item =>
+              `<a href="/${item.path}.html" class="${currentPath === item.path ? 'bold' : ''}">${item.name}</a>`
+          )
+          .join('')}
+      </nav>
+    `;
+  }
+}
+customElements.define('web-header', WebHeader);
 
 export class PostHeader extends HTMLElement {
   constructor() {
