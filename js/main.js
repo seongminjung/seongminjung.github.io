@@ -1,3 +1,4 @@
-import './header-controller.js';
-import './html-elements.js';
-import './prism.js';
+import "./header-controller.js";
+import "./html-elements.js";
+import "./web-head.js";
+import "./prism.js";

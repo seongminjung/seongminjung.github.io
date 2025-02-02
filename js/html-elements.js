@@ -1,27 +1,5 @@
 import { loadCSV } from './csv-reader.js';
-
-function parseURL() {
-  try {
-    const pathParts = window.location.pathname.split('/').filter(part => part);
-
-    const category = pathParts.length > 1 ? pathParts[1].replace('.html', '') : null;
-    const filename = pathParts.length > 2 ? pathParts[2].replace('.html', '') : null;
-
-    return { category, filename };
-  } catch (error) {
-    console.error('Error parsing blog URL:', error);
-    return { category: null, filename: null };
-  }
-}
-
-function formatDate(date) {
-  const dateObj = new Date(date);
-  return dateObj.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
-}
+import { parseURL, formatDate } from './utils.js';
 
 class ArticleItem extends HTMLElement {
   constructor() {
