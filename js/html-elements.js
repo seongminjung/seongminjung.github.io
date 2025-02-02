@@ -92,7 +92,7 @@ customElements.define('arxiv-card', ArxivCard);
 export class WebHeader extends HTMLElement {
   constructor() {
     super();
-    const currentPath = window.location.pathname.split('/').filter(part => part)[0].replace('.html', '')
+    const { pagename } = parseURL();
     const navItems = [
       { name: 'Home', path: 'index' },
       { name: 'Publications', path: 'publications' },
@@ -108,7 +108,7 @@ export class WebHeader extends HTMLElement {
           ${navItems
             .map(
               item =>
-                `<a href="/${item.path}.html" class="${currentPath === item.path ? 'bold' : ''}">${item.name}</a>`
+                `<a href="/${item.path}.html" class="${pagename === item.path ? 'bold' : ''}">${item.name}</a>`
             )
             .join('')}
           <i id="nav-toggle" class="nav-toggle fa fa-bars" onclick="toggleNav()"></i>
@@ -120,7 +120,7 @@ export class WebHeader extends HTMLElement {
         ${navItems
           .map(
             item =>
-              `<a href="/${item.path}.html" class="${currentPath === item.path ? 'bold' : ''}">${item.name}</a>`
+              `<a href="/${item.path}.html" class="${pagename === item.path ? 'bold' : ''}">${item.name}</a>`
           )
           .join('')}
       </nav>
