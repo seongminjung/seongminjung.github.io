@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="/css/index.css" />
+    <script type="module" src="/js/main.js" defer></script>
+  </head>
+
+  <body>
+    <web-head></web-head>
+    <web-header></web-header>
+
+    <main>
+      <div class="container">
+        <section id="post">
+          <post-header></post-header>
+
+          <div class="post-body">
+            <h2>Latent Variable Models: Motivation</h2>
+            <img class="half" src="/articles/deep_generative_models/lecture_5/img1.png" alt="Motivation" />
+            <p>
+              이미지와 같은 고차원 데이터는 실제 픽셀 개수보다 훨씬 적은 개수의 변수들로 설명될 수 있다. 예를 들어 사람
+              얼굴 사진은 위 그림과 같이 머리카락 색, 자세, 나이 등의 추상적인 개념으로 표현될 수 있다. 이미지와 같은
+              raw data를 $\mathbf{x}$, 추상적인 여러 개념을 벡터로 모아 $\mathbf{z}$라 한다면, 둘 사이의 인과관계를 위와
+              같은 그래프 또는 Bayesian network 모델로 나타낼 수 있다.
+            </p>
+            <p>
+              이미지를 생성해야 하는 입장에서 보면, $\mathbf{x}$에 대한 확률분포 $p(\mathbf{x})$를 처음부터 알아내는
+              것보다는 추상적인 특징 $\mathbf{z}$가 정해졌을 때 $p(\mathbf{x} \mid \mathbf{z})$를 알아내는 것이 훨씬
+              간단할 수 있다. 확률분포로 표현해야 할 variability가 훨씬 적기 때문이다. 예를 들어 아무 조건 없이 사람
+              얼굴 사진을 생성하는 것보다 '검은색 머리, 오른쪽을 보고 웃고 있는 젊은 남성'이라는 조건을 주면 훨씬 쉽게
+              이미지를 상상할 수 있다.
+            </p>
+            <p>이러한 $\mathbf{z}$는 데이터셋에서 직접적으로 얻을 수 없는 정보이기 때문에 latent vector라고 부른다.</p>
+            <img
+              class="half"
+              src="/articles/deep_generative_models/lecture_5/img2.png"
+              alt="Deep latent variable models"
+            />
+            <p>
+              하지만 세상의 모든 사진에 대해 인과관계를 찾고 일일이 확률적으로 모델링하는 것은 매우 어렵다. 따라서
+              latent variable model의 기본적인 아이디어는 각 추상적 개념을 명시적으로 정하지 말고 $\mathbf{z}$의 각
+              element가 의미하는 것을 뉴럴 네트워크가 스스로 해석하도록 하는 것이다.
+            </p>
+            <p>
+              Deep latent variable models는 위 그림처럼 나타낼 수 있다. 위 예시에서 '검은색 머리, 오른쪽을 보고 웃고
+              있는 젊은 남성'을 지정해준 것처럼, $\mathbf{z}$ 또한 어딘가에서 정해져서 입력되는 것으로 본다. 대신 우리가
+              하는 것은 $\mathbf{z}$를 입력받아 $p(\mathbf{x} \mid \mathbf{z})$를 예측하는 뉴럴 네트워크를 학습하는
+              것이다.
+            </p>
+            <p>
+              예를 들어, $\mathbf{z}$가 가우시안 분포 $\mathcal{N}(0, \mathbf{I})$로부터 샘플링된다고 가정할 수 있다.
+              확률분포 $p(\mathbf{x} \mid \mathbf{\mathbf{z}})$ 또한 가우시안 분포이고, 그 평균과 분포가 아래 식과 같이
+              $\mathbf{z}$를 입력받는 뉴럴 네트워크 $\mu_{\theta}$와 $\Sigma_{\theta}$의 출력이 된다고 가정할 수 있다.
+            </p>
+            <p class="math-center">
+              $p(\mathbf{x} \mid \mathbf{z}) = \mathcal{N} (\mu_{\theta}(\mathbf{z}), \Sigma_{\theta}(\mathbf{z}))$
+            </p>
+            <p>
+              이런 식으로, latent variable model의 본질적인 목적은 데이터 $\mathbf{x}$로부터 feature $\mathbf{z}$를
+              추출한다는 개념이 아니라, 반대로 $\mathbf{z}$는 어딘가에서 랜덤으로 생성되는 것이고 $\mathbf{z}$의 각
+              element가 $p(\mathbf{x} \mid \mathbf{z})$에 어떻게 영향을 미치는지 그 인과관계를 뉴럴 네트워크로
+              모델링한다고 봐야 한다.
+            </p>
+            <p>
+              '검은색 머리, 오른쪽을 보고 웃고 있는 젊은 남성'이라는 조건을 통해 생성해야 할 사진의 variability가 줄어든
+              것처럼, $\mathbf{z}$가 의미하는 바를 잘 해석할 수 있게 된다면, 우리는 생성해야 하는 이미지의 카테고리를
+              좁히고 좁혀 위의 가우시안 분포와 같이 매우 단순한 확률분포로도 우리가 원하는 이미지를 표현할 수 있다.
+            </p>
+            <p>
+              학습이 잘 되었을 때 우리는 $\mathbf{z}$와 $\mathbf{x}$ 사이에 특정한 인과관계를 '발견'하게 되는 것이고,
+              $\mathbf{x}$가 주어졌을 때 $\mathbf{z}$가 무엇이었을지 알 수 있게 된다면, 즉 $p(\mathbf{z} \mid
+              \mathbf{x})$를 의미 있게 모델링할 수 있게 된다면 이것을 representation learning이라고 부를 수 있다.
+            </p>
+            <img class="half" src="/articles/deep_generative_models/lecture_5/img3.png" alt="MNIST example" />
+            <p>
+              위 그림은 MNIST 데이터셋을 latent space에 표현한 것이다. 이 예시를 통해 $\mathbf{z}$와 $\mathbf{x}$의
+              관계가 잘 모델링된다면 $p(\mathbf{z} \mid \mathbf{x})$, 즉 각 숫자에 대해 latent vector가 어떻게
+              clustering되어 분포하고 있는지도 파악할 수 있다는 것을 알 수 있다. 즉 unsupervised learning 또는
+              representation learning이 된다.
+            </p>
+
+            <h2>Mixture of Gaussians: a Shallow Latent Variable Model</h2>
+            <p>Variational Autoencoder에 들어가기 앞서 조금 더 간단한 모델인 Mixture of Gaussians에 대해 알아보자.</p>
+            <p>
+              우선 $\mathbf{z}$에서 $\mathbf{x}$로 가는 Bayesian network $\mathbf{z} \rightarrow \mathbf{x}$를 가정한다.
+              $\mathbf{z}$는 categorical distribution으로, $1$부터 $K$ 중 하나의 값을 가질 수 있다.
+            </p>
+            <p class="math-center">
+              $p(\mathbf{x} \mid \mathbf{z} = k) = \mathcal{N} (\mu_k, \Sigma_k), \quad k \in \{1, \cdots, K\}$
+            </p>
+            <p>
+              $\mathbf{z}$가 어떤 값을 가지는지에 따라 $p(\mathbf{x} \mid \mathbf{z} = k)$의 평균과 분산 값이
+              달라지는데, 뉴럴 네트워크를 쓰지는 않고 표로 $k$개의 평균과 분산 값이 미리 정해져 있다고 가정한다.
+            </p>
+            <p>
+              이 모델에서 데이터를 생성하기 위해서는 먼저 categorical distribution에서 $\mathbf{z}$를 샘플링하고, 찾은
+              $\mu_k$와 $\Sigma_k$ 값을 이용해 $\mathcal{N} (\mu_k, \Sigma_k)$에서 $\mathbf{x}$를 샘플링하면 된다.
+            </p>
+            <img class="half" src="/articles/deep_generative_models/lecture_5/img4.png" alt="Mixture of Gaussians" />
+            <p>
+              위의 그림을 예로 들면 먼저 1, 2, 3 중에서 $\mathbf{z}$가 될 값을 고른 뒤, 해당하는 평균 $\mu$와 분산
+              $\Sigma$로부터 $x_1$과 $x_2$를 샘플링하는 것이다.
+            </p>
+            <img class="half" src="/articles/deep_generative_models/lecture_5/img5.png" alt="Mixture of Gaussians 2" />
+            <p>
+              이러한 방법을 통해, 위 그림과 같이 marginal distribution $p(\mathbf{x})$은 충분히 complex하게 표현할
+              capacity를 갖추면서도 sampling 시에는 하나의 가우시안을 선택하는 간단한 방식을 사용할 수 있다.
+            </p>
+
+            <h2>Variational Autoencoder</h2>
+            <p>
+              Mixture of Gaussians은 단순한 가우시안 분포를 $K$개 합침으로써 복잡한 확률분포를 모델링하면서도 샘플링을
+              단순하게 유지할 수 있었다. 한발 더 나아가 VAE에서는 $\mathbf{z}$가 연속적인 값을 가질 수 있다. 즉 무한히
+              많은 가우시안 분포를 mixture할 수 있는 것이다. 이것이 VAE가 매우 강력한 생성 모델인 이유이다.
+            </p>
+            <p>예를 들어, $\mathbf{z}$가 가우시안 분포 $\mathcal{N}(0, \mathbf{I})$를 따를 수 있다.</p>
+            <p class="math-center">
+              $p(\mathbf{x} \mid \mathbf{z}) = \mathcal{N} (\mu_{\theta}(\mathbf{z}), \Sigma_{\theta}(\mathbf{z}))$
+            </p>
+            <p>
+              그 후 위와 같이 $p(\mathbf{x} \mid \mathbf{z})$를 가우시안이라고 가정하고 뉴럴 네트워크를 이용하여 평균과
+              분산을 예측할 수 있다.
+            </p>
+            <p>지금까지 설명한 내용을 요약하면</p>
+            <ol>
+              <li>$p(\mathbf{x})$가 아무리 복잡하더라도 VAE에서는 수많은 가우시안 분포의 mixture로 표현할 수 있다.</li>
+              <li>
+                수많은 가우시안 중 하나를 선택하고 그 가우시안 $p(\mathbf{x} \mid \mathbf{z})$에서 새로운 데이터를
+                생성하는 것으로 볼 수 있다.
+              </li>
+              <li>
+                이때 가우시안을 선택하는 방법이 $\mathbf{z}$를 $\mathcal{N}(0, \mathbf{I})$에서 랜덤으로 샘플링하는
+                것이다.
+              </li>
+            </ol>
+
+            <h3>Training Variational Autoencoder</h3>
+            <p>
+              이제 이러한 VAE 모델을 학습하는 방법에 대해 알아보자. 가장 큰 이슈는 학습 시에는 $\mathbf{z}$를 알 수
+              없다는 것이다. 따라서 $\mathbf{z}$를 입력으로 받는 뉴럴 네트워크 $\mu_{\theta}$와 $\Sigma_{\theta}$ 또한
+              어떻게 학습시켜야 할지가 문제이다. 따라서 학습 시에는 특정 입력 $\mathbf{x}$에 대해 $\mathbf{z}$가
+              무엇이었을지를 추측해야 하는데, 이는 EM과 비슷하다.
+            </p>
+          </div>
+
+          <post-footer></post-footer>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2025 Seongmin Jung<br />Designed and developed by Seongmin Jung</p>
+    </footer>
+  </body>
+</html>
