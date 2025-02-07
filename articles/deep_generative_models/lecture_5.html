@@ -171,12 +171,142 @@
               \sum\limits_{\mathbf{z}} p(\mathbf{x}, \mathbf{z}; \theta) \right)$
             </p>
             <p>
-              하지만 $\mathbf{z}$ 값이 연속적이기 때문에 이 합을 직접 계산하는 것은 불가능하다. 따라서 학습 시에는 특정
-              입력 $\mathbf{x}$에 대해 $\mathbf{z}$가 무엇이었을지를 추측해야 하는데, 이는 EM과 비슷하다. 이를 추측하기
-              위한 접근법들을 살펴보자.
+              하지만 $\mathbf{z}$ 값이 연속적이기 때문에 log 안의 합 $\sum\limits_{\mathbf{z}} p(\mathbf{x}, \mathbf{z};
+              \theta)$을 직접 계산하는 것은 불가능하다. 따라서 학습 시에는 이 값을 추측해야 한다. 이를 추측하기 위한
+              접근법들을 살펴보자.
             </p>
 
             <h4>First Attempt: Naive Monte Carlo</h4>
+            <p>
+              가장 단순한 방법은 Monte Carlo로, 모든 $\mathbf{z}$의 합을 구하는 대신 샘플을 몇 개 뽑아서 그 값을
+              추정하는 것이다.
+            </p>
+            <p class="math-center">
+              $\sum\limits_{\mathbf{z}} p_{\theta}(\mathbf{x}, \mathbf{z}) = |\mathcal{Z}| \sum\limits_{\mathbf{z} \in
+              \mathcal{Z}} \cfrac{1}{|\mathcal{Z}|} p_{\theta}(\mathbf{x}, \mathbf{z}) = |\mathcal{Z}|
+              \mathbb{E}_{\mathbf{z} \sim \text{Uniform}(\mathcal{Z})} \big[ p_{\theta}(\mathbf{x}, \mathbf{z}) \big]$
+            </p>
+            <p>
+              위와 같이 식을 쓸 수 있는데, 이때 $\mathcal{Z}$는 가능한 모든 $\mathbf{z}$의 집합이다. $\mathbf{z}$를
+              곱하고 나누어 기댓값을 만듦으로써 이를 표본평균으로 대체할 수 있다. 이때, $\sum\limits_{\mathbf{z} \in
+              \mathcal{Z}}$ 안을 보면 모든 $\mathbf{z}$에 대한 확률에 $\cfrac{1}{|\mathcal{Z}|}$을 곱하는 형태가 되므로
+              이것은 $\mathbf{z}$가 uniform distribution을 따른다고 가정하는 꼴이 된다.
+            </p>
+            <p class="math-center">
+              $\mathbb{E}_{\mathbf{z} \sim \text{Uniform}(\mathcal{Z})} \big[ p_{\theta}(\mathbf{x}, \mathbf{z}) \big]
+              \approx \cfrac{1}{k} \sum\limits_{j=1}^{k} p_{\theta}(\mathbf{x}, \mathbf{z}^{(j)})$
+            </p>
+            <p>샘플 $k$개를 뽑는다고 가정할 때 위 식을 통해 기댓값을 예측할 수 있다.</p>
+            <p>
+              이 방법은 단순하고 unbiased이지만 실제로 사용할 수 없다. 그 이유는 $\mathbf{z}$가 uniform distribution을
+              따른다는 가정 때문인데, 실제로 현실에 존재하는 데이터를 생성하는 latent vector는 그렇지 않은 latent
+              vector에 비해 훨씬 적기 때문이다. 따라서 uniform하게 $\mathbf{z}$를 샘플링하면 거의 대부분 의미가 없는
+              $\mathbf{z}$가 나올 것이다.
+            </p>
+            <p>따라서 $\mathbf{z}$를 샘플링하는 더 나은 방법이 필요하다.</p>
+
+            <h4>Second attempt: Importance Sampling</h4>
+            <p>
+              Importance sampling을 이용해서 $\sum\limits_{\mathbf{z}} p_{\theta}(\mathbf{x}, \mathbf{z})$를 예측할 수
+              있다. $q(\mathbf{z})$가 우리가 임의로 정한 $\mathbf{z}$에 대한 어떤 확률분포라 하자.
+            </p>
+            <p class="math-center">
+              $\sum\limits_{\mathbf{z}} p_{\theta}(\mathbf{x}, \mathbf{z}) = \sum\limits_{\mathbf{z} \in \mathcal{Z}}
+              \cfrac{q(\mathbf{z})}{q(\mathbf{z})} p_{\theta}(\mathbf{x}, \mathbf{z}) = \mathbb{E}_{\mathbf{z} \sim
+              q(\mathbf{z})} \left[ \cfrac{p_{\theta}(\mathbf{x}, \mathbf{z})}{q(\mathbf{z})} \right]$
+            </p>
+            <p>
+              앞선 Monte Carlo 방식에서 달라진 점은 $\cfrac{1}{|\mathcal{Z}|}$을 $q(\mathbf{z})$로 대체한 것이다. 이제
+              위의 Monte Carlo와 동일하게 $q(\mathbf{z})$에서 샘플을 뽑고 표본평균을 구한다.
+            </p>
+            <p class="math-center">
+              $\mathbb{E}_{\mathbf{z} \sim q(\mathbf{z})} \left[ \cfrac{p_{\theta}(\mathbf{x},
+              \mathbf{z})}{q(\mathbf{z})} \right] \approx \cfrac{1}{k} \sum\limits_{j=1}^{k}
+              \cfrac{p_{\theta}(\mathbf{x}, \mathbf{z}^{(j)})}{q(\mathbf{z}^{(j)})}$
+            </p>
+            <p>이 또한 unbiased이므로 아래의 수식이 성립한다. 표본평균의 기댓값은 실제 평균과 같다는 원리이다.</p>
+            <p class="math-center">
+              $\mathbb{E}_{\mathbf{z} \sim q(\mathbf{z})} \left[ \cfrac{p_{\theta}(\mathbf{x},
+              \mathbf{z})}{q(\mathbf{z})} \right] = \mathbb{E}_{\mathbf{z} \sim q(\mathbf{z})} \left[ \cfrac{1}{k}
+              \sum\limits_{j=1}^{k} \cfrac{p_{\theta}(\mathbf{x}, \mathbf{z}^{(j)})}{q(\mathbf{z}^{(j)})} \right]$
+            </p>
+            <p>
+              그렇다면 $q(\mathbf{z})$를 어떻게 골라야 할까? 실제로 가능성이 있는 $\mathbf{z}$에 높은 확률을 주도록
+              골라야 한다.
+            </p>
+
+            <h4>Evidence Lower Bound</h4>
+            <p>지금까지 전개한 수식을 정리하면 아래와 같다.</p>
+            <p class="math-center">
+              $p_{\theta}(\mathbf{x}) = \sum\limits_{\mathbf{z}} p_{\theta}(\mathbf{x}, \mathbf{z}) =
+              \mathbb{E}_{\mathbf{z} \sim q(\mathbf{z})} \left[ \cfrac{p_{\theta}(\mathbf{x},
+              \mathbf{z})}{q(\mathbf{z})} \right] = \mathbb{E}_{\mathbf{z} \sim q(\mathbf{z})} \left[ \cfrac{1}{k}
+              \sum\limits_{j=1}^{k} \cfrac{p_{\theta}(\mathbf{x}, \mathbf{z}^{(j)})}{q(\mathbf{z}^{(j)})} \right]$
+            </p>
+            <p>
+              다시 한 번 training objective인 MLE를 살펴보면 우리는 log likelihood가 필요하다. 맨 왼쪽 항과 맨 오른쪽
+              항에 각각 $\log$를 취해 보자.
+            </p>
+            <p class="math-center">
+              $\log p_{\theta}(\mathbf{x}) = \log \left( \mathbb{E}_{\mathbf{z} \sim q(\mathbf{z})} \left[ \cfrac{1}{k}
+              \sum\limits_{j=1}^{k} \cfrac{p_{\theta}(\mathbf{x}, \mathbf{z}^{(j)})}{q(\mathbf{z}^{(j)})} \right]
+              \right) \neq \mathbb{E}_{\mathbf{z} \sim q(\mathbf{z})} \left[ \log \left( \cfrac{1}{k}
+              \sum\limits_{j=1}^{k} \cfrac{p_{\theta}(\mathbf{x}, \mathbf{z}^{(j)})}{q(\mathbf{z}^{(j)})} \right)
+              \right]$
+            </p>
+            <p>
+              그런데 한 가지 문제가 발생한다. 어찌 됐건 우리는 $\mathbb{E}_{\mathbf{z} \sim q(\mathbf{z})}$를 직접 구할
+              수 없으니 샘플을 뽑아 Monte Carlo 식으로 값을 유추해야 하는데, 그러려면 unbiased estimator가 되어야 한다.
+              기댓값이 가장 바깥에 있으면 unbiased인데, $\log$는 비선형함수이므로 $\log$가 기댓값의 바깥에 있으면
+              linearity가 깨지게 되고 bias가 생긴다. 즉, $\neq$ 오른쪽의 식이 우리가 Monte Carlo를 통해 구할 수 있는
+              unbiased estimate 값이다.
+            </p>
+            <img class="half" src="/articles/deep_generative_models/lecture_5/img6.png" alt="Concave function" />
+            <p>하지만 우리는 $\log$ 함수가 위로 볼록한 함수라는 것을 안다. 즉, 아래의 볼록함수의 정의가 성립한다.</p>
+            <p class="math-center">$\log (p x_1 + (1 - p) x_2) \geq p \log (x_1) + (1 - p) \log (x_2)$</p>
+            <p>이를 임의의 개수의 점들에 대해 확장한 것이 Jenson Inequality이고, 아래와 같이 쓸 수 있다.</p>
+            <p class="math-center">
+              $\log \big( \mathbb{E}_{\mathbf{z} \sim q(\mathbf{z})} [ f(\mathbf{z}) ] \big) = \log \Big(
+              \sum\limits_{\mathbf{z}} q(\mathbf{z}) f(\mathbf{z}) \Big) \geq \sum\limits_{\mathbf{z}} q(\mathbf{z})
+              \log f(\mathbf{z})$
+            </p>
+            <p>
+              우리의 경우 $f(\mathbf{z}) = \cfrac{p_{\theta}(\mathbf{x}, \mathbf{z}^{(j)})}{q(\mathbf{z}^{(j)})}$인
+              것이다.
+            </p>
+            <p>따라서, Jenson Inequality를 이용해 위 $\neq$를 부등호로 바꿀 수 있다.</p>
+            <p class="math-center">
+              $\log \left( \mathbb{E}_{\mathbf{z} \sim q(\mathbf{z})} \left[ \cfrac{1}{k} \sum\limits_{j=1}^{k}
+              \cfrac{p_{\theta}(\mathbf{x}, \mathbf{z}^{(j)})}{q(\mathbf{z}^{(j)})} \right] \right) \geq
+              \mathbb{E}_{\mathbf{z} \sim q(\mathbf{z})} \left[ \log \left( \cfrac{1}{k} \sum\limits_{j=1}^{k}
+              \cfrac{p_{\theta}(\mathbf{x}, \mathbf{z}^{(j)})}{q(\mathbf{z}^{(j)})} \right) \right]$
+            </p>
+            <p>
+              따라서, 우변의 항은 우리가 원하는 log likelihood의 lower bound가 된다. 이를
+              <b>Evidence Lower Bound (ELBO)</b>라 한다. 이 ELBO를 최대화함으로써 우리가 원하는 log likelihood를
+              간접적으로 최대화할 수 있다.
+            </p>
+            <p>
+              그리고 $q(\mathbf{z})$를 어떻게 선택하는지에 따라 두 값의 간격이 결정되는데, 그 간격이 작을수록
+              $q(\mathbf{z})$가 실제 $\mathbf{z}$의 분포를 잘 모델링하고 있다는 뜻이 된다.
+            </p>
+            <p>
+              참고로 $q = p_{\theta}(\mathbf{z} \mid \mathbf{x})$가 되면 위 부등호의 등호가 성립한다. 그 이유는 아래
+              식에서 볼 수 있듯 Bayes rule을 사용하면 기댓값 안의 식이 $p_{\theta}(\mathbf{x})$가 되기 때문이다.
+            </p>
+            <p class="math-center">
+              $\begin{align*}p_{\theta}(\mathbf{x}) & = \mathbb{E}_{\mathbf{z} \sim q(\mathbf{z})} \left[
+              \cfrac{p_{\theta}(\mathbf{x}, \mathbf{z})}{q(\mathbf{z})} \right] \\ \cfrac{p_{\theta}(\mathbf{x},
+              \mathbf{z})}{q(\mathbf{z})} & = \cfrac{p_{\theta}(\mathbf{x}, \mathbf{z})}{p_{\theta}(\mathbf{z} \mid
+              \mathbf{x})} = \cfrac{p_{\theta}(\mathbf{z} \mid \mathbf{x}) p_{\theta}(\mathbf{x})}{p_{\theta}(\mathbf{z}
+              \mid \mathbf{x})} \\ & = p_{\theta}(\mathbf{x}) \end{align*}$
+            </p>
+            <p>
+              이를 직관적으로 설명하면, 데이터를 생성한 바로 그 latent vector들을 그대로 사용하면 데이터의 확률분포
+              $p_{\theta}(\mathbf{x})$도 정확히 모델링할 수 있다는 것이다. 다만 $p_{\theta}(\mathbf{z} \mid
+              \mathbf{x})$를 직접 구한다는 것은 다시 원점으로 돌아가는 것이고, 우리는 우리가 가진 데이터셋만을 이용해서
+              ELBO를 maximize하는 $q(\mathbf{z})$를 찾는 수밖에 없다.
+            </p>
           </div>
 
           <post-footer></post-footer>
