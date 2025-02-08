@@ -46,6 +46,7 @@ date,category_id,filename,title,detail
 2024-10-01,1,install_opencv,How to Install OpenCV on a Fresh Ubuntu 20.04,Installing CuDNN and OpenCV on Ubuntu 20.04
 2024-10-04,3,langsplat,LangSplat: 3D Language Gaussian Splatting,CVPR 2024 Highlight
 2024-10-10,3,gaussian_grouping,Gaussian Grouping: Segment and Edit Anything in 3D Scenes,ECCV 2024
+2024-10-18,3,semantic_gaussians,Semantic Gaussians: Open-Vocabulary Scene Understanding with 3D Gaussian Splatting,ArXiv 2024.03
 2025-01-09,3,ovgaussian,OVGaussian: Generalizable 3D Gaussian Segmentation with Open Vocabularies,ArXiv 2025.01
 2025-01-15,3,langsurf,LangSurf: Language-Embedded Surface Gaussians for 3D Scene Understanding,ArXiv 2024.12
 2025-01-22,7,lecture_1,Lecture 1: Introduction,Introduction to Deep Generative Models
