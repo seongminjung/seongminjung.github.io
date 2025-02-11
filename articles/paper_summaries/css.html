@@ -24,12 +24,29 @@
             </arxiv-card>
 
             <h2>Introduction</h2>
-            <p>3DGS segmentation을 하는 기존 모델들이 fail하는 경우가 3가지 있다.</p>
+            <p>
+              로봇의 안전한 planning을 위해 map의 각 지점의 uncertainty를 구하는 것은 중요하다. 3DGS를 이용하여 로봇을
+              위한 지도를 만드는 연구는 많이 진행되었지만, uncertainty를 정량적으로 구하는 것은 여전히 challenge로 남아
+              있다.
+            </p>
+            <p>
+              본 논문에서는 Continuous Semantic Splatting (CSS) 모델을 소개한다. 3DGS의 각 가우시안이 kernel 함수가 될
+              수 있다는 점에서 착안하여, CSS는 2D segmentation 모델과 Bayesian framework를 융합하여 각 3D 가우시안의
+              semantic uncertainty를 정량적으로 구한다.
+            </p>
+            <p>
+              또한, 기존 3DGS segmentation 모델들은 아래와 같이 uncertainty가 높은 환경에서 렌더링된 이미지가 부정확할
+              수 있다.
+            </p>
             <ol>
               <li>2D에서 segmentation 정보를 넣어 주는 네트워크 자체에 노이즈가 많을 때.</li>
               <li>Novel view에서 보았을 때 필요한 곳에 가우시안이 존재하지 않을 때.</li>
               <li>Novel view에서 여러 객체의 경계가 흐려지면서 서로 다른 semantic category가 혼합될 때.</li>
             </ol>
+            <p>
+              CSS에서는 uncertainty를 이용해 확률적으로 rasterization하는 새로운 방법을 통해 기존 3DGS segmentation
+              모델의 한계점을 해결한다.
+            </p>
 
             <h2>Method</h2>
 
