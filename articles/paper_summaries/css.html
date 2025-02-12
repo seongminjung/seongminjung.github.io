@@ -48,6 +48,20 @@
               모델의 한계점을 해결한다.
             </p>
 
+            <h2>Related Work</h2>
+
+            <h4>Probabilistic 3D Semantic Mapping</h4>
+            <p>
+              기존 로보틱스 환경에서는 voxel로 된 3D map을 많이 사용하였다. Sparse한 Voxel map에서 dense하게 semantic
+              mapping을 하기 위해 Bayesian Kernel Inference (BKI)라는 방법이 기존에 주로 사용되었다. BKI는 uncertainty
+              값을 이용하여 3D 점과 점 사이의 공간에 대한 semantic label을 확률적으로 추정한다.
+            </p>
+            <p>
+              BKI의 단점으로 커널 함수를 직접 정해야 하는데, ConvBKI 논문에서는 이 커널 함수를 뉴럴 네트워크로 학습하는
+              방법을 제시했고 그 결과 커널 함수가 3D 가우시안의 형태가 된다는 것을 확인하였다. 그러나 discrete한 voxel
+              map 상에서는 3D 가우시안들의 분포나 형태에 제한이 있었다.
+            </p>
+
             <h2>Method</h2>
 
             <h3>Preliminaries: Gaussian Splatting</h3>
@@ -203,6 +217,62 @@
               기댓값을 이용하여 uncertainty $U(\mathcal{I}_\mathbb{E})$를 구하는 식은 위와 같다. 마찬가지로
               $\mathbb{E}(\hat{\theta}_i)$는 $\mathbb{E}({\theta}_i)$의 element 중 정답 카테고리에 해당하는 기댓값을
               의미한다. 즉, 정답 카테고리에 할당된 확률이 높을수록 이미지의 uncertainty가 낮아지도록 정의된다.
+            </p>
+
+            <h2>Results</h2>
+
+            <h4>Comparison to Voxel-Based Method</h4>
+            <img src="/articles/paper_summaries/css/img1.png" alt="Qualitative results" />
+            <p>
+              CSS 모델과 다른 voxel 기반 semantic segmentation 모델의 성능을 비교한다. 데이터셋으로는 KITTI driving
+              dataset을 사용하였고, metric으로는 mIoU를 사용하였다.
+            </p>
+            <p>
+              위 (d)번 그림을 보면, voxel 기반 모델의 출력이 군데군데 비어 있는 것을 볼 수 있는데, voxel이 본질적으로
+              sparse하기 때문이다. 반면 (e)번 그림을 보면 CSS는 모든 픽셀에 대해 label을 예측하는 것을 볼 수 있다.
+            </p>
+            <img class="half" src="/articles/paper_summaries/css/img2.png" alt="Quantitative results 1" />
+            <p>
+              위 표는 렌더링된 뷰에서 전체 픽셀에 대해 segmentation 결과를 정량적으로 평가한 것이다. voxel 기반 모델에
+              비해 CSS의 mIoU가 높은 것을 볼 수 있다. 다만 이 결과는 voxel 기반 모델들의 출력에 빈 공간이 있다는 것을
+              고려하지 않았기 때문에 label의 정확도보다는 모든 픽셀을 labeling하는 것의 효과를 보여 준다고 해석할 수
+              있다.
+            </p>
+            <img class="half" src="/articles/paper_summaries/css/img3.png" alt="Quantitative results 2" />
+            <p>
+              위 표는 voxel 기반 모델들이 출력한 픽셀들에 대해서만 mIoU를 비교한 것이다. 카테고리에 따라 순위에 차이는
+              있지만 정확도 자체는 비슷한 것으로 보인다. 맨 윗줄의 2D segmentation model보다 3D 모델의 성능이 좋은 것은
+              multi view image의 정보를 3D로 모으는 것이 효과가 있다는 것으로 해석할 수 있다.
+            </p>
+
+            <h4>Uncertainty Quantification</h4>
+            <p>
+              Uncertainty 추정 성능을 분석하기 위해, 본 논문에서는 sparsification이라는 방법을 사용한다. 우선 예측된
+              결과들을 uncertainty가 큰 픽셀 또는 이미지부터 하나씩 제거해 가면서 segmentation accuracy가 어떻게
+              증가하는지를 확인한다. Uncertainty가 잘 추정되었다면 정확도가 점점 증가할 것이다.
+            </p>
+            <p>여기서는 Replica 데이터셋을 사용하였다.</p>
+            <img src="/articles/paper_summaries/css/img4.png" alt="Uncertainty quantification" />
+            <p>
+              위의 왼쪽 그래프에서 볼 수 있듯, uncertainty가 큰 픽셀부터 차례로 제거했을 때 정확도가 점점 증가하는 것을
+              볼 수 있다. 또한 오른쪽 그래프는 이미지 단위로 uncertainty를 예측하고 그 순서대로 이미지를 하나씩 제거한
+              것인데, 제거된 이미지가 많을수록 평균 PSNR이 증가하는 것을 볼 수 있다.
+            </p>
+            <p>
+              이러한 결과를 통해 CSS에서 uncertainty가 잘 모델링되었다고 볼 수 있다. 또한 기댓값과 분산 모두
+              uncertainty를 측정할 수 있는 지표라고 해석할 수 있다.
+            </p>
+
+            <h2>Conclusion</h2>
+            <p>
+              본 논문에서는 기존 robotic mapping 방식에서 사용되던 uncertainty 추정을 3DGS와 결합하여 3DGS에서
+              확률적으로 semantic segmentation을 수행하는 방법을 제시하였다. 또한 픽셀과 이미지 레벨에서 uncertainty
+              추정 성능을 평가하는 방법을 새로 도입하였다.
+            </p>
+            <p>
+              Future work으로는, 첫 번째로 실시간 3DGS 모델과 본 모델을 결합하는 것을 언급하고 있다. 두 번째로는
+              Dirichlet distribution 대신 continuous conjugate prior를 이용하여 open-vocabulary segmentation을 구현하는
+              것을 언급하고 있다.
             </p>
           </div>
 
