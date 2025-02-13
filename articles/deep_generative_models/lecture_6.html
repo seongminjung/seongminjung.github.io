@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="/css/index.css" />
+    <script type="module" src="/js/main.js" defer></script>
+  </head>
+
+  <body>
+    <web-head></web-head>
+    <web-header></web-header>
+
+    <main>
+      <div class="container">
+        <section id="post">
+          <post-header></post-header>
+
+          <div class="post-body">
+            <h2>Variational Inference</h2>
+            <p>
+              지난 강의에서, latent variable $\mathbf{z}$의 분포를 임의로 모델링하기 위해 $q(\mathbf{z})$를 도입하였다.
+              이 $q(\mathbf{z})$를 이용하여 ELBO를 유도하고, 최종 목표인 데이터의 likelihood $p(\mathbf{x})$를 최대화할
+              수 있다. 이러한 전반적인 과정을 variational inference라고 한다.
+            </p>
+            <p>
+              이러한 과정이 필요했던 이유는, $\mathbf{z}$로부터 $\mathbf{x}$를 추정하는 모델을 학습시키기 위해서는
+              $\mathbf{z}$가 주어져야 하는데, 우리가 가진 데이터셋은 $\mathbf{x}$밖에 없기 때문이다. 따라서 우회적인
+              방법으로 $\mathbf{x}$로부터 $\mathbf{z}$를 추정하는 모델을 도입했는데 그것이 바로 $q(\mathbf{z})$이다.
+            </p>
+            <p>
+              지난 강의에서 언급했듯 이론상 $q(\mathbf{z}) = p(\mathbf{z} \mid \mathbf{x})$가 되면 ELBO의 등식이
+              성립하여 optimal한 모델이 된다. 하지만 실제로는 뉴럴 네트워크를 이용하여 $p(\mathbf{z} \mid \mathbf{x})$에
+              가까이 가기 위한 optimization 문제를 풀게 된다.
+            </p>
+            <p>두 분포 $q(\mathbf{z})$와 $p(\mathbf{z} \mid \mathbf{x})$ 사이의 KL Divergence를 구해 보자.</p>
+            <p class="math-center">
+              $D_{KL}(q(\mathbf{z}) \| p(\mathbf{z} \mid \mathbf{x} ; \theta)) = - \sum\limits_{\mathbf{z}}
+              q(\mathbf{z}) \log p(\mathbf{z}, \mathbf{x} ; \theta) + \log p(\mathbf{x} ; \theta) - H(q) \geq 0$
+            </p>
+            <p>위 식의 부등호 부분을 아래와 같이 정리할 수 있다.</p>
+            <p class="math-center">
+              $\log p(\mathbf{x} ; \theta) \geq \sum\limits_{\mathbf{z}} q(\mathbf{z}) \log p(\mathbf{z}, \mathbf{x} ;
+              \theta) + H(q)$
+            </p>
+            <p>
+              이전 강의에서의 ELBO 식이 나온다는 것을 알 수 있다. 이처럼 KL Divergence를 이용해서도 ELBO를 최대화하는
+              것이 $q(\mathbf{z})$가 $p(\mathbf{z} \mid \mathbf{x})$에 가까워지도록 하는 것과 같음을 보일 수 있다.
+            </p>
+            <p>
+              하지만 문제는 VAE에서는 $p(\mathbf{z} \mid \mathbf{x})$를 직접 구할 수 없다는 것이다. $p(\mathbf{x} \mid
+              \mathbf{z})$가 뉴럴 네트워크로 정의되기 때문에 조건부 확률을 뒤집는 것을 수식적으로 계산할 수 없다. 따라서
+              VAE에서는 새로운 뉴럴 네트워크를 도입하여 $p(\mathbf{z} \mid \mathbf{x})$를 모델링한다. 이 뉴럴 네트워크의
+              확률분포를 $q(\mathbf{z} ; \phi)$라 하자.
+            </p>
+            <p>
+              이때 뉴럴 네트워크 $q(\mathbf{z} ; \phi)$를 VAE의 encoder, $p(\mathbf{x} \mid \mathbf{z} ; \theta)$를
+              decoder라 한다.
+            </p>
+            <img class="half" src="/articles/deep_generative_models/lecture_6/img1.png" alt="ELBO" />
+            <p>
+              이 optimization 과정을 도식화하면 위와 같다. 어떤 이미지 $\mathbf{x}$와 decoder 파라미터 $\theta$가
+              주어졌을 때, log probability $\log p_\theta(\mathbf{x})$는 우리가 모르는 어떤 상수이다.
+              $q_\phi(\mathbf{z})$의 파라미터 $\phi$가 변함에 따라 KL Divergence도 변함을 알 수 있다. 따라서 VAE의
+              전략은 encoder 파라미터 $\phi$와 decoder 파라미터 $\theta$를 joint training하는 것이다.
+            </p>
+            <img class="half" src="/articles/deep_generative_models/lecture_6/img2.png" alt="Joint training" />
+            <p>
+              $\phi$와 $\theta$를 동시에 optimization하는 상황을 도식화하면 위와 같다. $\phi$를 통해 실제 marginal
+              likelihood가 높은 곳에 높은 확률분포를 가지도록 곡선을 선택하고, $\theta$는 한 곡선 안에서 실제 marginal
+              likelihood와의 차이가 최소가 되는 지점을 찾는다.
+            </p>
+
+            <h2>Training over the Entire Dataset</h2>
+            <p class="math-center">
+              $\ell(\theta ; \mathcal{D}) = \sum\limits_{\mathbf{x}^i \in \mathcal{D}} \log p(\mathbf{x}^i ; \theta)
+              \geq \sum\limits_{\mathbf{x}^i \in \mathcal{D}} \mathcal{L}(\mathbf{x}^i ; \theta, \phi^i)$
+            </p>
+            <p>
+              전체 데이터셋에 대해 학습하기 위해 위와 같이 각 이미지에 대한 log likelihood의 합으로 objective function을
+              구성한다. ELBO도 마찬가지로 각 이미지에 대한 값을 모두 합하여 구한다.
+            </p>
+            <p>
+              이때 ELBO를 정확하게 계산하려면 각 data point $\mathbf{x}^i$에 대해 서로 다른 확률분포 $q(\mathbf{z} ;
+              \phi^i)$가 필요하다는 문제점이 있다. 각 data point마다 그 데이터가 생성되었을 latent vector의 기댓값과
+              분산이 모두 다를 것이기 때문이다.
+            </p>
+
+            <h3>Learning via Stochastic Variational Inference (SVI)</h3>
+          </div>
+
+          <post-footer></post-footer>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2025 Seongmin Jung<br />Designed and developed by Seongmin Jung</p>
+    </footer>
+  </body>
+</html>
