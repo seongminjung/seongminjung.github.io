@@ -92,8 +92,8 @@
 
             <h3>Learning via Stochastic Variational Inference (SVI)</h3>
             <p class="math-center">
-              $\mathcal{L}(\mathbf{x}^i ; \theta, \phi^i) = \mathbb{E}_{q(\mathbf{z}; \phi^i)} [ \log p(\mathbf{z},
-              \mathbf{x}^i ; \theta) - \log q(\mathbf{z}; \phi^i)]$
+              $\mathcal{L}(\mathbf{x}^i ; \theta, \phi^i) = \mathbb{E}_{q(\mathbf{z}; \phi^i)} \big[ \log p(\mathbf{z},
+              \mathbf{x}^i ; \theta) - \log q(\mathbf{z}; \phi^i) \big]$
             </p>
             <p>
               ELBO를 최대화하기 위한 가장 간단한 방법은 위의 ELBO 식에 대해 gradient ascent를 사용하는 것이다. 먼저 각
@@ -144,6 +144,85 @@
             <p>이제 Monte Carlo를 이용하여 위 식과 같이 기댓값을 표본평균으로 근사하여 구할 수 있다.</p>
 
             <h3>Amortized Inference</h3>
+            <p>
+              지금까지는 각 이미지에 대해 $\phi^i$를 별개로 학습하는 것으로 생각했는데, 이제는 그 대신 $\mathbf{x}^i$를
+              입력받아 $\phi^i$를 출력하는 공통된 encoder 네트워크를 학습한다. 즉 regression을 수행하는 것으로 생각할 수
+              있다. 이를 통해 training을 간소화할 수 있다.
+            </p>
+            <p>
+              따라서, 각 $\phi^i$에 대한 gradient를 구하는 것이 아니라, encoder의 파라미터들에 대한 gradient를 구하게
+              된다. 편의상 이 encoder의 파라미터를 $\phi$라 하자.
+            </p>
+            <p class="math-center">
+              $\mathcal{L}(\mathbf{x}; \theta, \phi) = \mathbb{E}_{q_{\phi}(\mathbf{z} \mid \mathbf{x})} \big[ \log
+              p(\mathbf{z}, \mathbf{x}; \theta) - \log q_{\phi}(\mathbf{z} \mid \mathbf{x}) \big]$
+            </p>
+            <p>ELBO 식은 위와 같이 다시 쓸 수 있다. 학습 과정은 아래 순서와 같다.</p>
+            <ol>
+              <li>$\theta$와 $\phi$를 initialize한다.</li>
+              <li>데이터셋으로부터 이미지 $\mathbf{x}^i$를 하나 뽑는다.</li>
+              <li>
+                Gradient $\nabla_{\theta} \mathcal{L}(\mathbf{x}^i ; \theta, \phi)$와 $\nabla_{\phi}
+                \mathcal{L}(\mathbf{x}^i ; \theta, \phi)$를 구한다.
+              </li>
+              <li>Gradient ascent를 하는 방향으로 $\theta$와 $\phi$를 업데이트한다.</li>
+            </ol>
+            <p>
+              이 과정을 반복하여 $\theta$와 $\phi$를 optimize한다. 즉 위의 SVI에서 $\theta$와 $\phi$를 별개로 학습했던
+              것과 달리 여기서는 joint training을 한다.
+            </p>
+
+            <h2>Autoencoder Perspective</h2>
+            <img class="half" src="/articles/deep_generative_models/lecture_6/img3.png" alt="Autoencoder perspective" />
+            <p>
+              아키텍쳐의 형태로 보면 VAE는 autoencoder와 유사한 점이 많다. 다만 autoencoder는 encoder를 통해
+              $\mathbf{z}$를 직접 출력하는 반면 VAE는 encoder를 통헤 $\mathbf{z}$의 확률분포 파라미터를 출력하고 그
+              확률분포로부터 $\mathbf{z}$를 샘플링한다는 차이가 있다.
+            </p>
+            <p class="math-center">
+              $\mathcal{L}(\mathbf{x}; \theta, \phi) = \mathbb{E}_{q_{\phi}(\mathbf{z} \mid \mathbf{x})} \big[ \log
+              p(\mathbf{z}, \mathbf{x}; \theta) - \log q_{\phi}(\mathbf{z} \mid \mathbf{x}) \big]$
+            </p>
+            <p>
+              또한 위의 ELBO 식을 분석해 보면, 첫 번째 log 항은 $q_{\phi}(\mathbf{z} \mid \mathbf{x})$에서 나오는
+              $\mathbf{z}$값에 대하여 $\log p(\mathbf{z}, \mathbf{x}; \theta)$의 기댓값을 구하는 것이 되고, 두 번째
+              entropy 항은 확률분포 $q_{\phi}(\mathbf{z} \mid \mathbf{x})$가 최대한 넓게 퍼져서 최대한 다양한
+              $\mathbf{z}$가 뽑힐 수 있도록 하는 것이다.
+            </p>
+            <p class="math-center">
+              $\begin{align*} \mathcal{L}(\mathbf{x}; \theta, \phi) & = \mathbb{E}_{q_{\phi}(\mathbf{z} \mid
+              \mathbf{x})} \big[ \log p(\mathbf{z}, \mathbf{x}; \theta) - \log p(\mathbf{z}) + \log p(\mathbf{z}) - \log
+              q_{\phi}(\mathbf{z} \mid \mathbf{x}) \big] \\ & = \mathbb{E}_{q_{\phi}(\mathbf{z} \mid \mathbf{x})} \big[
+              \log p(\mathbf{x} \mid \mathbf{z}; \theta) \big] - D_{KL}(q_{\phi}(\mathbf{z} \mid \mathbf{x}) \|
+              p(\mathbf{z})) \end{align*}$
+            </p>
+            <p>
+              원래 ELBO 식을 변형하여, $\log p(\mathbf{z})$를 빼고 더할 수 있다. 그러면 마지막 식과 같이 decoder
+              확률분포의 기댓값과 KL Divergence로 식을 나눌 수 있다.
+            </p>
+            <p>
+              먼저 마지막 식의 첫 번째 항 $\mathbb{E}_{q_{\phi}(\mathbf{z} \mid \mathbf{x})} \big[ \log p(\mathbf{x}
+              \mid \mathbf{z}; \theta) \big]$을 해석해 보면, reconstruction loss로 볼 수 있다. Decoder 파라미터
+              $\theta$가 주어졌을 때, $\mathbf{z}$로부터 생성한 $\mathbf{x}$가 얼마나 원래 input 이미지와 likely한지를
+              보는 것이다. 즉 이 첫 번째 항이 autoencoder의 특성을 갖고 있다고 할 수 있다.
+            </p>
+            <p>
+              두 번째 KL Divergence 항을 보면, 우리가 encoder를 이용해 예측하는 확률분포 $q_{\phi}(\mathbf{z} \mid
+              \mathbf{x})$가 우리가 처음에 설정한 $\mathbf{z}$의 prior, 즉 가우시안 분포 $p(\mathbf{z}) = \mathcal{N}(0,
+              I)$에 가까워지도록 한다. 즉, 첫 번째 항과 두 번째 항이 상호보완적으로 작용하여 $\mathbf{z}$가 가우시안
+              분포를 따르면서도 다양한 이미지를 생성할 수 있도록 한다.
+            </p>
+            <p>
+              <b
+                >따라서 VAE가 autoencoder와 다른 점은, $\mathbf{z}$가 아무 분포가 아니라 우리가 원하는 가우시안 분포를
+                따르도록 학습 시에 강제된다는 것이다.</b
+              >
+            </p>
+            <p>
+              이 덕분에 inference 시에는 우리가 임의로 $\mathbf{z}$를 샘플링해서 decoder에 넣어 줄 수 있다. 일반
+              autoencoder의 경우 우리가 임의로 $\mathbf{z}$를 decoder에 넣어 준다고 하더라도 그럴듯한 출력이 생성되지
+              않을 것이다.
+            </p>
           </div>
 
           <post-footer></post-footer>
