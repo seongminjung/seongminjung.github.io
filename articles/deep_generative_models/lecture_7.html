@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="/css/index.css" />
+    <script type="module" src="/js/main.js" defer></script>
+  </head>
+
+  <body>
+    <web-head></web-head>
+    <web-header></web-header>
+
+    <main>
+      <div class="container">
+        <section id="post">
+          <post-header></post-header>
+
+          <div class="post-body">
+            <h2>Flow Models</h2>
+            <p>
+              Flow model은 VAE와 유사한 latent variable model로, 먼저 latent vector $\mathbf{z}$를 샘플링한 후 이를
+              이용해 $\mathbf{x}$를 생성하는 방식이다. 하지만 VAE가 뉴럴 네트워크를 이용해 $p_\theta(\mathbf{x})$의
+              파라미터인 평균과 분산을 추정하고 거기서 다시 $\mathbf{x}$를 샘플링하는 것과 달리, flow model은
+              deterministic 함수 $\mathbf{x} = f_\theta(\mathbf{z})$를 이용해 $\mathbf{x}$를 바로 생성한다.
+            </p>
+            <p>
+              학습 시에는, VAE에서는 수많은 $\mathbf{z}$가 $\mathbf{x}$를 생성할 수 있는 확률을 조금이나마 가지고 있기
+              때문에 $p_\theta(\mathbf{x})$를 구하기 위해서는 모든 가능한 $\mathbf{z}$값에 대한 적분을 수행해야 했고,
+              이를 회피하기 위해 variational inference와 ELBO를 도입하였다. 그에 반해 flow model에서는 $\mathbf{x}$와
+              $\mathbf{z}$가 일대일 대응이다. 또한 $p(\mathbf{z})$를 이용해 $p_\theta(\mathbf{x})$를 직접 계산할 수 있기
+              때문에 MLE를 이용하여 쉽게 학습할 수 있다.
+            </p>
+            <p>
+              이때 함수 $\mathbf{x} = f_\theta(\mathbf{z})$는 invertible하다. 즉 $\mathbf{x}$와 $\mathbf{z}$가 일대일
+              대응이 되며, 둘의 dimension이 같다는 의미도 된다.
+            </p>
+
+            <h2>Change of Variables</h2>
+            <p>
+              Flow model의 기본 개념이 되는 change of variables에 대해 알아보자. $\mathbf{x} = f_\theta(\mathbf{z})$의
+              관계가 있을 때 $p(\mathbf{z})$를 이용해 $p_\theta(\mathbf{x})$를 직접 계산하는 방법이다.
+            </p>
+            <p>
+              예를 들어, 스칼라 랜덤변수 $Z$가 uniform distribution $\mathcal{U}[0, 2]$를 따른다고 하자. $p_Z(z) =
+              \cfrac{1}{2}$이 된다.
+            </p>
+            <p>
+              이때 $X = f(Z) = 4Z$라 하면, $p_X(x)$를 이 변수 간 관계를 이용하여 구할 수 있다. $Z = f^{-1}(X) = h(X)$라
+              하면 아래의 수식을 만족한다.
+            </p>
+            <p class="math-center">
+              $p_X(x) = p_Z(h(x)) \left| h'(x) \right| = p_Z(z) \left| \cfrac{1}{f'(z)} \right|$
+            </p>
+            <p>따라서 $p_X(x) = p_Z(h(x)) \times \cfrac{1}{4} = \cfrac{1}{8}$이 된다.</p>
+            <p>
+              다른 예시로 $Z \sim \mathcal{U}[0, 2]$이고 $X = \exp(Z)$라면, $h(X) = \ln(X)$가 되고, $p_X(x) =
+              p_Z(\ln(x)) \left| h'(x) \right| = \cfrac{1}{2x}$가 된다. 이렇게 change of variables를 이용하면 더욱
+              복잡한 확률분포를 모델링할 수 있다.
+            </p>
+            <p>이에 대한 증명은 CDF을 이용하면 쉽게 할 수 있다.</p>
+            <p>$X$와 $Z$가 랜덤벡터인 경우에는 아래와 같이 식을 변형할 수 있다.</p>
+            <p class="math-center">
+              $p_X(\mathbf{x}) = p_Z \big( f^{-1}(\mathbf{x}) \big) \left| \det \left( \frac{\partial
+              f^{-1}(\mathbf{x})}{\partial \mathbf{x}} \right) \right| = p_Z(\mathbf{z}) \left| \det \left(
+              \frac{\partial \mathbf{f}(\mathbf{z})}{\partial \mathbf{z}} \right) \right|^{-1}$
+            </p>
+          </div>
+
+          <post-footer></post-footer>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2025 Seongmin Jung<br />Designed and developed by Seongmin Jung</p>
+    </footer>
+  </body>
+</html>
