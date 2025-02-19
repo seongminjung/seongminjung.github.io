@@ -57,12 +57,19 @@
               복잡한 확률분포를 모델링할 수 있다.
             </p>
             <p>이에 대한 증명은 CDF을 이용하면 쉽게 할 수 있다.</p>
-            <p>$X$와 $Z$가 랜덤벡터인 경우에는 아래와 같이 식을 변형할 수 있다.</p>
+            <p>$X$와 $Z$가 랜덤벡터이고 $f_\theta$가 nonlinear한 일반적인 경우로 확장하면 아래와 같다.</p>
             <p class="math-center">
-              $p_X(\mathbf{x}) = p_Z \big( f^{-1}(\mathbf{x}) \big) \left| \det \left( \frac{\partial
+              $p_X(\mathbf{x}) = p_Z \big( f^{-1}(\mathbf{x}) \big) \left| \det \left( \cfrac{\partial
               f^{-1}(\mathbf{x})}{\partial \mathbf{x}} \right) \right| = p_Z(\mathbf{z}) \left| \det \left(
-              \frac{\partial \mathbf{f}(\mathbf{z})}{\partial \mathbf{z}} \right) \right|^{-1}$
+              \cfrac{\partial \mathbf{f}(\mathbf{z})}{\partial \mathbf{z}} \right) \right|^{-1}$
             </p>
+            <p>Jacobian을 이용해 Taylor expansion을 하여 함수를 linear approximation하는 방식이다.</p>
+            <p>
+              뉴럴 네트워크를 이용해 invertible한 방식으로 $f_\theta$를 모델링한다면, $\mathbf{x}$로부터 $\mathbf{z}$를
+              바로 찾을 수 있고 $p_X(\mathbf{x})$로부터 하나로 대응되는 $p_Z(\mathbf{z})$를 바로 찾을 수 있기 때문에
+              variational inference 없이 바로 MLE를 할 수 있다.
+            </p>
+            <p>따라서 함수 $f_\theta$를 잘 모델링하여 inverse를 구하기 쉽고 jacobian도 구하기 쉽도록 해야 한다.</p>
           </div>
 
           <post-footer></post-footer>
