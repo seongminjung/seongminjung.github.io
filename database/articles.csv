@@ -61,3 +61,4 @@ date,category_id,filename,title,detail
 2025-02-18,7,lecture_7,Lecture 7: Normalizing Flows I,Normalizing Flows I
 2025-02-21,7,lecture_8,Lecture 8: Normalizing Flows II,Normalizing Flows II
 2025-02-23,3,mosaic3d,Mosaic3D: Foundation Dataset and Model for Open-Vocabulary 3D Segmentation,ArXiv 2025.02
+2025-02-28,7,lecture_9,Lecture 9: GANs I,GANs I
