@@ -43,7 +43,7 @@
             <p>MiKASA는 위와 같이 vision module, text module, spatial module, fusion module로 구성된다.</p>
             <ul>
               <li>Vision module은 주변의 맥락을 포함하여 각 물체의 feature를 추출한다.</li>
-              <li>Text module은 Bert를 이용하여 텍스트 query에 대한 feature를 추출한다.</li>
+              <li>Text module은 BERT를 이용하여 텍스트 query에 대한 feature를 추출한다.</li>
               <li>Spatial module은 각 물체간 위치관계를 feature로 변환한다.</li>
               <li>Fusion module은 세 모듈에서 나온 feature를 통합하여 최종 score를 계산한다.</li>
             </ul>
@@ -80,7 +80,7 @@
               된다.
             </p>
             <p>
-              Text-spatial fusion은 spatial module 안에서 진행된다. Bert를 통해 얻은 $1 \times D$ 크기의 feature와 이
+              Text-spatial fusion은 spatial module 안에서 진행된다. BERT를 통해 얻은 $1 \times D$ 크기의 feature와 이
               단계에서 얻은 spatial feature를 cross-attention한다. 이후 layer normalization과 linear layer까지
               통과시킨다. 이를 통해 텍스트 정보와 연관성이 있도록 spatial feature를 조정한다.
             </p>
@@ -130,6 +130,31 @@
               문장에서 target object를 찾는 과정에 대한 loss, $L_{\text{obj}}$는 전체 object에 대한 categorization에
               대한 loss, $L_{\text{obj_scene}}$은 scene-aware object encoder를 거친 이후의 object categorization에 대한
               loss이다.
+            </p>
+
+            <h2>Experiment</h2>
+
+            <h4>Experimental Setup</h4>
+            <p>
+              데이터셋은 NR3D와 SR3D를 사용하였다. Text encoder는 BERT, object encoder는 PointNet++를 사용하였다.
+              Metric으로는 정답 bounding box를 고른 scene의 비율을 사용하였다.
+            </p>
+
+            <h4>Baseline Comparison</h4>
+            <img src="/articles/paper_summaries/mikasa/img4.png" alt="Quantitative result" />
+            <p>Baseline 모델들과 성능을 비교한 결과는 위와 같다.</p>
+            <img src="/articles/paper_summaries/mikasa/img5.png" alt="Qualitative result" />
+            <p>
+              Qualitative result는 위와 같다. Category score 또는 spatial score만 사용했을 때와 최종 모델의 inference
+              결과를 비교해 볼 수 있다.
+            </p>
+
+            <h2>Conclusion</h2>
+            <p>
+              MiKASA는 scene-aware object encoder와 multi-key-anchor를 이용하여 3D 환경에서의 object recognition과
+              spatial understanding을 수행한 모델이다. Scene-aware object encoder는 category score, multi-key-anchor는
+              spatial score를 계산하는 역할을 하고, 두 score를 합쳐 최종적으로 SOTA 성능의 3D visual grounding 성능을
+              보여 주었다.
             </p>
           </div>
 
