@@ -64,3 +64,4 @@ date,category_id,filename,title,detail
 2025-02-23,3,mosaic3d,Mosaic3D: Foundation Dataset and Model for Open-Vocabulary 3D Segmentation,ArXiv 2025.02
 2025-02-28,7,lecture_9,Lecture 9: GANs I,GANs I
 2025-03-10,3,mikasa,MiKASA: Multi-Key-Anchor & Scene-Aware Transformer for 3D Visual Grounding,CVPR 2024
+2025-03-15,3,mvt,Multi-View Transformer for 3D Visual Grounding,CVPR 2022
