@@ -128,6 +128,36 @@
             <p>3개의 loss term을 위 식과 같이 조합하여 최종 loss를 계산한다.</p>
 
             <h2>Experiments</h2>
+
+            <h4>Experimental Setting</h4>
+            <ul>
+              <li>데이터셋: ReferIt3D, ScanRefer</li>
+              <li>Pretrained object detector(ScanRefer dataset): PointGroup</li>
+              <li>Pretrained text encoder: BERT의 첫 3개 layer</li>
+              <li>MetricAcc@mIoU를 사용하였다.</li>
+            </ul>
+
+            <h4>Quantitative Results</h4>
+            <img src="/articles/paper_summaries/mvt/img3.png" alt="Quantitative results - NR3D" />
+            <p>NR3D 데이터셋에서의 결과는 위와 같다.</p>
+            <img src="/articles/paper_summaries/mvt/img4.png" alt="Quantitative results - SR3D" />
+            <p>SR3D 데이터셋에서의 결과는 위와 같다.</p>
+            <img src="/articles/paper_summaries/mvt/img5.png" alt="Quantitative results - ScanRefer" />
+            <p>ScanRefer 데이터셋에서의 결과는 위와 같다.</p>
+
+            <h4>Qualitative Results</h4>
+            <img src="/articles/paper_summaries/mvt/img6.png" alt="Qualitative results" />
+            <p>MVT 실행 결과를 시각화하면 위와 같다.</p>
+
+            <h4>Ablation Study</h4>
+            <img src="/articles/paper_summaries/mvt/img7.png" alt="Ablation study" />
+            <p>
+              Ablation study 결과는 위와 같다. (c)와 (e)를 비교했을 때 multi-view modeling이 효과적임을 알 수 있다. 그
+              외에도 각 요소들이 MVT의 정확도 향상에 기여하고 있는 것을 확인할 수 있다.
+            </p>
+
+            <h2>Conclusion</h2>
+            <p>MVT는 multi-view에서의 3D 정보를 이용하여 특정 view에 의존하지 않는 3D visual grounding 모델이다.</p>
           </div>
 
           <post-footer></post-footer>
