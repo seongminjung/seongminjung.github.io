@@ -67,3 +67,4 @@ date,category_id,filename,title,detail
 2025-03-15,3,mvt,Multi-View Transformer for 3D Visual Grounding,CVPR 2022
 2025-03-22,3,seeground,SeeGround: See and Ground for Zero-Shot Open-Vocabulary 3D Visual Grounding,CVPR 2025
 2025-03-26,3,opengaussian,OpenGaussian: Towards Point-Level 3D Gaussian-based Open Vocabulary Understanding,NeurIPS 2024
+2025-03-30,3,univlg,Unifying 2D and 3D Vision-Language Understanding,ArXiv 2025.03
