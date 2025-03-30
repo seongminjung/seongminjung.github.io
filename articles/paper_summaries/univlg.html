@@ -112,6 +112,35 @@
             </p>
 
             <h2>Experiments</h2>
+
+            <h3>Evaluation on 3D Referential Grounding</h3>
+            <p>
+              BUTD-DETR의 setup에 따라, DET와 GT의 두 가지 셋업에서 실험을 진행하였다. DET는 GT bbox 없이 예측하는
+              실험이고 GT는 주어진 GT bbox 중에서 선택만 하는 실험이다. 또한 baseline 모델들을 mesh pc와 sensor pc로
+              구분하였는데, 센서로부터 얻은 raw point cloud를 바로 사용하면 sensor pc, 후처리가 적용된 mesh로부터
+              샘플링한 point cloud를 사용하면 mesh pc로 분류하였다. Raw point cloud에는 노이즈가 포함되어 있어 평가에
+              불리하게 작용하기 때문이다.
+            </p>
+            <p>
+              Metric으로는 top-1 accuracy를 사용한다. DET 셋업의 경우 bbox의 IoU가 특정 threshold (0.25, 0.5, 0.75)
+              이상일 때 정답인 것으로 본다. UniVLG는 bbox가 아닌 mask를 예측하기 때문에, mask로부터 bbox를 얻은 뒤 IoU를
+              구한다. GT 셋업의 경우, 주어진 GT bbox 내의 픽셀로부터 visual feature를 구하고 이를 pooling하여 mask별
+              하나의 feature를 얻는다. 이 feature들 중 정답 bbox에 해당하는 feature를 골랐을 때를 정답으로 본다.
+            </p>
+            <img
+              src="/articles/paper_summaries/univlg/img2.png"
+              alt="Results on 3D language grounding in 3D mesh and sensor point clouds"
+            />
+            <p>
+              실험 결과는 위의 표와 같다. DET 셋업에서는 UniVLG가 가장 우수한 성능을 보인다. GT 셋업에서도 현재 SOTA
+              모델인 PQ3D와 유사한 결과를 보인다.
+            </p>
+            <p>또한 3D 데이터만 이용해 학습했을 때보다 2D와 3D를 모두 이용했을 때 성능이 향상된 것도 확인할 수 있다.</p>
+            <img
+              src="/articles/paper_summaries/univlg/img3.png"
+              alt="Visualizations of UniVLG on 3D Referential Grounding Datasets of ScanRefer, SR3D, and NR3D"
+            />
+            <p>Qualitative result는 위 그림과 같다.</p>
           </div>
 
           <post-footer></post-footer>
