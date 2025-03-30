@@ -114,6 +114,50 @@
               Dataset and Metrics: 데이터셋으로는 LERF-OVS를 사용하였고, metric으로는 average IoU와 acccuracy를
               사용하였다.
             </p>
+            <img src="/articles/paper_summaries/opengaussian/img3.png" alt="Task 1 quantitative result" />
+            <img src="/articles/paper_summaries/opengaussian/img4.png" alt="Task 1 qualitative result" />
+            <p>실험 결과는 위 표 및 그림과 같다.</p>
+
+            <h4>Task 2: Open-Vocabulary Point Cloud Understanding</h4>
+            <p>
+              Task: Open-vocab 텍스트가 여러 개 주어질 때, 각각의 가우시안이 어떤 텍스트와 가장 유사한지를 판단한다.
+            </p>
+            <p>Baseline: LangSplat, LEGaussians와 성능을 비교하였다.</p>
+            <p>
+              Dataset and Metrics: 데이터셋으로는 ScanNetV2를 사용하였고, metric으로는 average IoU와 acccuracy를
+              사용하였다. ScanNetV2에서 제공하는 point cloud를 그대로 이용하기 위해 학습 시 각 중심점의 좌표는
+              freeze했고 densification 또한 수행하지 않았다.
+            </p>
+            <img src="/articles/paper_summaries/opengaussian/img5.png" alt="Task 2 quantitative result" />
+            <img src="/articles/paper_summaries/opengaussian/img6.png" alt="Task 2 qualitative result" />
+            <p>실험 결과는 위 표 및 그림과 같다. 텍스트가 총 19개, 15개, 10개일 때의 정확도를 각각 나타내었다.</p>
+
+            <h4>Ablation Study</h4>
+            <img class="half" src="/articles/paper_summaries/opengaussian/img7.png" alt="Ablation study 1" />
+            <p>
+              우선 각 가우시안의 feature를 처음 학습할 때 사용한 intra-mask loss와 inter-mask loss의 효과를 분석한다.
+              Inter-mask loss의 영향이 더 큰 것을 볼 수 있다. 이는 하나의 가우시안이 여러 픽셀에 영향을 미치기 때문에
+              이미 각 마스크 내부에서는 smoothing 효과가 어느 정도 작용했기 때문이라고 해석할 수 있다.
+            </p>
+            <img class="half" src="/articles/paper_summaries/opengaussian/img8.png" alt="Ablation study 2" />
+            <p>
+              Codebook 생성 과정에서의 파라미터의 효과도 분석한다. 우선 coarse level만 사용할 경우는 coarse와 fine
+              level을 모두 사용하는 경우에 비해 성능이 확연이 떨어진다. $k$의 값만 늘리는 것은 효과를 보지 못했다. 또한
+              coarse level에서 xyz 좌표값을 함께 사용하는 것이 효과가 있다는 것도 확인할 수 있다.
+            </p>
+            <img class="half" src="/articles/paper_summaries/opengaussian/img9.png" alt="Ablation study 3" />
+            <p>
+              마지막으로 2D-3D association 과정에서 IoU와 feature distance를 사용하는 것의 효과를 분석한다. 둘 중 하나만
+              사용하더라도 어느 정도의 성능은 낼 수 있지만 둘 모두 사용했을 때 가장 성능이 좋은 것을 확인할 수 있다.
+            </p>
+
+            <h2>Conclusion</h2>
+            <p>
+              OpenGaussian은 codebook을 활용하여 3D point level에서 feature를 학습하고 open-vocabulary segmentation을
+              수행하는 모델이다. Limitation으로는 가우시안의 중심점, opacity, scale등이 고정된 채로 feature만 학습했다는
+              점, $k$의 값이 empirical하게 정해졌다는 점, 물체의 크기는 고려하지 않고 codebook을 생성했다는 점, static
+              scene을 가정했다는 점이 있다.
+            </p>
           </div>
 
           <post-footer></post-footer>
