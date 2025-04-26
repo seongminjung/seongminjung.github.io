@@ -112,6 +112,53 @@
               positional encoding 모두 enable한다. 이 단계에서는 KP loss를 도입하는데, 중앙 영역은 teacher를 따라가고,
               주변 영역은 panorama-aware하게 fine-tuning하는 역할을 한다.
             </p>
+            <p>KP loss의 식은 아래와 같다.</p>
+            <p class="math-center">
+              $\mathcal{L}_{KP} = \cfrac{1}{\sum\limits_{i}^{N} w_i} \sum\limits_{i}^{N} w_i \left\|
+              A(\mathcal{S}(x))^{(i)} - \mathcal{T}_s(x)^{(i)} \right\|_2^2$
+            </p>
+            <p class="math-center">$w_i = \cos^2(v_i) \cos^2\left( \cfrac{1}{2} u_i \right)$</p>
+
+            <h2>Experiments</h2>
+
+            <h4>Main Results</h4>
+            <p>Panoramic classification과 panoramic object detection 태스크에 대한 성능을 평가하였다.</p>
+            <img class="half" src="/articles/paper_summaries/panoswin/img6.png" alt="SPH-MNIST and SPH-CIFAR10" />
+            <p>
+              Panoramic classification 태스크로는 위 그림과 같이 MNIST와 CIFAR10 데이터셋을 equirect로 projection한
+              SPH-MNIST와 SPH-CIFAR10을 사용하였다.
+            </p>
+            <img class="half" src="/articles/paper_summaries/panoswin/img7.png" alt="SPH-MNIST result" />
+            <p>SPH-MNIST 결과는 위의 표와 같다.</p>
+            <img class="half" src="/articles/paper_summaries/panoswin/img8.png" alt="SPH-CIFAR10 result" />
+            <p>SPH-CIFAR10 결과는 위의 표와 같다.</p>
+            <p>Panoramic object detection 태스크로는 360-Indoor와 StreetView 데이터셋을 사용하였다.</p>
+            <img class="half" src="/articles/paper_summaries/panoswin/img9.png" alt="360-Indoor result" />
+            <p>StreetView 결과는 위의 표와 같다.</p>
+            <img class="half" src="/articles/paper_summaries/panoswin/img10.png" alt="StreetView result" />
+            <p>
+              또한 object detection 태스크에서 물체가 저위도에 있을 때와 고위도에 있을 때의 정확도를 비교하였는데, 기본
+              ResNet50이 5.8%의 mAP@50 값 차이를 보인 것에 반해 PanoSwin 모델은 1.9%밖에 차이가 나지 않았다.
+            </p>
+
+            <h4>Ablation Study</h4>
+            <img class="half" src="/articles/paper_summaries/panoswin/img11.png" alt="Ablation Study" />
+            <p>
+              Ablation study 결과는 위와 같다. 각각의 모듈이 미치는 영향이 그렇게 크지 않지만, 2-stage learning 방식은
+              그나마 효과가 있다고 볼 수 있다.
+            </p>
+
+            <h2>Conclusion</h2>
+            <p>
+              PanoSwin은 equirect image에서 feature를 학습하고 다양한 태스크를 수행할 수 있도록 하는 새로운 트랜스포머
+              기반 모델이다. Pano-style shift windowing을 통해 불연속적인 이미지 경계면에서의 픽셀들을 연속적으로
+              다루었고, pitch attention을 통해 equirect image에서의 고위도 부분 distortion 문제를 해결하였다. 또한
+              KP-loss를 활용한 2-stage learning을 이용해 pinhole image로 얻은 지식을 distillation한다.
+            </p>
+            <p>
+              이와 같은 새로운 attention 방식이나 positional encoding 등 기본적인 아이디어들을 참고할 만하다고 생각한다.
+              또한 inference time은 1초 내외로 준수한 속도를 보인다.
+            </p>
           </div>
 
           <post-footer></post-footer>
