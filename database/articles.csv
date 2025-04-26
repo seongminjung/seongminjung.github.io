@@ -70,3 +70,4 @@ date,category_id,filename,title,detail
 2025-03-30,3,univlg,Unifying 2D and 3D Vision-Language Understanding,ArXiv 2025.03
 2025-04-07,3,panogs,PanoGS: Gaussian-based Panoptic Segmentation for 3D Open Vocabulary Scene Understanding,CVPR 2025
 2025-04-14,3,panoswin,PanoSwin: a Pano-style Swin Transformer for Panorama Understanding,CVPR 2023
+2025-04-21,3,cogvlm,CogVLM: Visual Expert for Pretrained Language Models,NeurIPS 2024
