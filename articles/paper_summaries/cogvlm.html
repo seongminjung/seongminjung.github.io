@@ -161,10 +161,13 @@
             </p>
             <p>
               VQA 데이터셋은 짧고 간결한 답변(1-2 단어)이 많은 반면, 대화형 데이터셋은 길고 논리적인 답변을 요구한다는
-              차이가 있다. 이를 고려하여 SFT 과정에서는 프롬프트를 다음과 같이 다르게 구성하였다: - 간단한 답변의 경우:
-              "Question: Short answer:" - 긴 답변이 필요한 경우: "Question: Answer:" 이와 같은 프롬프트 디자인을 통해
-              다양한 응답 스타일을 효과적으로 학습할 수 있도록 했다.
+              차이가 있다. 이를 고려하여 SFT 과정에서는 프롬프트를 다음과 같이 다르게 구성하였다.
             </p>
+            <ul>
+              <li>간단한 답변의 경우: "Question: Short answer:"</li>
+              <li>긴 답변이 필요한 경우: "Question: Answer:"</li>
+            </ul>
+            <p>이와 같은 프롬프트 디자인을 통해 다양한 응답 스타일을 효과적으로 학습할 수 있도록 했다.</p>
             <p>
               CogVLM-Chat은 학습 시 ViT 인코더의 파라미터도 업데이트 가능하게 하되, 나머지 파라미터 대비 10배 낮은
               학습률로 조정하여 학습 안정성을 높였다. 이를 통해 전체 모델 학습을 무너뜨리지 않으면서 비전 모듈의 적응을
@@ -174,21 +177,29 @@
             <h4>CogVLM-Grounding</h4>
             <p>
               CogVLM-Grounding은 모델에 일관된 visual grounding 능력을 부여하기 위해 학습되었다. 여기서는 4가지 유형의
-              visual grounding 데이터를 사용하였다. (1) Grounded Captioning (GC) - 캡션 안의 명사구(noun phrase) 각각에
-              대해 참조 바운딩 박스 추가 (2) Referring Expression Generation (REG) - 이미지 내 특정 박스를 설명하는
-              텍스트 생성 (3) Referring Expression Comprehension (REC) - 텍스트 설명에 대해 관련 박스를 찾는 과제 (4)
-              Grounded Visual Question Answering (GroundedVQA) - 지역 참조(region reference)를 포함하는 질문에 대한 VQA
-              스타일 과제.
+              visual grounding 데이터를 사용하였다.
             </p>
+            <ol>
+              <li>Grounded Captioning (GC) - 캡션 안의 명사구(noun phrase) 각각에 대해 참조 바운딩 박스 추가</li>
+              <li>Referring Expression Generation (REG) - 이미지 내 특정 박스를 설명하는 텍스트 생성</li>
+              <li>Referring Expression Comprehension (REC) - 텍스트 설명에 대해 관련 박스를 찾는 과제</li>
+              <li>
+                Grounded Visual Question Answering (GroundedVQA) - 지역 참조(region reference)를 포함하는 질문에 대한
+                VQA 스타일 과제
+              </li>
+            </ol>
             <p>이 데이터들에서 사용되는 바운딩 박스 표현은 다음과 같다:</p>
             <p class="math-center">$\text{Bounding Box} = [[x_0, y_0, x_1, y_1]]$</p>
             <p>
               수집된 데이터셋은 다양한 변환과 재활용이 가능하여 모델의 다재다능성을 키우는 데 큰 도움이 되었다. 예를
               들어, grounded captioning 데이터는 REG나 REC 태스크로 쉽게 변환할 수 있다. 예시로 "A man [box1] and a
-              woman [box2] are walking together."라는 문장은 다음과 같이 변환될 수 있다: - REG 스타일 질문: "Describe
-              this region [box2]." → 답변: "A woman." - REC 스타일 질문: "Where is the man?" → 답변: "[box1]" 이처럼
-              동일한 데이터도 다양한 태스크로 전환 가능하다.
+              woman [box2] are walking together."라는 문장은 다음과 같이 변환될 수 있다.
             </p>
+            <ul>
+              <li>REG 스타일 질문: "Describe this region [box2]." → 답변: "A woman."</li>
+              <li>REC 스타일 질문: "Where is the man?" → 답변: "[box1]"</li>
+            </ul>
+            <p>이처럼 동일한 데이터도 다양한 태스크로 전환 가능하다.</p>
 
             <h2>Experiments</h2>
             <p>CogVLM의 성능 평가를 위해, 아래의 다양한 태스크에서 정량적 평가를 수행했다.</p>
@@ -209,30 +220,31 @@
             </ul>
 
             <h3>Image Captioning</h3>
+            <img src="/articles/paper_summaries/cogvlm/img2.png" alt="Image Captioning" />
             <p>
-              CogVLM의 기본 사전학습 모델은 위에서 언급한 네 가지 이미지 캡셔닝 벤치마크에서 성능을 평가받았다. NoCaps와
-              Flickr 데이터셋에서는 zero-shot 설정 하에 모델이 긴 꼬리(long-tail) 시각 개념을 얼마나 정확히 기술할 수
-              있는지를 평가했다. 반면 COCO와 TextCaps 데이터셋에서는 파인튜닝 후 성능을 측정했다.
+              CogVLM의 기본 pretrained 모델은 위의 네 가지 벤치마크에서 성능을 평가받았다. NoCaps와 Flickr
+              데이터셋에서는 zero-shot 설정 하에 모델이 long-tail 시각 개념을 얼마나 정확히 기술할 수 있는지를 평가했다.
+              COCO와 TextCaps 데이터셋에서는 fine-tuning 후 성능을 측정했다.
             </p>
             <p>
-              구체적인 결과는 Table 1에 제시되어 있으며, 다양한 벤치마크에서 CogVLM은 SOTA를 달성했다. 달성했다. 특히
-              out-domain 세트에서는 최대 5.7포인트의 차이로 앞섰다. 이는 12.9B 샘플을 사용한 GIT2에 비해, 불과 1.5B
-              샘플만 사용하고도 달성한 성과였다.
+              위 표를 보면 다양한 벤치마크에서 CogVLM은 SOTA를 달성했다. 특히 out-domain 세트에서는 최대 5.7포인트의
+              차이로 앞섰다. 이는 12.9B 샘플을 사용한 GIT2에 비해, 불과 1.5B 샘플만 사용하고도 달성한 성과였다.
             </p>
 
             <h3>Visual Question Answering</h3>
+            <img src="/articles/paper_summaries/cogvlm/img3.png" alt="Visual Question Answering, LVLM Benchmarks" />
             <p>
-              Table 2에 나타난 결과에 따르면, CogVLM은 다양한 VQA 태스크에서 유사한 파라미터 크기를 가진 모델들을
-              압도하는 탁월한 성능을 보였다. 구체적으로, 일상생활 이미지를 기반으로 한 질문응답 데이터셋(VQAv2)뿐만
-              아니라, 텍스트 중심의 질문응답 데이터셋(TextVQA, OCRVQA), 그리고 외부 지식을 요구하는 데이터셋(OKVQA,
-              ScienceQA)에서도 뛰어난 결과를 달성했다.
+              위 표에 따르면, CogVLM은 다양한 VQA 태스크에서 유사한 파라미터 크기를 가진 모델들을 압도하는 성능을
+              보였다. 구체적으로, 일상생활 이미지를 기반으로 한 질문응답 데이터셋(VQAv2)뿐만 아니라, 텍스트 중심의
+              질문응답 데이터셋(TextVQA, OCRVQA), 그리고 외부 지식을 요구하는 데이터셋(OKVQA, ScienceQA)에서도 뛰어난
+              결과를 달성했다.
             </p>
 
             <h3>LVLM Benchmarks</h3>
             <p>
               CogVLM은 총 7개의 LVLM 벤치마크에서 모두 SOTA를 달성했다. 특히, 더 큰 언어 모델을 사용한 멀티모달 모델들과
-              비교했을 때도 CogVLM은 확연한 우위를 보였다. 이는 CogVLM 아키텍처 설계의 효율성과 깊은 융합(deep fusion)
-              전략의 우수성을 강력히 뒷받침한다.
+              비교했을 때도 CogVLM은 확연한 우위를 보였다. 이는 CogVLM 아키텍처 설계의 효율성과 deep fusion 전략의
+              우수성을 뒷받침한다.
             </p>
             <p>
               추가적으로, MMMU, POPE, MathVista에서의 결과들은 CogVLM이 강력한 추론 능력과 다양한 작업에 대한 일반화
@@ -244,20 +256,26 @@
             </p>
 
             <h3>Visual Grounding</h3>
+            <img src="/articles/paper_summaries/cogvlm/img4.png" alt="Visual Grounding" />
             <p>
-              Table 3에 나타난 결과에 따르면, CogVLM은 이 영역에서도 전반적으로 SOTA를 달성했다. 이러한 결과는 CogVLM이
-              뛰어난 공간적 이해 능력을 갖추었음을 시사한다.
+              위 표에 따르면, CogVLM은 이 영역에서도 전반적으로 SOTA를 달성했다. 이러한 결과는 CogVLM이 뛰어난 공간적
+              이해 능력을 갖추었음을 시사한다.
             </p>
 
             <h3>Ablation Study</h3>
+            <img src="/articles/paper_summaries/cogvlm/img5.png" alt="Ablation Study" />
 
             <h4>Model Structure and Tuned Parameters</h4>
             <p>
-              먼저 모델 구조 및 튜닝 파라미터(Model structure and tuned parameters) 측면에서는, 여러 구조적 변형과 튜닝
-              전략에 대해 비교 실험을 진행했다. 실험 항목은 다음과 같다. 1) MLP Adapter만 튜닝하는 경우 2) Visual Expert
-              없이 LLM 파라미터와 어댑터를 모두 튜닝하는 경우 3) Visual Expert를 4개 레이어마다 추가하는 경우 4) Visual
-              Expert를 FFN 부분에만 추가하는 경우.
+              먼저 Model structure and tuned parameters 측면에서는, 여러 구조적 변형과 튜닝 전략에 대해 비교 실험을
+              진행했다. 실험 항목은 다음과 같다.
             </p>
+            <ol>
+              <li>MLP Adapter만 튜닝하는 경우</li>
+              <li>Visual Expert 없이 LLM 파라미터와 어댑터를 모두 튜닝하는 경우</li>
+              <li>Visual Expert를 4개 레이어마다 추가하는 경우</li>
+              <li>Visual Expert를 FFN 부분에만 추가하는 경우</li>
+            </ol>
             <p>
               결과적으로, MLP Adapter만 튜닝하는 shallow alignment 방식은 성능이 매우 열악했다. 또한, Visual Expert를
               추가하는 방식은 LLM 자체를 튜닝하는 것보다 외부 지식이 필요한 데이터셋에서 특히 더 높은 성능을 보였다.
