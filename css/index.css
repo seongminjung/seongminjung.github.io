@@ -257,6 +257,13 @@ footer {
   height: 240px;
 }
 
+#bio .link a {
+  color: #007bff;
+  text-decoration: none;
+  font-size: 18px;
+  font-weight: 700;
+}
+
 #education .uni {
   display: flex;
   gap: 20px;
