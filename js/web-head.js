@@ -66,7 +66,7 @@ MathJax.Hub.Config({
           tag: "script",
           id: "mapmyvisitors",
           type: "text/javascript",
-          src: "//mapmyvisitors.com/map.js?d=Pbdp08_Ujj63W-5DhZpZGOOiMvcmq9yhQ125izfZcV0&cl=ffffff&w=a"
+          src: "//mapmyvisitors.com/map.js?d=-OohP6vPUNEodbcCNtttXlBuTK4P-3QruJNaTl6-nkI&cl=ffffff&w=a"
         },
       );
 
