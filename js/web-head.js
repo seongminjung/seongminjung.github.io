@@ -29,16 +29,6 @@ export class WebHead extends HTMLElement {
 
     const resources = [
       { tag: "link", rel: "shortcut icon", href: "/favicon.png" },
-      { tag: "script", async: true, src: "https://www.googletagmanager.com/gtag/js?id=G-LL44K1WZ0G" },
-      {
-        tag: "script",
-        textContent: `
-window.dataLayer = window.dataLayer || [];
-function gtag() { dataLayer.push(arguments); }
-gtag("js", new Date());
-gtag("config", "G-LL44K1WZ0G");
-      `,
-      },
       {
         tag: "script",
         type: "text/x-mathjax-config",
@@ -59,6 +49,36 @@ MathJax.Hub.Config({
         href: "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css",
       },
     ];
+
+    if (location.hostname.endsWith(".github.io")) {
+      resources.push(
+        { tag: "script", async: true, src: "https://www.googletagmanager.com/gtag/js?id=G-LL44K1WZ0G" },
+        {
+          tag: "script",
+          textContent: `
+  window.dataLayer = window.dataLayer || [];
+  function gtag() { dataLayer.push(arguments); }
+  gtag("js", new Date());
+  gtag("config", "G-LL44K1WZ0G");
+        `,
+        },
+        {
+          tag: "script",
+          id: "mapmyvisitors",
+          type: "text/javascript",
+          src: "//mapmyvisitors.com/map.js?d=Pbdp08_Ujj63W-5DhZpZGOOiMvcmq9yhQ125izfZcV0&cl=ffffff&w=a"
+        },
+      );
+
+      // hide mapmyvisitors widget
+      const observer = new MutationObserver(() => {
+        const els = document.querySelectorAll(
+          "#mapmyvisitors, .mapmyvisitors, .mv-container, img[alt='mapmyvisitors']"
+        );
+        els.forEach((el) => el.remove());
+      });
+      observer.observe(document.body, { childList: true, subtree: true });
+    }
 
     resources.forEach((res) => {
       const element = document.createElement(res.tag);
