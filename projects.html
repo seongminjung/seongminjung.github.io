@@ -13,73 +13,35 @@
       <div class="container">
         <section id="projects">
           <h1>Projects</h1>
-          <div class="project" id="project-4">
-            <div class="grid">
-              <h2>PoP-SLAM: Point cloud Projection for SLAM</h2>
-              <img class="preview" src="/project/project4/preview.png" alt="preview" />
-              <p class="detail">
-                Dense visual simultaneous localization and mapping (SLAM) systems have significantly advanced with the
-                integration of learning-based scene representations. These representations enhance mapping fidelity and
-                robustness to noise but are computationally expensive, particularly in repetitive rendering processes.
-                Neural point cloud-based systems, despite their adaptability and state-of-the-art performance, suffer
-                from time-intensive nearest-neighbor searches. We propose a novel projection-first rendering strategy
-                that significantly improves processing speed for tracking, enabling real-time performance. Additionally,
-                we introduce a direct occlusion detection mechanism leveraging keyframe depth information for efficient
-                and accurate occlusion handling without requiring volume rendering. Extensive evaluations on both
-                synthetic (Replica) and real-world (TUM-RGBD) datasets demonstrate that PoP-SLAM significantly improves
-                tracking speed—-achieving around 4 frames per second—-as well as maintaining the superior tracking
-                accuracy in the TUM-RGBD dataset.
-              </p>
-            </div>
+          <h2 class="year">2024</h2>
+          <div class="grid">
+            <a href="/project/3/detail.html">
+              <div class="cell">
+                <img class="preview" src="/project/3/preview.png" alt="preview" />
+                <p class="title">Neural SLAM with Point Cloud Projection for Faster RGB-D Tracking</p>
+              </div>
+            </a>
+            <a href="/project/2/detail.html">
+              <div class="cell">
+                <img class="preview" src="/project/2/preview.png" alt="preview" />
+                <p class="title">Height-embedded Iterative Closest Point (ICP)</p>
+              </div>
+            </a>
           </div>
-          <div class="project" id="project-3">
-            <div class="grid">
-              <h2>Height-embedded Iterative Closest Point (ICP)</h2>
-              <img class="preview" src="/project/project3/preview.png" alt="preview" />
-              <p class="detail">
-                I enhanced pose tracking by integrating scene understanding. I utilized vertically oriented objects in
-                urban settings, such as poles and trees, as landmarks. I created a 2D grid data structure that records
-                the vertical extent of these objects, efficiently condensing the spatial information into a
-                representative value. Then, I developed a pose-tracking algorithm based on 2D Iterative Closest Point
-                (ICP). In the process, each cell was assigned a weight proportional to its height value, considering the
-                significance of each cell's spatial contribution. This approach significantly reduced computational load
-                while maintaining accuracy in relation to the 3D point cloud-based pose-tracking algorithms.
-              </p>
-            </div>
-          </div>
-          <div class="project" id="project-2">
-            <div class="grid">
-              <h2>Autonomous Navigation for High-Speed Ground Robot</h2>
-              <img class="preview" src="/project/project2/preview.png" alt="preview" />
-              <p class="detail">
-                In my undergraduate thesis, I led the software development of an agile autonomous navigation system
-                based on scene understanding, without relying on traditional Simultaneous Localization and Mapping
-                (SLAM). Our approach combined local path planning with path integration, allowing navigation toward the
-                goal while avoiding obstacles. As a testing robot, we mounted a 2D LiDAR on a remote-controlled model
-                car. I created an algorithm for line detection and obstacle clustering from the laser scan. This simple
-                scene understanding facilitated the computation of optimal paths with reduced computational demands. I
-                also elaborated a path integration algorithm by adopting an equation correlating the car's steering
-                angle with the rotation radius. As a result, our robot reached an impressive average speed of 2m/s,
-                while SLAM-based methods could move only a few centimeters per second in the same condition.
-              </p>
-            </div>
-          </div>
-          <div class="project" id="project-1">
-            <div class="grid">
-              <h2>Underwater Robot Simulation</h2>
-              <img class="preview" src="/project/project1/preview.png" alt="preview" />
-              <p class="detail">
-                At CWRUbotix, I developed a realistic underwater robot simulation for the MATE ROV World Championship
-                2023. This involved using the Gazebo simulator and ROS to replicate real mission scenarios. The first
-                challenge was buoyancy. With no water model in Gazebo, I adjusted the air density to 1000kg/m<sup
-                  >3</sup
-                >
-                and fine-tuned the robot model's mass. Second, I precisely modeled the eight thrusters' power and blade
-                arrangement, applying fluid dynamics principles. Lastly, I integrated ROS for maneuverability and
-                stabilization, mirroring the actual robot's autopilot system. As a result, our simulation evolved into a
-                realistic platform for testing mission execution.
-              </p>
-            </div>
+          <h2 class="year">2023</h2>
+          <div class="grid">
+            <a href="/project/1/detail.html">
+              <div class="cell">
+                <img class="preview" src="/project/1/preview.png" alt="preview" />
+                <p class="title">Autonomous Navigation for High-Speed Ground Robot</p>
+              </div>
+            </a>
+            <a href="/project/0/detail.html">
+              <div class="cell">
+                <img class="preview" src="/project/0/preview.png" alt="preview" />
+                <p class="title">Underwater ROV Simulation</p>
+              </div>
+            </a>
           </div>
         </section>
       </div>

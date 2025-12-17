@@ -8,7 +8,7 @@ class ArticleItem extends HTMLElement {
 
   connectedCallback() {
     const wrapper = document.createElement('div');
-    wrapper.className = 'item';
+    wrapper.className = 'item-card';
 
     const title = this.getAttribute('title') || 'Article Title';
     const date = this.getAttribute('date') || 'Posted Date';
@@ -97,7 +97,7 @@ export class WebHeader extends HTMLElement {
       { name: 'Home', path: 'index' },
       { name: 'Publications', path: 'publications' },
       { name: 'Projects', path: 'projects' },
-      { name: 'Articles', path: 'articles' }
+      { name: 'Study', path: 'study' }
     ];
 
     this.innerHTML = `

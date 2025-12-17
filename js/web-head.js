@@ -66,7 +66,7 @@ MathJax.Hub.Config({
           tag: "script",
           id: "mapmyvisitors",
           type: "text/javascript",
-          src: "//mapmyvisitors.com/map.js?d=-OohP6vPUNEodbcCNtttXlBuTK4P-3QruJNaTl6-nkI&cl=ffffff&w=a"
+          src: "//mapmyvisitors.com/map.js?d=lhkwnS8G_vrjHqH6j4zkkmHDJU0apnxe7kZ3wjeFSNc&cl=ffffff&w=a"
         },
       );
 
@@ -99,7 +99,7 @@ MathJax.Hub.Config({
       index: "Seongmin Jung",
       publications: "Seongmin Jung | Publications",
       projects: "Seongmin Jung | Projects",
-      articles: "Seongmin Jung | Articles",
+      study: "Seongmin Jung | Study",
     };
 
     if (!category && mainPages[pagename]) {
