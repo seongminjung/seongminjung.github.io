@@ -13,32 +13,31 @@ date,category_id,filename,title,detail
 2023-12-05,3,vmap,vMAP: Vectorised Object Mapping for Neural Field SLAM,CVPR 2023
 2023-12-12,3,cnn-slam,CNN-SLAM: Real-time dense monocular SLAM with learned depth prediction,CVPR 2017
 2023-12-18,3,kiss-icp,"KISS-ICP: In Defense of Point-to-Point ICP -- Simple, Accurate, and Robust Registration If Done the Right Way",RA-L 2023
-2024-03-22,4,reinforcement_learning_overview,Reinforcement Learning Overview,Basic concepts of reinforcement learning and its applications in robotics
-2024-03-26,5,lecture_1,Lecture 1: Introduction to Deep Learning for Computer Vision,Introduction to deep learning for computer vision
-2024-03-26,5,lecture_2,Lecture 2: Image Classification,K-Nearest Neighbors (kNN) and data splitting
-2024-03-28,5,lecture_3,Lecture 3: Linear Classifiers,"Linear classifiers, loss function, and regularization"
-2024-03-28,6,vslam_1,Introduction,Introduction to SLAM
-2024-03-28,6,vslam_2,3D Rigid Body Motion | 1. Rotation Matrix,Transform between coordinate systems
-2024-04-02,5,lecture_4,Lecture 4: Regularization + Optimization,Gradient descent and optimizers
-2024-04-18,5,lecture_5,Lecture 5: Neural Networks,Neural Networks and Universal Approximation Theorem
-2024-04-19,6,vslam_3,3D Rigid Body Motion | 2. Rotation Vectors and the Euler Angles,Rotation Vector and Euler Angles
-2024-04-19,6,vslam_4,3D Rigid Body Motion | 3. Quaternions,Quaternion Operations and Conversions
-2024-04-20,5,lecture_6,Lecture 6: Backpropagation,Computational Graph and Backpropagation
-2024-04-21,6,vslam_5,3D Rigid Body Motion | 4. Affine and Projective Transformation,3D Transformations
-2024-04-27,5,lecture_7,Lecture 7: Convolutional Networks,"Convolutional Layers, Pooling Layers, and Batch Normalization"
-2024-04-30,5,lecture_8,Lecture 8: CNN Architectures I,"AlexNet, VGG, GoogLeNet, and ResNet"
-2024-05-03,5,lecture_9,Lecture 9: Training Neural Networks I,"Activation Functions, Data Preprocessing, Weight Initialization, and Regularization"
-2024-05-11,5,lecture_10,Lecture 10: Training Neural Networks II,"Learning Rate Schedules, Hyperparameter Optimization, Model Ensembles, Transfer Learning, and Large-Batch Training"
-2024-05-12,5,lecture_11,Lecture 11: CNN Architectures II,Grouped Convolution and New Architectures
-2024-05-15,5,lecture_12,Lecture 12: Deep Learning Software,PyTorch and Dynamic Computation Graphs
-2024-05-17,5,lecture_13,Lecture 13: Object Detection,"Transfer Learning, Object Detection, and R-CNN"
-2024-05-19,5,lecture_14,Lecture 14: Object Detectors,"Fast R-CNN, Faster R-CNN, and Feature Pyramid Network"
-2024-05-30,5,lecture_15,Lecture 15: Image Segmentation,"Semantic Segmentation, Instance Segmentation, and Beyond Instance Segmentation"
-2024-06-04,5,lecture_16,Lecture 16: Recurrent Networks,"Recurrent Neural Networks, Backpropagation Through Time, and Long Short-Term Memory (LSTM)"
-2024-06-15,5,lecture_17,Lecture 17: Attention,"Sequence-to-Sequence with RNNs and Attention, Self-Attention, and Transformer"
-2024-08-24,5,lecture_18,Lecture 18: Vision Transformers,"Vision Transformer (ViT), Distillation, Swin Transformer, MLP-Mixer, and DETR"
+2024-03-26,4,lecture_1,Lecture 1: Introduction to Deep Learning for Computer Vision,Introduction to deep learning for computer vision
+2024-03-26,4,lecture_2,Lecture 2: Image Classification,K-Nearest Neighbors (kNN) and data splitting
+2024-03-28,4,lecture_3,Lecture 3: Linear Classifiers,"Linear classifiers, loss function, and regularization"
+2024-03-28,5,vslam_1,Introduction,Introduction to SLAM
+2024-03-28,5,vslam_2,3D Rigid Body Motion | 1. Rotation Matrix,Transform between coordinate systems
+2024-04-02,4,lecture_4,Lecture 4: Regularization + Optimization,Gradient descent and optimizers
+2024-04-18,4,lecture_5,Lecture 5: Neural Networks,Neural Networks and Universal Approximation Theorem
+2024-04-19,5,vslam_3,3D Rigid Body Motion | 2. Rotation Vectors and the Euler Angles,Rotation Vector and Euler Angles
+2024-04-19,5,vslam_4,3D Rigid Body Motion | 3. Quaternions,Quaternion Operations and Conversions
+2024-04-20,4,lecture_6,Lecture 6: Backpropagation,Computational Graph and Backpropagation
+2024-04-21,5,vslam_5,3D Rigid Body Motion | 4. Affine and Projective Transformation,3D Transformations
+2024-04-27,4,lecture_7,Lecture 7: Convolutional Networks,"Convolutional Layers, Pooling Layers, and Batch Normalization"
+2024-04-30,4,lecture_8,Lecture 8: CNN Architectures I,"AlexNet, VGG, GoogLeNet, and ResNet"
+2024-05-03,4,lecture_9,Lecture 9: Training Neural Networks I,"Activation Functions, Data Preprocessing, Weight Initialization, and Regularization"
+2024-05-11,4,lecture_10,Lecture 10: Training Neural Networks II,"Learning Rate Schedules, Hyperparameter Optimization, Model Ensembles, Transfer Learning, and Large-Batch Training"
+2024-05-12,4,lecture_11,Lecture 11: CNN Architectures II,Grouped Convolution and New Architectures
+2024-05-15,4,lecture_12,Lecture 12: Deep Learning Software,PyTorch and Dynamic Computation Graphs
+2024-05-17,4,lecture_13,Lecture 13: Object Detection,"Transfer Learning, Object Detection, and R-CNN"
+2024-05-19,4,lecture_14,Lecture 14: Object Detectors,"Fast R-CNN, Faster R-CNN, and Feature Pyramid Network"
+2024-05-30,4,lecture_15,Lecture 15: Image Segmentation,"Semantic Segmentation, Instance Segmentation, and Beyond Instance Segmentation"
+2024-06-04,4,lecture_16,Lecture 16: Recurrent Networks,"Recurrent Neural Networks, Backpropagation Through Time, and Long Short-Term Memory (LSTM)"
+2024-06-15,4,lecture_17,Lecture 17: Attention,"Sequence-to-Sequence with RNNs and Attention, Self-Attention, and Transformer"
+2024-08-24,4,lecture_18,Lecture 18: Vision Transformers,"Vision Transformer (ViT), Distillation, Swin Transformer, MLP-Mixer, and DETR"
 2024-08-28,3,orb-slam,ORB-SLAM: a Versatile and Accurate Monocular SLAM System,IEEE Transactions on Robotics 2015
-2024-08-29,5,lecture_19,Lecture 19: Generative Models I,"Supervised vs Unsupervised learning, Discriminative vs Generative models, Autoregressive Models, and Variational Autoencoders"
+2024-08-29,4,lecture_19,Lecture 19: Generative Models I,"Supervised vs Unsupervised learning, Discriminative vs Generative models, Autoregressive Models, and Variational Autoencoders"
 2024-09-09,3,nice-slam,NICE-SLAM: Neural Implicit Scalable Encoding for SLAM,CVPR 2022
 2024-09-14,3,nerf,NeRF: Representing Scenes as Neural Radiance Fields for View Synthesis,ECCV 2020
 2024-09-24,3,point-slam,Point-SLAM: Dense Neural Point Cloud-based SLAM,ICCV 2023
@@ -51,18 +50,18 @@ date,category_id,filename,title,detail
 2025-01-03,3,supergseg,SuperGSeg: Open-Vocabulary 3D Segmentation with Structured Super-Gaussians,ArXiv 2024.12
 2025-01-09,3,ovgaussian,OVGaussian: Generalizable 3D Gaussian Segmentation with Open Vocabularies,ArXiv 2025.01
 2025-01-15,3,langsurf,LangSurf: Language-Embedded Surface Gaussians for 3D Scene Understanding,ArXiv 2024.12
-2025-01-22,7,lecture_1,Lecture 1: Introduction,Introduction to Deep Generative Models
-2025-01-24,7,lecture_2,Lecture 2: Background,Representing probability distributions for discriminative and generative models
-2025-01-27,7,lecture_3,Lecture 3: Autoregressive Models,Autoregressive models
-2025-02-01,7,lecture_4,Lecture 4: Maximum Likelihood Learning,Maximum Likelihood Learning
-2025-02-05,7,lecture_5,Lecture 5: VAEs I,VAEs I
+2025-01-22,6,lecture_1,Lecture 1: Introduction,Introduction to Deep Generative Models
+2025-01-24,6,lecture_2,Lecture 2: Background,Representing probability distributions for discriminative and generative models
+2025-01-27,6,lecture_3,Lecture 3: Autoregressive Models,Autoregressive models
+2025-02-01,6,lecture_4,Lecture 4: Maximum Likelihood Learning,Maximum Likelihood Learning
+2025-02-05,6,lecture_5,Lecture 5: VAEs I,VAEs I
 2025-02-08,3,css,Modeling Uncertainty in 3D Gaussian Splatting through Continuous Semantic Splatting,ArXiv 2024.11
-2025-02-13,7,lecture_6,Lecture 6: VAEs II,VAEs II
+2025-02-13,6,lecture_6,Lecture 6: VAEs II,VAEs II
 2025-02-15,3,structure-clip,Structure-CLIP: Towards Scene Graph Knowledge to Enhance Multi-modal Structured Representations,AAAI 2024
-2025-02-18,7,lecture_7,Lecture 7: Normalizing Flows I,Normalizing Flows I
-2025-02-21,7,lecture_8,Lecture 8: Normalizing Flows II,Normalizing Flows II
+2025-02-18,6,lecture_7,Lecture 7: Normalizing Flows I,Normalizing Flows I
+2025-02-21,6,lecture_8,Lecture 8: Normalizing Flows II,Normalizing Flows II
 2025-02-23,3,mosaic3d,Mosaic3D: Foundation Dataset and Model for Open-Vocabulary 3D Segmentation,ArXiv 2025.02
-2025-02-28,7,lecture_9,Lecture 9: GANs I,GANs I
+2025-02-28,6,lecture_9,Lecture 9: GANs I,GANs I
 2025-03-10,3,mikasa,MiKASA: Multi-Key-Anchor & Scene-Aware Transformer for 3D Visual Grounding,CVPR 2024
 2025-03-15,3,mvt,Multi-View Transformer for 3D Visual Grounding,CVPR 2022
 2025-03-22,3,seeground,SeeGround: See and Ground for Zero-Shot Open-Vocabulary 3D Visual Grounding,CVPR 2025
