@@ -70,3 +70,4 @@ date,category_id,filename,title,detail
 2025-04-07,3,panogs,PanoGS: Gaussian-based Panoptic Segmentation for 3D Open Vocabulary Scene Understanding,CVPR 2025
 2025-04-14,3,panoswin,PanoSwin: a Pano-style Swin Transformer for Panorama Understanding,CVPR 2023
 2025-04-21,3,cogvlm,CogVLM: Visual Expert for Pretrained Language Models,NeurIPS 2024
+2025-11-11,3,rt-2,RT-2: Vision-Language-Action Models Transfer Web Knowledge to Robotic Control,CoRL 2023
