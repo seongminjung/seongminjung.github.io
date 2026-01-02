@@ -1,5 +1,5 @@
-import { loadCSV } from './csv-reader.js';
-import { parseURL, formatDate } from './utils.js';
+import { loadCSV } from "./csv-reader.js";
+import { parseURL, formatDate } from "./utils.js";
 
 class ArticleItem extends HTMLElement {
   constructor() {
@@ -7,29 +7,31 @@ class ArticleItem extends HTMLElement {
   }
 
   connectedCallback() {
-    const wrapper = document.createElement('div');
-    wrapper.className = 'item-card';
+    const wrapper = document.createElement("div");
+    wrapper.className = "item-card";
 
-    const title = this.getAttribute('title') || 'Article Title';
-    const date = this.getAttribute('date') || 'Posted Date';
-    const category = this.getAttribute('category') || 'Category';
-    const folder = this.getAttribute('folder') || 'Folder';
-    const filename = this.getAttribute('filename') || 'Example';
-    const detail = this.getAttribute('detail') || 'Detail Text';
+    const title = this.getAttribute("title") || "Article Title";
+    const date = this.getAttribute("date") || "Posted Date";
+    const category = this.getAttribute("category") || "Category";
+    const folder = this.getAttribute("folder") || "Folder";
+    const filename = this.getAttribute("filename") || "Example";
+    const detail = this.getAttribute("detail") || "Detail Text";
 
     wrapper.innerHTML = `
       <a class="category-tag" href="/articles/${folder}.html"><i class="fa fa-book"></i> ${category}</a>
-      <a class="grid" href="/articles/${folder}/${filename}.html">
-        <h2>${title}</h2>
-        <p class="date">Posted on <time datetime="${date}">${formatDate(date)}</time></p>
+      <a class="flex" href="/articles/${folder}/${filename}.html">
+        <div class="left">
+          <h3>${title}</h3>
+          <p class="date">Posted on <time datetime="${date}">${formatDate(date)}</time></p>
+          <p class="detail">${detail}</p>
+        </div>
         <img class="preview" src="/articles/${folder}/${filename}/img1.png" alt="preview" />
-        <p class="detail">${detail}</p>
       </a>
     `;
     this.appendChild(wrapper);
   }
 }
-customElements.define('article-item', ArticleItem);
+customElements.define("article-item", ArticleItem);
 
 export class ArticleItemList extends HTMLElement {
   constructor() {
@@ -39,17 +41,17 @@ export class ArticleItemList extends HTMLElement {
   }
 
   renderArticles(articles, categoryMap) {
-    articles.reverse().forEach(article => {
+    articles.reverse().forEach((article) => {
       const category = categoryMap[article.category_id];
 
       if (category) {
-        const item = document.createElement('article-item');
-        item.setAttribute('title', article.title);
-        item.setAttribute('date', article.date);
-        item.setAttribute('category', category.name);
-        item.setAttribute('folder', category.folder);
-        item.setAttribute('filename', article.filename);
-        item.setAttribute('detail', article.detail);
+        const item = document.createElement("article-item");
+        item.setAttribute("title", article.title);
+        item.setAttribute("date", article.date);
+        item.setAttribute("category", category.name);
+        item.setAttribute("folder", category.folder);
+        item.setAttribute("filename", article.filename);
+        item.setAttribute("detail", article.detail);
         this.appendChild(item);
       } else {
         console.error(`Category ID "${article.category_id}" not found in categories.`);
@@ -57,19 +59,19 @@ export class ArticleItemList extends HTMLElement {
     });
   }
 }
-customElements.define('article-item-list', ArticleItemList);
+customElements.define("article-item-list", ArticleItemList);
 
 export class ArxivCard extends HTMLElement {
   constructor() {
     super();
 
-    const wrapper = document.createElement('div');
-    wrapper.className = 'arxiv-card';
+    const wrapper = document.createElement("div");
+    wrapper.className = "arxiv-card";
 
-    const title = this.getAttribute('title') || 'Paper Title';
-    const venue = this.getAttribute('venue') || 'Venue';
-    const authors = this.getAttribute('authors') || 'Authors';
-    const link = this.getAttribute('link') || '#';
+    const title = this.getAttribute("title") || "Paper Title";
+    const venue = this.getAttribute("venue") || "Venue";
+    const authors = this.getAttribute("authors") || "Authors";
+    const link = this.getAttribute("link") || "#";
 
     wrapper.innerHTML = `
       <a href="${link}" target="_blank">
@@ -87,17 +89,17 @@ export class ArxivCard extends HTMLElement {
     this.appendChild(wrapper);
   }
 }
-customElements.define('arxiv-card', ArxivCard);
+customElements.define("arxiv-card", ArxivCard);
 
 export class WebHeader extends HTMLElement {
   constructor() {
     super();
     const { pagename } = parseURL();
     const navItems = [
-      { name: 'Home', path: 'index' },
-      { name: 'Publications', path: 'publications' },
-      { name: 'Projects', path: 'projects' },
-      { name: 'Study', path: 'study' }
+      { name: "Home", path: "index" },
+      { name: "Publications", path: "publications" },
+      { name: "Projects", path: "projects" },
+      { name: "Study", path: "study" },
     ];
 
     this.innerHTML = `
@@ -107,10 +109,9 @@ export class WebHeader extends HTMLElement {
         <nav class="nav">
           ${navItems
             .map(
-              item =>
-                `<a href="/${item.path}.html" class="${pagename === item.path ? 'bold' : ''}">${item.name}</a>`
+              (item) => `<a href="/${item.path}.html" class="${pagename === item.path ? "bold" : ""}">${item.name}</a>`
             )
-            .join('')}
+            .join("")}
           <i id="nav-toggle" class="nav-toggle fa fa-bars" onclick="toggleNav()"></i>
         </nav>
       </header>
@@ -119,15 +120,14 @@ export class WebHeader extends HTMLElement {
       <nav id="nav-modal">
         ${navItems
           .map(
-            item =>
-              `<a href="/${item.path}.html" class="${pagename === item.path ? 'bold' : ''}">${item.name}</a>`
+            (item) => `<a href="/${item.path}.html" class="${pagename === item.path ? "bold" : ""}">${item.name}</a>`
           )
-          .join('')}
+          .join("")}
       </nav>
     `;
   }
 }
-customElements.define('web-header', WebHeader);
+customElements.define("web-header", WebHeader);
 
 export class PostHeader extends HTMLElement {
   constructor() {
@@ -139,10 +139,10 @@ export class PostHeader extends HTMLElement {
   }
 
   renderPostFooter(articles, categoryMap) {
-    const article = articles.find(article => article.filename === this.filename);
+    const article = articles.find((article) => article.filename === this.filename);
     const categoryInfo = categoryMap[article.category_id];
-    const categoryName = categoryInfo?.name || '';
-    const folder = categoryInfo?.folder || '';
+    const categoryName = categoryInfo?.name || "";
+    const folder = categoryInfo?.folder || "";
 
     this.innerHTML = `
       <a class="category-tag" href="/articles/${folder}.html"
@@ -153,7 +153,7 @@ export class PostHeader extends HTMLElement {
     `;
   }
 }
-customElements.define('post-header', PostHeader);
+customElements.define("post-header", PostHeader);
 
 export class PostFooter extends HTMLElement {
   constructor() {
@@ -165,7 +165,7 @@ export class PostFooter extends HTMLElement {
   }
 
   renderPostFooter(articles, categoryMap) {
-    const index = articles.findIndex(article => article.filename === this.filename);
+    const index = articles.findIndex((article) => article.filename === this.filename);
 
     let visibleArticles;
     if (articles.length <= 5) {
@@ -173,19 +173,17 @@ export class PostFooter extends HTMLElement {
     } else {
       if (index <= 1) {
         visibleArticles = articles.slice(0, 5);
-      }
-      else if (index >= articles.length - 2) {
+      } else if (index >= articles.length - 2) {
         visibleArticles = articles.slice(articles.length - 5);
-      }
-      else {
+      } else {
         visibleArticles = articles.slice(index - 2, index + 3);
       }
     }
     visibleArticles.reverse();
 
     const categoryInfo = categoryMap[articles[index]?.category_id];
-    const categoryName = categoryInfo?.name || '';
-    const folder = categoryInfo?.folder || '';
+    const categoryName = categoryInfo?.name || "";
+    const folder = categoryInfo?.folder || "";
 
     const profileHTML = `
       <div class="post-footer-profile">
@@ -196,7 +194,7 @@ export class PostFooter extends HTMLElement {
     `;
 
     const listHTML = visibleArticles
-      .map(article => {
+      .map((article) => {
         const isCurrent = article.filename === this.filename;
         return `
           <li>
@@ -207,7 +205,7 @@ export class PostFooter extends HTMLElement {
           </li>
         `;
       })
-      .join('');
+      .join("");
 
     this.innerHTML = `
       <div class="post-footer">
@@ -219,4 +217,4 @@ export class PostFooter extends HTMLElement {
     `;
   }
 }
-customElements.define('post-footer', PostFooter);
+customElements.define("post-footer", PostFooter);
