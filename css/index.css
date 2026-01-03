@@ -364,9 +364,17 @@ footer {
   justify-content: start;
 }
 
+#home-publications .flex:hover h3 {
+  text-decoration: underline;
+}
+
 #publications .item-card .flex {
   flex-direction: row-reverse;
   justify-content: start;
+}
+
+#publications .flex:hover h3 {
+  text-decoration: underline;
 }
 
 /* Projects Page */
@@ -476,10 +484,6 @@ figure figcaption {
 
 /* Category Tag */
 .category-tag {
-  border: none;
-  background: none;
-  font: inherit;
-  cursor: pointer;
   font-size: 0.8rem;
   font-weight: 400;
   color: #666;
@@ -571,6 +575,8 @@ figure figcaption {
 }
 
 .item-card .flex {
+  position: relative;
+  cursor: pointer;
   display: flex;
   grid-template-columns: auto auto;
   column-gap: 25px;
@@ -579,8 +585,16 @@ figure figcaption {
   text-decoration: none;
 }
 
+.item-card .card-link {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
 .item-card .category-tag {
   margin-top: 10px;
+  position: relative;
+  z-index: 2;
 }
 
 .item-card .flex .date {
@@ -604,6 +618,22 @@ figure figcaption {
   font-size: 0.9rem;
   color: #666;
   margin: 0;
+}
+
+.item-card .links {
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.item-card .links a {
+  position: relative;
+  z-index: 2;
+  color: #007bff;
+  text-decoration: none;
+}
+
+.item-card .links a:hover {
+  text-decoration: underline;
 }
 
 @media (max-width: 700px) {

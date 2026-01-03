@@ -18,17 +18,16 @@ class ArticleItem extends HTMLElement {
     const detail = this.getAttribute("detail") || "Detail Text";
 
     wrapper.innerHTML = `
-      <a class="flex" href="/study/${folder}/${filename}.html">
+      <div class="flex">
+        <a class="card-link" href="/study/${folder}/${filename}.html"></a>
         <div class="left">
           <h3>${title}</h3>
           <p class="date">Posted on <time datetime="${date}">${formatDate(date)}</time></p>
           <p class="detail">${detail}</p>
-          <button type="button" class="category-tag" onclick="event.stopPropagation(); event.preventDefault(); location.href='/study/${folder}.html'">
-            <i class="fa fa-book"></i> ${category}
-          </button>
+          <a class="category-tag" href="/study/${folder}.html"><i class="fa fa-book"></i> ${category}</a>
         </div>
         <img class="preview" src="/study/${folder}/${filename}/img1.png" alt="preview" />
-      </a>
+      </div>
     `;
     this.appendChild(wrapper);
   }
@@ -159,9 +158,7 @@ export class PostHeader extends HTMLElement {
     const folder = categoryInfo?.folder || "";
 
     this.innerHTML = `
-      <button type="button" class="category-tag" onclick="location.href='/study/${folder}.html'">
-        <i class="fa fa-book"></i> ${categoryName}
-      </button>
+      <a class="category-tag" href="/study/${folder}.html"><i class="fa fa-book"></i> ${categoryName}</a>
       <h1>${article.title}</h1>
       <p class="date">Posted on <time datetime="${article.date}">${formatDate(article.date)}</time></p>
     `;
