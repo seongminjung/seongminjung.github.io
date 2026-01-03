@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="/css/index.css" />
+    <script type="module" src="/js/main.js" defer></script>
+  </head>
+
+  <body>
+    <web-head></web-head>
+    <web-header></web-header>
+
+    <main>
+      <div class="container">
+        <section id="post">
+          <post-header></post-header>
+
+          <div class="post-body">
+            <h2>Overview</h2>
+            <p>
+              지금까지 뉴럴 네트워크의 구성 요소와 학습 방법에 대해 알아보았다. 이번 강의에서는 뉴럴 네트워크의 학습에
+              필요한 구체적인 방법론들에 대해 알아보도록 하자. 크게 아래의 세 가지로 분류할 수 있다.
+            </p>
+            <ol>
+              <b><li>One time setup</li></b>
+              <ul>
+                <li>Activation functions</li>
+                <li>Data preprocessing</li>
+                <li>Weight initialization</li>
+                <li>Regularization</li>
+              </ul>
+              <li>Training dynamics</li>
+              <ul>
+                <li>Learning rate schedules</li>
+                <li>Hyperparameter optimization</li>
+              </ul>
+              <li>After training</li>
+              <ul>
+                <li>Model ensembles</li>
+                <li>Transfer learning</li>
+                <li>Large-batch training</li>
+              </ul>
+            </ol>
+            <p>
+              이번 강의에서는 1. One time setup에 대해 알아본다. Training 전에 어떻게 네트워크를 세팅할 것인지에 대한
+              부분이다.
+            </p>
+
+            <h2>Activation functions</h2>
+            <p>Activation function의 종류는 아래 그림과 같이 Sigmoid, tanh, ReLU, Leaky ReLU, ELU, GELU 등이 있다.</p>
+            <img src="/study/deep_learning_for_computer_vision/lecture_9/img1.png" alt="Activation functions" />
+
+            <h3>Sigmoid</h3>
+            <p>Sigmoid 함수는 아래와 같이 정의된다.</p>
+            <p class="math-center">$f(x) = \cfrac{1}{1 + e^{-x}}$</p>
+            <p>
+              Sigmoid는 입력값을 (0, 1)의 범위 안에 압축시키는 효과가 있다. 이를 통해 모델의 출력을 확률 형태로 표현할
+              수 있다는 특징이 있다. 하지만 Sigmoid는 여러 단점을 가지고 있어 오늘날 거의 사용되지 않는다.
+            </p>
+            <p>
+              첫 번째 단점으로는, Sigmoid는 saturate하는 경향이 있다. 즉, 입력값이 크거나 작을 때 각각 1과 0으로
+              수렴하기 때문에 gradient가 0에 가까워지는 문제가 발생한다. 이를 <b>Vanishing Gradient Problem</b>이라고
+              한다.
+            </p>
+            <p class="math-center">
+              $\cfrac{\partial L}{\partial x} = \cfrac{\partial \sigma}{\partial x} \cdot \cfrac{\partial L}{\partial
+              \sigma}$
+            </p>
+            <p>
+              위와 같이 backpropagation이 진행될수록 0에 가까운 gradient $\frac{\partial \sigma}{\partial x}$가 점점
+              곱해지기 때문에 결국 초반 layer들은 gradient를 제대로 받지 못하게 된다. 이로 인해 앞쪽은 학습이 잘 되지
+              않는 문제가 발생한다. 이를 vanishing gradient problem이라고 한다. 결국 앞쪽이 잘 학습되어야 뒤쪽이 의미가
+              있기 때문에 이는 모델의 성능에 심각한 영향을 미친다.
+            </p>
+            <p class="math-center">
+              $\cfrac{\partial L}{\partial w} = \cfrac{\partial \sigma}{\partial w} \cdot \cfrac{\partial L}{\partial
+              \sigma}$
+            </p>
+            <p>
+              두 번째 단점으로는, Sigmoid는 zero-centered하지 않다는 점이다. 아래 수식은 $w$에 대한 gradient를 구하는
+              과정인데, 중간 변수로 $\sigma(wx)$ 대신 $wx$를 사용하여 전개하였다.
+            </p>
+            <p class="math-center">
+              $\begin{align*} \cfrac{\partial L}{\partial w} & = \cfrac{\partial (wx)}{\partial w} \cdot \cfrac{\partial
+              L}{\partial (wx)} \\ & = x \cdot \cfrac{\partial L}{\partial (wx)} \end{align*}$
+            </p>
+            <p>
+              즉 $w$에 대한 gradient는 이전 레이어로부터의 입력 $x$와 upstream gradient에 의해 결정되는데, Sigmoid는
+              항상 양수이기 때문에 $x$의 모든 element가 양수가 되고, 결국 $\frac{\partial L}{\partial (wx)}$의 부호에
+              따라 $w$의 모든 element가 같은 방향으로 업데이트된다. 이는 모델의 학습을 더 어렵게 만드는 요인이 된다.
+            </p>
+            <img
+              class="half"
+              src="/study/deep_learning_for_computer_vision/lecture_9/img2.png"
+              alt="Sigmoid gradient"
+            />
+            <p>
+              위 그림은 $w_1$과 $w_2$를 각 축으로 하여 $w$의 변화를 화살표로 나타낸 것인데, $\nabla w_1$과 $\nabla
+              w_2$가 항상 같은 부호를 가져야 하는 경우 $\nabla w$는 항상 1사분면 또는 3사분면을 향하고 있을 수밖에 없다.
+              따라서 $w$는 한번에 파란색 화살표처럼 2사분면 또는 4사분면 방향으로 이동할 수 없고 빨간색 화살표처럼
+              지그재그 형태의 경로로 이동할 수밖에 없다. 이로 인해 optimization이 느려지는 문제가 발생하게 된다.
+            </p>
+            <p>
+              다만 실제 training은 mini-batch로 진행되기 때문에 여러 방향의 gradient가 합쳐져 실제로는 모든 방향의
+              gradient를 표현할 수 있고, 또한 Batch Normalization을 사용하여 해결할 수 있기 때문에 심각한 문제는 아니다.
+            </p>
+            <p>
+              세 번째 작은 단점으로는 지수함수가 다른 연산보다 연산량이 많다는 점인데, activation function은 conv
+              layer나 FC layer에 비교하면 연산량이 극히 일부분이기 때문에 큰 문제가 되지 않는다.
+            </p>
+
+            <h3>Tanh</h3>
+            <p>Tanh 함수는 아래와 같이 정의된다.</p>
+            <p class="math-center">$f(x) = \tanh(x) = \cfrac{e^x - e^{-x}}{e^x + e^{-x}}$</p>
+            <p>
+              Tanh 함수는 Sigmoid 함수를 y축 방향으로 단순히 scale과 shift한 것으로, 인풋을 -1과 1 사이의 값으로
+              압축시킨다. 따라서 zero-centered되어 있다는 장점이 있지만 그 외 특성은 모두 Sigmoid와 동일하다. 따라서
+              Sigmoid와 마찬가지로 오늘날 거의 쓰이지 않는다.
+            </p>
+
+            <h3>ReLU (Rectified Linear Unit)</h3>
+            <p>ReLU 함수는 아래와 같이 정의된다.</p>
+            <p class="math-center">$f(x) = \max(0, x)$</p>
+            <p>
+              ReLU 함수는 $x$가 양수일 때 saturate하지 않는다는 장점이 있고 연산도 매우 효율적이다. 또한 Sigmoid나
+              tanh보다 6배 정도 빠르게 수렴한다고 알려져 있다. 다만 ReLU는 zero-centered되어 있지 않으며 모든 출력값이
+              양수라는 단점도 가지고 있다.
+            </p>
+            <p>
+              그보다 더 큰 문제는 $x$가 음수일 때 gradient가 0이 되는 문제이다. 이로 인해 출력이 음수인 뉴런의 경우 전혀
+              학습을 하지 못하는데, 이를 <b>Dead ReLU Problem</b>이라고 한다. 데이터셋의 모든 이미지에 대해 뉴런의
+              출력값이 음수일 경우 그 뉴런은 어떤 mini-batch를 사용하더라도 전혀 학습하지 못한다. Dead neuron은 연산은
+              그대로 하지만 의미 있는 출력을 내보내지 못해 연산량의 낭비를 가져온다. 하지만 Batch Normalization 등을
+              사용하기 때문에 이 문제는 실제로는 잘 발생하지 않는다.
+            </p>
+
+            <h3>Leaky ReLU</h3>
+            <p>Leaky ReLU 함수는 아래와 같이 정의된다.</p>
+            <p class="math-center">$f(x) = \max(\alpha x, x)$</p>
+            <p>
+              Leaky ReLU는 ReLU의 Dead ReLU Problem을 해결하기 위해 나온 함수로, $x$가 음수일 때 gradient가 0이 되는
+              문제를 해결한다. $\alpha$는 일반적으로 0.1로 설정한다. $x$가 음수일 때에도 gradient가 0이 되지 않기 때문에
+              saturate되거나 Dead ReLU Problem이 발생하지 않는다.
+            </p>
+            <p>
+              Leaky ReLU의 한 가지 변형으로 Parametric ReLU가 있다. 이는 $\alpha$를 학습 가능한 파라미터로 설정한
+              것인데, backpropagation을 통해 최적의 $\alpha$를 찾는다.
+            </p>
+
+            <h3>ELU (Exponential Linear Unit)</h3>
+            <p>ELU 함수는 아래와 같이 정의된다.</p>
+            <p class="math-center">
+              $f(x) = \begin{cases} x & \text{if } x > 0 \\ \alpha (e^x - 1) & \text{if } x \leq 0 \end{cases}$
+            </p>
+            <p>
+              ELU는 ReLU의 형태와 유사하지만 음수 부분을 부드럽게 만든 함수이다. ReLU의 장점을 그대로 가지며, 추가적으로
+              output의 평균을 조금 더 0에 가깝게 할 수 있으며 noise에 조금 더 robust하다. 다만 음수에서 saturate하며
+              지수함수 연산이 있기 때문에 ReLU보다 연산량이 많은 편이라는 단점이 있다.
+            </p>
+
+            <h3>SELU (Scaled Exponential Linear Unit)</h3>
+            <p>SELU 함수는 아래와 같이 정의된다.</p>
+            <p class="math-center">
+              $f(x) = \begin{cases} \lambda x & \text{if } x > 0 \\ \lambda\alpha (e^x - 1) & \text{if } x \leq 0
+              \end{cases}$
+            </p>
+            <p class="math-center">$\alpha = 1.673263242354..., \quad \lambda = 1.050700987355...$</p>
+            <p>
+              SELU는 ELU의 scale된 버전이다. ELU와 비슷하지만 $\alpha$와 $\lambda$가 위의 특정 값일 때
+              "Self-Normalizing"되는 특성을 가지는데, 이는 Batch Normalization 없이도 깊은 네트워크를 트레이닝할 수 있게
+              하는 특성이다. 하지만 실제로 잘 사용되는 activation function은 아니다.
+            </p>
+
+            <h3>GELU (Gaussian Error Linear Unit)</h3>
+            <p>GELU 함수는 아래와 같이 정의된다.</p>
+            <p class="math-center">
+              $\begin{gather} X \sim N(0, 1) \\ f(x) = xP(X \leq x) = \cfrac{x}{2}(1 + \text{erf}(\cfrac{x}{\sqrt{2}}))
+              \end{gather}$
+            </p>
+            <p>
+              이때, $X$가 Gaussian 분포를 따르므로 $x$가 클수록 $P(X \leq x)$는 1에 가까워질 것이고 작을수록 0에
+              가까워질 것이다. 따라서 ReLU와 비슷하면서도 부드러운 곡선의 형태를 가진다. Transformer에서 주로 사용된다.
+            </p>
+            <p>
+              GELU의 한 가지 특징으로는 non-monotonic하다는 점인데, 즉 $x$가 음수일 때 그래프가 아래로 튀어나온 부분이
+              있다. 따라서 두 개의 $x$값이 동일한 출력을 내는 경우가 생긴다. 이 경우, 그 다음 node가 원래 입력이 정확히
+              무엇인지 모른 채로 추론을 진행해야 하므로 약간의 stochasticity를 가진다. 이를 통해 약간의 regularization
+              효과를 얻을 수 있다.
+            </p>
+
+            <h3>Activation Function Summary</h3>
+            <img
+              src="/study/deep_learning_for_computer_vision/lecture_9/img3.png"
+              alt="Activation function performances"
+            />
+            <p>
+              위 그림은 각 activation function의 성능을 여러 모델에서 비교한 결과이다. 이때, 수치를 보면 Sigmoid와
+              tanh를 제외하면 어떤 activation function을 쓰더라도 차이가 1~2퍼센트 이상 크지 않다. 따라서 activation
+              function을 고르는 데 시간을 너무 많이 쓰기보다는 ReLU를 사용하여 우선 진행하고, 최종적으로 마지막 0.1%의
+              성능을 끌어내야 할 때 여러 activation function을 비교하는 것이 좋다.
+            </p>
+
+            <h2>Data Preprocessing</h2>
+            <p>
+              Data preprocessing은 데이터를 네트워크에 입력하기 전에 적절히 가공하는 과정을 말한다. 이는 데이터의 품질을
+              높이고 학습 속도를 높이는 데 도움을 준다. 대표적으로 zero-centering과 normalizing이 있다.
+            </p>
+            <img src="/study/deep_learning_for_computer_vision/lecture_9/img4.png" alt="Data preprocessing" />
+            <p>
+              Zero-centering은 데이터에서 평균값을 빼줌으로써 새로운 평균을 0으로 만드는 과정이다. 위 그림과 같이
+              데이터를 평행이동시키는 것으로 볼 수 있다. Normalizing은 데이터의 표준편차를 1로 만들어주는 과정이다.
+              이러한 과정을 거치는 이유는, 위 sigmoid 설명 부분에서 언급했듯 데이터가 전부 양수이거나 음수일 경우
+              optimization이 원활히 되지 않을 수 있기 때문이다. 이 이유는 zero-centered된 activation function을 사용해야
+              하는 이유, batch normalization을 사용해야 하는 이유와 동일하다. Batch normalization과의 차이점은, Data
+              preprocessing 과정에서는 mini-batch가 아닌 전체 데이터셋을 대상으로 평균과 표준편차를 계산한다는 것이다.
+            </p>
+            <img src="/study/deep_learning_for_computer_vision/lecture_9/img5.png" alt="PCA and whitening" />
+            <p>
+              이미지에서는 잘 사용되지 않지만 다른 종류의 데이터에서 사용되는 PCA와 whitening이라는 과정도 있다. PCA를
+              통해 데이터의 각 채널간 correlation을 줄이고, whitening을 통해 각 채널의 분산을 1로 만들어주게 된다.
+            </p>
+            <p>
+              평균과 표준편차를 구하는 방식으로는, 우선 각 이미지의 픽셀별로 평균을 구하는 방법이 있다. 즉 인풋 이미지의
+              크기가 [32, 32, 3]이라면 평균 이미지의 크기도 [32, 32, 3]이 된다. 이렇게 구한 평균 이미지를 모든
+              이미지에서 빼주면 zero-centering이 된다. 이 방법은 AlexNet에서 사용된었다. 다른 방법으로, 채널별로 평균과
+              표준편차를 구하는 방법이 있다. 따라서 인풋 이미지가 [32, 32, 3]이라면 평균은 크기가 3인 벡터가 된다. 이
+              방법은 VGG와 ResNet에서 사용되었고, 최신 모델들에서도 주로 사용된다.
+            </p>
+
+            <h2>Weight Initialization</h2>
+            <p>
+              Weight initialization은 optimization 시작 전 가중치를 어떻게 초기화할 것인지에 대한 문제이다. 가중치를
+              모두 같은 값으로 초기화할 경우 gradient 또한 모두 같을 것이기 때문에 서로 다른 값으로 초기화해주는 것이
+              필요하다. 그래서 보통 가우시안 분포를 이용하여 초기화를 진행하는데, 이때 가중치 $W$의 분산을 적절히
+              설정하는 것이 중요하다.
+            </p>
+            <img
+              src="/study/deep_learning_for_computer_vision/lecture_9/img6.png"
+              alt="Weight initialization with smaller variance"
+            />
+            <img
+              src="/study/deep_learning_for_computer_vision/lecture_9/img7.png"
+              alt="Weight initialization with larger variance"
+            />
+            <p>
+              위 그림은 activation function을 tanh로 설정하고 $W$의 분산을 작거나 큰 값으로 설정했을 때 각 레이어의
+              출력의 분포를 나타낸다. 각 뉴런에서는 $f = \mathbf{W} \cdot \mathbf{x}$ 연산을 계속해서 수행하기 때문에
+              $W$가 0에 너무 가깝게 초기화되면 layer가 깊어질수록 각 뉴런의 출력이 0으로 수렴하고, 반대로 큰 값들로
+              초기화되면 출력이 커져서 1로 수렴하게 된다. 첫 번째 경우에는 각 layer에 대한 gradient $\frac{\partial
+              L}{\partial w}$가 0에 가까워지고, 두 번째 경우에는 local gradient $\frac{\partial \text{tanh}(x)}{\partial
+              x}$가 0에 가까워져 결국 downstream gradient가 0으로 수렴하는 문제가 발생한다. 따라서 각 layer에서의 출력이
+              한쪽으로 수렴하지 않도록 유지시켜줄 수 있는 적절한 $W$의 분산을 찾아야 한다.
+            </p>
+
+            <h3>Xavier Initialization</h3>
+            <p>
+              Tanh activation function을 사용할 경우, 아래 수식을 통해 $W$의 분산을 찾을 수 있는데 이를 Xavier
+              initialization이라고 한다.
+            </p>
+            <p class="math-center">$W \sim N(0, \ \sigma^2), \quad \sigma = \cfrac{1}{\sqrt{D_{in}}}$</p>
+            <p>
+              이때 $D_{in}$은 이전 레이어의 뉴런의 개수이다. 따라서 FC layer에서는 $D_{in}$이 input의 차원들을 모두 곱한
+              값이 되고, Conv layer에서는 $D_{in}$이 kernel 크기의 제곱에 채널의 개수를 곱한 값이 된다. 그 결과, 아래와
+              같이 layer가 깊어지더라도 각 layer의 출력의 분포가 일정하게 유지되는 것을 확인할 수 있다.
+            </p>
+            <img src="/study/deep_learning_for_computer_vision/lecture_9/img8.png" alt="Xavier initialization result" />
+
+            <h3>He Initialization</h3>
+            <p>
+              ReLU activation function을 사용할 경우, 아래 수식을 통해 $W$의 분산을 찾을 수 있는데 이를 He
+              initialization이라고 한다.
+            </p>
+            <p class="math-center">$W \sim N(0, \ \sigma^2), \quad \sigma = \sqrt{\cfrac{2}{D_{in}}}$</p>
+            <img
+              src="/study/deep_learning_for_computer_vision/lecture_9/img9.png"
+              alt="Weight initialization with smaller variance"
+            />
+            <img src="/study/deep_learning_for_computer_vision/lecture_9/img10.png" alt="He initialization result" />
+            <p>
+              위 두 이미지는 ReLU activation function을 사용할 경우 $W$의 분산을 작게 설정했을 때와, He initialization을
+              사용하여 적절한 값으로 설정했을 때의 각 layer의 출력의 분포를 보여준다. He initialization을 통해
+              ReLU에서도 각 layer의 출력의 분포를 일정하게 유지할 수 있다는 것을 알 수 있다.
+            </p>
+
+            <h3>Residual Network Initialization</h3>
+            <img
+              class="half"
+              src="/study/deep_learning_for_computer_vision/lecture_9/img11.png"
+              alt="Residual Network"
+            />
+            <p>
+              위와 같은 residual block의 경우, 처음 conv layer만 He initialization으로 초기화하고 두 번째 layer는 모두
+              0으로 초기화하는 방식을 사용한다. 이 방식을 통해 각 residual block의 출력의 분포를 일정하게 유지할 수
+              있다.
+            </p>
+            <p class="math-center">$std(x) = std(F(x) + x)$</p>
+
+            <h2>Regularization</h2>
+            <p>
+              Regularization은 overfitting을 방지하기 위한 방법이다. Loss function에 적용할 수 있는 L1, L2
+              regularization에 대해 이전 강의에서 살펴보았고, neural network에서 주로 사용되는 Dropout이라는 방법도
+              있다. 보편적인 regularization의 패러다임은, training 시에 약간의 randomness를 더하여 모델이
+              overfitting되지 않도록 하고, test 시에는 그 ramdomness를 모두 평균내어 deterministic한 결과를 내도록 하는
+              것이다. Batch Normalization도 이에 해당된다.
+            </p>
+
+            <h3>Dropout</h3>
+            <p>
+              Dropout은 forward pass 과정에서 매 mini-batch마다 각 뉴런을 일정 확률로 deactivate하는 방법이다. 뉴런의
+              출력을 일정 확률로 0으로 만드는 방식으로 구현한다. 확률은 0.5를 주로 사용한다.
+            </p>
+            <img class="half" src="/study/deep_learning_for_computer_vision/lecture_9/img12.png" alt="Dropout" />
+            <p>
+              Dropout이 효과적인 이유는 co-adaptation을 방지하기 때문이다. 즉, 각각의 뉴런들이 겹치지 않게 서로 다른
+              특징을 학습하게 할 수 있다. Co-adaptation이 문제가 되는 이유는, 여러 개의 뉴런이 동일한 특징을 학습할
+              이유가 없기 때문이다. 이는 단순히 연산량 소모로 이어져 뉴럴 네트워크가 100%의 성능을 내지 못하게 한다.
+            </p>
+            <img class="half" src="/study/deep_learning_for_computer_vision/lecture_9/img13.png" alt="Co-adaptation" />
+            <p>
+              예를 들어, 고양이 사진을 입력으로 주었을 때 각 뉴런은 귀, 꼬리, 털 등의 특징을 학습할 수 있는데 이때 각
+              특징별 학습 속도가 다를 수 있다. Loss function은 모든 뉴런의 성능을 종합하여 loss를 계산하기 때문에 한
+              뉴런의 성능이 상대적으로 떨어질 경우 그 뉴런뿐 아니라 다른 뉴런들까지 그 특징을 함께 학습해서 성능을
+              보완하려는 경향이 생긴다. 결국 배우고자 하는 특징들이 희석되어 여러 뉴런이 비슷한 특징을 학습하게 된다.
+            </p>
+            <p>
+              Training 동안 dropout을 통해 이를 해결할 수 있는데, dropout된 뉴런이 찾는 특징이 loss에 영향을 주지 않기
+              때문에 다른 뉴런의 학습에 영향을 주지 않으며, gradient update도 이루어지지 않기 때문에 다른 뉴런들에
+              영향을 받지도 않는다. 이를 통해 각 뉴런이 co-adaptation을 점점 줄여나가고 독립적으로 특징을 학습할 수 있게
+              된다.
+            </p>
+            <img class="half" src="/study/deep_learning_for_computer_vision/lecture_9/img14.png" alt="Ensemble" />
+            <p>
+              Dropout의 또 다른 해석으로는 ensemble이 있다. Ensemble은 하나의 네트워크를 사용하는 것보다 여러 네트워크를
+              사용하고 그 결과를 종합하여 최종 결과를 내는 것이 더 정확할 수 있다는 것이다. Dropout은 매 iteration마다
+              각각 다른 thinned network를 사용하기 때문에 여러 네트워크를 학습시키고 그 결과를 평균내는 것과 비슷한
+              효과를 낸다고 볼 수 있다.
+            </p>
+            <img
+              class="half"
+              src="/study/deep_learning_for_computer_vision/lecture_9/img15.png"
+              alt="Dropout test time"
+            />
+            <p>
+              Test time에서는 dropout을 사용하지 않는다. 대신, 위 그림과 같이 최종 출력값에 dropout하지 않을 확률 0.75를
+              곱해주는 방식으로 scaling을 보정해주게 된다. 그 이유는 training 시에 dropout되지 않은 뉴런들만으로
+              결과값을 만들어냈으므로, 전체 뉴런들로 결과값을 만들어내면 증가된 뉴런의 수만큼 결과값이 커질 것이기
+              때문이다. 이를 방지하기 위해 dropout probability를 곱해 주어야 한다. 그 결과, test 시에는 모든 thinned
+              network의 평균을 취해 하나의 유일한 네트워크를 만들어내는 것으로 해석할 수 있다.
+            </p>
+            <p class="math-center">
+              $\begin{align*} E_{train} & = \cfrac{1}{4} (w_1x + w_2y) + \cfrac{1}{4} (w_1x + 0y) + \cfrac{1}{4} (0x +
+              w_2y) + \cfrac{1}{4} (0x + 0y) \\ & = \cfrac{1}{2} (w_1x + w_2y) \\ E_{test} & = w_1x + w_2y \end{align*}$
+            </p>
+            <p>
+              위 수식은 dropout probability가 0.5일 때의 경우이다. 수학적으로 output의 기대값을 구해 보아도 training
+              시에는 0.5배가 되어 있지만 test 시에는 그대로 출력되는 것을 확인할 수 있다.
+            </p>
+            <p>
+              다만, 실제 구현 시에는 test time에 keeping probability를 곱해주는 대신 training 시 뉴런의 output에 keeping
+              probability를 나눠주는 방식으로 구현된다. 이를 Inverted Dropout이라고 한다.
+            </p>
+            <p>Dropout은 FC layer에 주로 사용되고, FC layer가 없는 GoogLeNet이나 ResNet은 dropout을 사용하지 않는다.</p>
+            <p>
+              Q: Dropout은 training을 더 빠르게 만드는가?<br />
+              A: 오히려 느리게 만든다. Stochastic한 종류의 regularization은 모두 training을 어렵게 만든다. 다만 test 시
+              성능을 높여 주기 때문에 사용할 가치가 있다.
+            </p>
+            <p>
+              Q: Dropout을 conv layer에도 적용할 수 있는가?<br />
+              A: Conv layer에서는 dropout 자체를 잘 사용하지 않는데, 사용한다면 채널을 통째로 drop하는 방식을 사용한다.
+              다만 batch normalization과 dropout을 함께 사용하면 dropout으로 인해 출력이 0인 뉴런들이 많아지면서 평균과
+              분산이 정상적이지 않은 값으로 나올 수 있기 때문에, dropout 자체를 잘 사용하지 않는다.
+            </p>
+
+            <h3>Data Augmentation</h3>
+            <p>
+              Train 시에 randomness를 더하고 test 시에 이 ramdomness를 모두 평균내어 deterministic한 결과를 내는 것을
+              regularization이라고 생각한다면, Data Augmentation도 regularization의 일종이다. Data Augmentation은
+              training 데이터를 random하게 변형시키는 방식으로 네트워크의 overfitting을 개선한다. 인풋 이미지를
+              네트워크에 넣기 전에 Data Augmentation를 진행하여, 같은 label을 가진 여러 장의 변형된 이미지를 네트워크에
+              학습시키는 것이다. 이를 통해 데이터셋의 크기을 늘리는 효과도 얻을 수 있다. Data Augmentation의 여러 방법에
+              대해 알아보자.
+            </p>
+
+            <h4>Horizontal Flips</h4>
+            <img
+              class="half"
+              src="/study/deep_learning_for_computer_vision/lecture_9/img16.png"
+              alt="Horizontal Flips"
+            />
+            <p>단순히 좌우를 반전시키는 것이다.</p>
+
+            <h4>Random Crops and Scales</h4>
+            <img
+              class="half"
+              src="/study/deep_learning_for_computer_vision/lecture_9/img17.png"
+              alt="Random Crops and Scales"
+            />
+            <p>
+              이미지 내 다양한 위치에서 다양한 크기로 crop하는 것이다. 이를 통해 물체의 일부분만 바라보더라도 올바른
+              물체로 인식할 수 있도록 한다. 또한 Horizontal Flips과 Random Crops and Scales의 경우 test 시에도 적용할 수
+              있는데, test 이미지에 대해 정해진 위치에서 정해진 크기로 여러 장의 이미지를 flip 및 crop한 후 각각에 대한
+              결과를 내고, 그 결과를 평균내어 최종 결과를 내는 방식으로 사용할 수 있다. 이때 각 변형된 이미지별 각
+              클래스에 속할 확률이 계산될 텐데, 이 확률 분포 자체를 평균낸 후 가장 확률이 높은 클래스를 선택하는
+              방식이다. 이 방식은 실제로 성능에 도움이 되지만, 연산량이 많아지기 때문에 inference 시에는 잘 사용하지
+              않는다.
+            </p>
+
+            <h4>Color Jitter</h4>
+            <img class="half" src="/study/deep_learning_for_computer_vision/lecture_9/img18.png" alt="Color Jitter" />
+            <p>
+              이미지의 색상을 변화시키는 것이다. 단순한 방법으로는 밝기나 대비를 변화시키는 방법이 있고, 더 복잡한
+              방법으로는 RGB 채널을 변화시키는 방법이 있다. 전체 데이터셋의 RGB 채널에 대해 PCA를 적용하고, 각 principal
+              component direction에 대해 offset 값을 구한 뒤 이를 이미지의 각 채널에 더하는 방식이다. 이를 통해 물체의
+              색상이 변화해도 올바르게 인식할 수 있도록 한다.
+            </p>
+            <p>
+              이처럼 다양한 Data Augmentation 방법들은 모두 모델의 invariance를 가져온다. 즉 데이터에 변형이 있더라도 그
+              결과가 변하지 않도록 한다. 따라서 Data Augmentation 방법을 선택할 때는 "데이터를 어떻게 변형했을 때 그
+              결과가 변하지 않을지"를 고민해야 한다.
+            </p>
+
+            <h3>DropConnect</h3>
+            <img class="half" src="/study/deep_learning_for_computer_vision/lecture_9/img19.png" alt="DropConnect" />
+            <p>
+              위에 언급한 Dropout, Data Augmentation 외에도 다양한 regularization 방법이 있다. 그 중 하나가
+              DropConnect인데, 뉴런 자체를 deactivate하는 대신 각 weight를 deactivate하는 방식이다. Random하게 weight를
+              0으로 만들어주는 방식으로 구현된다. Test 시에는 모든 weight를 사용한다.
+            </p>
+
+            <h3>Fractional Pooling</h3>
+            <img
+              class="half"
+              src="/study/deep_learning_for_computer_vision/lecture_9/img20.png"
+              alt="Fractional Pooling"
+            />
+            <p>
+              Fractional Pooling은 pooling layer에서 일정한 크기로 pooling하는 것이 아니라 random하게 pooling하는
+              방식이다. 이를 통해 pooling layer에서도 randomness를 더할 수 있다. Test 시에는 training 시에 사용한
+              pooling 영역 크기의 평균을 사용한다. 다만 실제로 많이 사용되지는 않는 방법이다.
+            </p>
+
+            <h3>Stochastic Depth</h3>
+            <img
+              class="half"
+              src="/study/deep_learning_for_computer_vision/lecture_9/img21.png"
+              alt="Stochastic Depth"
+            />
+            <p>
+              Stochastic Depth는 ResNet에서 사용되는 방법으로, 일정 확률로 residual block 자체를 deactivate하는
+              방식이다. Test 시에는 모든 residual block을 사용한다.
+            </p>
+
+            <h3>Cutout</h3>
+            <img class="half" src="/study/deep_learning_for_computer_vision/lecture_9/img22.png" alt="CutOut" />
+            <p>
+              Cutout은 이미지의 일부분을 random하게 0으로 만들어 지워버리는 방식이다. 이를 통해 네트워크가 물체의
+              일부분만으로도 물체를 인식할 수 있도록 한다. Test 시에는 지우지 않은 원본 이미지를 사용한다.
+            </p>
+
+            <h3>Mixup</h3>
+            <img class="half" src="/study/deep_learning_for_computer_vision/lecture_9/img23.png" alt="Mixup" />
+            <p>
+              Mixup은 두 이미지를 섞어서 새로운 이미지를 만들어내는 방식이다. 이를 통해 네트워크가 두 이미지의 특징을
+              모두 학습할 수 있도록 한다. 이미지 픽셀을 섞는 비율에 따라, 정답 label도 one-hot encoding이 아닌 비율에
+              따른 확률 분포를 사용한다. Test 시에는 원본 이미지를 사용한다.
+            </p>
+
+            <h3>CutMix</h3>
+            <img class="half" src="/study/deep_learning_for_computer_vision/lecture_9/img24.png" alt="CutMix" />
+            <p>
+              CutMix는 이미지의 일부분을 다른 이미지로 대체하는 방식이다. 이를 통해 네트워크가 물체의 일부분만으로도
+              물체를 인식할 수 있도록 한다. Mixup과 비슷한 방식이지만 이미지를 섞는 대신 이미지의 일부분을 대체하는
+              방식이다. 이미지의 비율에 따라 정답 label도 같은 비율로 설정한다. Test 시에는 지우지 않은 원본 이미지를
+              사용한다.
+            </p>
+
+            <h3>Label Smoothing</h3>
+            <img
+              class="half"
+              src="/study/deep_learning_for_computer_vision/lecture_9/img25.png"
+              alt="Label Smoothing"
+            />
+            <p>
+              Label Smoothing은 인풋 이미지를 변형시키는 대신 정답 label의 확률 분포를 변형시킨다. label을 0과 1로만
+              표현하는 것이 아니라 0과 1 사이의 값으로 표현하는 방식이다. 정답 label의 확률을 $1 - \frac{K -
+              1}{K}\epsilon$으로, 나머지 label의 확률을 $\frac{\epsilon}{K}$로 설정한다. Hyperparameter인 $\epsilon$이
+              정답 label의 확률을 얼마나 줄여서 나머지 label에 분산할지를 결정한다. 이는 앞서 언급한 다른
+              regularization과는 달리, training 데이터가 잘못 label되었을 경우를 대비한 방법이다.
+            </p>
+
+            <h3>Regularization Summary</h3>
+            <p>
+              Dropout은 FC layer에 사용하면 좋고, Data Augmentation은 항상 사용하는 것이 좋다. Conv layer에는 L2와 Batch
+              normalization을 주로 사용한다. 기타 Cutout, Mixup, CutMix, Stochastic Depth, Label Smoothing 등은 최신
+              모델에서 종종 사용되는 방법으로, 적용해 보면 좋다. DropConnect과 Fractional Pooling은 잘 사용되지 않는다.
+            </p>
+            <p>
+              위에 언급한 방법들은 모두 regularization의 일종이기 때문에 모델의 overfitting 정도를 보고 그 강도를 결정할
+              수 있다. 모델이 overfitting된다면 regularization을 더 강하게 적용할 수 있고, 반대로 underfitting된다면
+              regularization을 약하게 적용해야 한다.
+            </p>
+          </div>
+
+          <post-footer></post-footer>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2025 Seongmin Jung<br />Designed and developed by Seongmin Jung</p>
+    </footer>
+  </body>
+</html>

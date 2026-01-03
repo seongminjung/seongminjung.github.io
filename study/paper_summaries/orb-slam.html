@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="/css/index.css" />
+    <script type="module" src="/js/main.js" defer></script>
+  </head>
+
+  <body>
+    <web-head></web-head>
+    <web-header></web-header>
+
+    <main>
+      <div class="container">
+        <section id="post">
+          <post-header></post-header>
+
+          <div class="post-body">
+            <arxiv-card
+              title="ORB-SLAM: a Versatile and Accurate Monocular SLAM System"
+              venue="IEEE Transactions on Robotics 2015"
+              authors="Raul Mur-Artal, J. M. M. Montiel, Juan D. Tardos"
+              link="https://arxiv.org/abs/1502.00956"
+            >
+            </arxiv-card>
+
+            <h2>Introduction</h2>
+            <p>
+              Bundle Adjustment (BA) can provide accurate estimation of camera pose as well as sparse 3D map. However,
+              it is generally computationally too expensive to run in real-time. This paper proposes a few conditions of
+              BA to achieve real-time performance:
+            </p>
+            <ul>
+              <li>
+                BA must use keyframes, which are "important" frames that are selected based on some criteria, instead of
+                all frames, to reduce the number of frames to be processed.
+              </li>
+              <li>As the number of keyframes increases, keyframe selection should exclude redundancy.</li>
+              <li>
+                Keyframes must be spatially well-spreaded to provide significant parallex and plenty of loop closure
+                matches.
+              </li>
+              <li>Initial estimation of the keyframe pose and point coordinates should be provided.</li>
+              <li>
+                Local map, which is a subset of the global map, should be the focus of optimization to achieve
+                scalability.
+              </li>
+              <li>BA must have the ability to perform fast global optimizations to close loops in real-time.</li>
+            </ul>
+            <p>The main contributions of this system are:</p>
+            <ul>
+              <li>
+                Use of the same ORB features for all three tasks: tracking, mapping, and loop closing, which simplifies
+                the system.
+              </li>
+              <li>Real time operation in large environments, which is achieved by the use of Covisibility Graph.</li>
+              <li>
+                Real time loop closing by using Essential Graph. The Essential Graph is a subset of the Covisibility
+                Graph.
+              </li>
+              <li>Real time camera relocalization</li>
+              <li>
+                Automatic and robust initialization, achieved by the selective keyframe strategy and robust heuristics.
+              </li>
+              <li>
+                A <i>survival of the fittest</i> approach, that is generous in the spawning of keyframes but very
+                restrictive in the cullimng of redundant keyframes.
+              </li>
+            </ul>
+
+            <h2>System Overview</h2>
+            <img class="half" src="/study/paper_summaries/orb-slam/img1.png" alt="ORB-SLAM System Overview" />
+
+            <h4>A. Three Threads: Tracking, Local Mapping, and Loop Closing</h4>
+            <p>
+              The ORB-SLAM system consists of three parallel threads: Tracking, Local Mapping, and Loop Closing. The
+              tracking is in charge of localizing the camera with every frame in real-time. If the tracking is lost, the
+              place recognition module is activated and a global relocalization is performed. Moreover, the tracking
+              thread is responsible for creating new keyframes.
+            </p>
+            <p>
+              The Local Mapping thread is responsible for creating and optimizing the local map. The local map is a
+              subset of the global map around the camera pose. Newly inserted keyframes are added to the Covisibility
+              Graph. The Local Mapping thread is also responsible for culling redundant keyframes and map points.
+            </p>
+            <p>
+              The Loop Closing thread searches for loops with every new keyframe. If a loop is detected, the Loop
+              Closing thread first compute a similarity transformation to correct the drift, and performs a pose graph
+              optimization of the map to achieve consistency. The optimization is performed in the Essential Graph,
+              which is a sparser subgraph of the Covisibility Graph.
+            </p>
+
+            <h4>B. Map Points and Keyframes</h4>
+            <p>Each map point $p_i$ stores:</p>
+            <ul>
+              <li>3D position $\mathbf{X}_{w,i}$ in the world coordinate system.</li>
+              <li>
+                Viewing direction $\mathbf{n}_i$ in the world coordinate system, which is the normalized vector from the
+                camera center to the map point.
+              </li>
+              <li>ORB Descriptor $\mathbf{D}_i$ for matching.</li>
+              <li>
+                The maximum $d_\text{max}$ and minimum $d_\text{min}$ distance from the camera center to the map point,
+                at which the map point can be observed. This is obtained by the scale invariance limits of the ORB
+                features.
+              </li>
+            </ul>
+            <p>Each keyframe $K_i$ stores:</p>
+            <ul>
+              <li>Camera pose $\mathbf{T}_{iw}$, from world to camera coordinate system.</li>
+              <li>Camera intrinsics $K$.</li>
+              <li>All the ORB features extracted in the keyframe.</li>
+            </ul>
+
+            <h4>C. Covisibility Graph and Essential Graph</h4>
+            <img
+              class="half"
+              src="/study/paper_summaries/orb-slam/img2.png"
+              alt="Covisibility Graph and Essential Graph"
+            />
+            <p>
+              The Covisibility Graph is an undirected weighted graph where each node is a keyframe and each edge
+              represents that two keyframes have enough common map points. The weight of the ege is the number of common
+              map points.
+            </p>
+            <p>
+              The Essential Graph is a spanning tree of the Covisibility Graph, which contains all the nodes of the
+              Covisibility Graph, but only a subset of the edges. The Essential Graph is used for pose graph
+              optimization. This enables an efficient loop closing while preserving a strong network of keyframes.
+            </p>
+
+            <h4>D. Bags of Words Place Recognition</h4>
+            <p>
+              The system has embedded a bags of word module based on DBoW2 to perform loop detection and relocalization.
+              This is a database of ORB descriptors of the keyframes, from which the system can retrieve the most
+              similar keyframes to the keyframe we want.
+            </p>
+
+            <h2>Automatic Map Initialization</h2>
+            <p>
+              Now let's take a look at the very first stage of the system, the automatic map initialization. The system
+              needs the map for the following tasks (tracking, loop closing, and relocalization) to be processed.
+            </p>
+            <p>
+              The goal of the map initialization is to
+              <b>compute the relative pose between two frames to triangulate an initial set of map points</b>.
+            </p>
+            <p>
+              To make this process automatic and robust at the same time, the system adopts both planar and non-planar
+              assumtion for the scene in the image. The planar model uses homography, and the non-planar model uses the
+              fundamental matrix to calculate the transformation.
+            </p>
+            <p class="math-center">
+              $\mathbf{x}_c = \mathbf{H}_{cr}\mathbf{x}_r \quad \quad \mathbf{x}_c^T\mathbf{F}_{cr}\mathbf{x}_r = 0$
+            </p>
+            <p>
+              The left equation above is the planar model using homography, and the right equation is the non-planar
+              model using the fundamental matrix. RANSAC is used to estimate the transformation.
+            </p>
+            <p>
+              The system then measures the errors of each model by using symmetric transfer errors. Let $S_H$ and $S_F$
+              be the error term of the planar and non-planar model, respectively. The system then computes the most
+              reliable model by the following heuristics:
+            </p>
+            <p class="math-center">$R_H = \cfrac{S_H}{S_H + S_F}$</p>
+            <p>
+              If $R_H$ is greater than 0.45, the system selects the planar model. Otherwise, the system selects the
+              non-planar model. This way, the system can adopt planar model when there is low parallex, and non-planar
+              model when there is enough parallex.
+            </p>
+
+            <h2>Tracking</h2>
+            <p>
+              Tracking is the process of estimating the camera pose with every incoming frame. There are several steps
+              in the tracking process.
+            </p>
+
+            <h4>A. ORB Extraction</h4>
+            <p>
+              First, the system extracts ORB features from the frame. The number of features is either 1000 or 2000,
+              depending on the image size.
+            </p>
+
+            <h4>B. Initial Pose Estimation from Previous Frame</h4>
+            <p>
+              The system uses a <b>constant velocity motion model</b> to predict the camera pose before calculating
+              everything. The system then searches for the ORB features in the current frame that matches the features
+              in the previous frame, based on that prediction. If not enough matches are found, the system uses the
+              wider search for the matching features. The pose is then fine-tuned with the found matches.
+            </p>
+
+            <h4>C. Initial Pose Estimation via Global Relocalization</h4>
+            <p>
+              If the tracking is lost, the system converts the frame into bag of words, and searches for the most
+              similar keyframe in the database. The system then takes the matched features between the current frame and
+              the similar keyframe to estimate the camera pose. <b>PnP algorithm</b> is used here, which is a 3D-2D pose
+              estimation algorithm.
+            </p>
+
+            <h4>D. Track Local Map</h4>
+            <p>
+              In this step, the system tries to find more matching points between the local map and the current frame
+              based on the estimated camera pose. If a match is found, the system refines the camera pose with the found
+              matches.
+            </p>
+
+            <h4>E. New Keyframe Decision</h4>
+            <p>There are four conditions to decide whether the current frame should be a new keyframe:</p>
+            <ul>
+              <li>More than 20 frames must have passed from the last global relocalization.</li>
+              <li>Local mapping is idle, or more than 20 frames have passed from last keyframe insertion.</li>
+              <li>Current frame tracks at least 50 points.</li>
+              <li>Current frame tracks less than 90% points than $K_{\text{ref}}$.</li>
+            </ul>
+            <p>
+              Here, the system focused on inserting keyframes as fast as possible to handle challenging movements such
+              as pure rotations. Instead of enforcing loose constraints on the keyframe insertion, the system is very
+              restrictive in culling redundant keyframes in the local mapping thread.
+            </p>
+
+            <h2>Local Mapping</h2>
+            <p>
+              Local Mapping is the process of creating and optimizing the local map. The local map is a subset of the
+              global map around the camera pose and is used for tracking, loop closing, and relocalization, making the
+              system scalable. The procedure below is executed in every keyframe insertion.
+            </p>
+
+            <h4>A. Keyframe Insertion</h4>
+            <p>
+              First, the system updates the covisibility graph. It adds a new node for the keyframe and updates the
+              edges. Based on the updated covisibility graph, the essential graph is updated as well. The new keyframe
+              is connected to the keyframe with most points in common.
+            </p>
+
+            <h4>B. Recent Map Points Culling</h4>
+            <p>
+              The system culls the map points that does not fulfill the conditions below during the first three
+              keyframes after creation. This is to ensure that the map points are trackable and not wrongly
+              triangulated.
+            </p>
+            <ul>
+              <li>
+                The tracking must find the point in more than the 25% of the frames in which it is predicted to be
+                visible.
+              </li>
+              <li>
+                If more than one keyframe has passed from map point creation, it must be observed from at least three
+                keyframes.
+              </li>
+            </ul>
+
+            <h4>C. New Map Point Creation</h4>
+            <p>
+              The system creates new map points by triangulating the matched features between the current keyframe and
+              the connected keyframes in the covisibility graph. For unmatched ORB features in the current keyframe, the
+              system tries once again to find the corresponding points using the bags of words.
+            </p>
+
+            <h4>D. Local Bundle Adjustment</h4>
+            <p>
+              The local BA optimizes the currently processed keyframe $K_i$, all the keyframes connected to it in the
+              covisibility graph $K_c$, and all the map points seen by those keyframes.
+            </p>
+
+            <h4>E. Local Keyframe Culling</h4>
+            <p>
+              The system detects and culls redundant keyframes. A keyframe whose 90% of the map points have been seen in
+              at least other three keyframes in the same or finer scale will be discarded.
+            </p>
+
+            <h2>Loop Closing</h2>
+            <p>
+              Loop Closing is the process of detecting and correcting the drift in the map. This stage is imperative to
+              maintain the consistency and reduce the drift in the map. This thread is executed in every keyframe
+              insertion.
+            </p>
+
+            <h4>A. Loop Candidates Detection</h4>
+            <p>
+              The system first searches for the loop candidates using the bag of words database. Here, the keyframes
+              directly connected to the current keyframe are excluded from the candidates. There can be several loop
+              candidates if there are several places with similar appearance to $K_i$.
+            </p>
+
+            <h4>B. Compute the Similarity Transformation</h4>
+            <p>
+              Calculating the similarity transformation between the current keyframe and the loop candidate informs us
+              about the accumulated drift. Since we have 3D map points for both keyframes and their correspondences,
+              RANSAC can be used to estimate the transformation. If that transformation is supported by enough inliers,
+              the loop is accepted.
+            </p>
+
+            <h4>C. Loop Fusion</h4>
+            <p>
+              The first step in the loop correction is to fuse duplicated map points and insert new edges in the
+              covisibility graph that will attach the loop closure. The current keyframe, the loop candidate, and their
+              neighbors are investigated to find the duplicated map points. The duplicated map points are then fused
+              into one map point, and the covisibility graph edges are updated accordingly.
+            </p>
+
+            <h4>D. Essential Graph Optimization</h4>
+            <p>
+              To complete the loop closing, the system performs a pose graph optimization over the essential graph. The
+              goal here is to distribute the loop closing error along the graph to achieve global consistency.
+            </p>
+
+            <h2>Experiments</h2>
+            <p>
+              The system was tested on various datasets, including the KITTI dataset, the TUM RGB-D dataset, and the
+              NewCollege dataset.
+            </p>
+
+            <h4>A. System Performance</h4>
+            <img class="half" src="/study/paper_summaries/orb-slam/img3.png" alt="Experiments - Loop Detection" />
+            <p>
+              The figure above shows the loop detection results on the NewCollege dataset. The system successfully
+              detected two keyframes and the inlier correspondences.
+            </p>
+            <img class="half" src="/study/paper_summaries/orb-slam/img4.png" alt="Experiments - Map Correction" />
+            <p>
+              The figure above shows the map correction before and after the loop closing. The local map is indicated by
+              the red points.
+            </p>
+            <img
+              class="half"
+              src="/study/paper_summaries/orb-slam/img5.png"
+              alt="Experiments - Tracking and Mapping Times"
+            />
+            <p>
+              The table above shows the results for the tracking and the local mapping. The most demanding task in the
+              tracking thread is tracking local map, and the most demanding task in the local mapping thread is local
+              BA.
+            </p>
+            <img src="/study/paper_summaries/orb-slam/img6.png" alt="Experiments - Loop Closing Times" />
+            <p>
+              The table above shows the 6 loop closing times. The time used for the loop closing does not grow linearly
+              with the number of keyframes. This shows the efficiency of the bags of words database, which only compares
+              the subset of images with words in common. Moreover, the essential graph includes edges around 5 times the
+              number of keyframes, which means it is a quite sparse graph.
+            </p>
+
+            <h4>B. Localization Accuracy</h4>
+            <img
+              class="half"
+              src="/study/paper_summaries/orb-slam/img7.png"
+              alt="Experiments - Keyframe Localization Error Comparison"
+            />
+            <p>
+              ORB-SLAM achieves higher accuracy compared to PTAM and LSD-SLAM. The system is also more robust to false
+              initialization, where PTAM struggles. In terms of accuracy, ORB-SLAM and PTAM are similar in open
+              trajectories, while ORB-SLAM achieves higher accuracy when detecting large loops.
+            </p>
+
+            <h4>C. Relocalization</h4>
+            <img class="half" src="/study/paper_summaries/orb-slam/img8.png" alt="Experiments - Relocalization" />
+            <p>
+              The figure above shows the results for two relocalization experiments. In the first experiment, the map
+              was built with the first 30 seconds of the sequence, and the global relocalization was performed for each
+              of the frame in the rest of the sequence. In the second experiment, the map was built with the sequence
+              which was filmed by a person sitting on a chair. Then the global relocalization is performed for another
+              sequence which was filmed in the same environment but by a person walking around.
+            </p>
+            <p>
+              In both experiments, ORB-SLAM successfully relocalized the frames in the map, exceeding the performance of
+              PTAM. This proves the invariance of ORB-SLAM's relocalization method.
+            </p>
+
+            <h4>D. Lifelong Experiment</h4>
+            <img class="half" src="/study/paper_summaries/orb-slam/img9.png" alt="Experiments - Lifelong Experiment" />
+            <p>
+              The figure above shows the number of keyframes over time, for both ORB-SLAM and PTAM. The sequence used
+              here is a custom video, where the camera is looking at the same desk for the whole time but changing its
+              viewpoint by moving around. ORB-SLAM keeps the number of keyframes at a certain level once there are
+              enough keyframes to represent the whole desk. PTAM, on the other hand, keeps adding keyframes as the
+              camera moves around the desk.
+            </p>
+            <p>
+              This lifelong experiment shows that the map grows with the content of the scene but not with the time.
+            </p>
+
+            <h4>E. Large Scale and Large Loop Closing</h4>
+            <img class="half" src="/study/paper_summaries/orb-slam/img10.png" alt="Experiments - Large Scale" />
+            <p>
+              The system was tested on the KITTI dataset. The system shows high accuracy, with errors typically around
+              1% of its dimensions.
+            </p>
+
+            <h4>F. Loop Closing Strategies</h4>
+            <img
+              class="half"
+              src="/study/paper_summaries/orb-slam/img11.png"
+              alt="Experiments - Loop Closing Strategies"
+            />
+            <p>
+              Lastly, the table above compares the loop closing performances between full bundle adjustment and
+              essential graph optimization. Using essential graph significantly reduces the time spent for loop closing.
+            </p>
+
+            <h2>Conclusions and Discussion</h2>
+
+            <h4>Conclusions</h4>
+            <p>
+              ORB-SLAM can handle sequences from various environments and various agents holding the camera, e.g. car,
+              robot, and human. Still, its accuracy is high, being less than 1cm in indoor scenes, and few meters in
+              outdoor scenes.
+            </p>
+            <p>
+              Bundle Adjustment is the gold standard method for Structure From Motion, but ORB-SLAM is the first system
+              that can run BA in real-time.
+              <b>ORB-SLAM's novelty for this is the policy for spawning and culling keyframes.</b> This allowed the
+              system to run BA more efficiently, to be robust in challenging movements, and to operate lifelong.
+            </p>
+
+            <h4>B. Future Work</h4>
+            <p>
+              The accuracy of our system can still be improved incorporating points at infinity in the tracking. These
+              "vanishing points" are very informative of the rotation of the camera.
+            </p>
+            <p>
+              Another open way is to upgrade the sparse map to a denser reconstruction. ORB-SLAM sparse map can be a
+              good initial guess and skeleton for a dense and detailed map.
+            </p>
+          </div>
+
+          <post-footer></post-footer>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2025 Seongmin Jung<br />Designed and developed by Seongmin Jung</p>
+    </footer>
+  </body>
+</html>

@@ -18,16 +18,16 @@ class ArticleItem extends HTMLElement {
     const detail = this.getAttribute("detail") || "Detail Text";
 
     wrapper.innerHTML = `
-      <a class="flex" href="/articles/${folder}/${filename}.html">
+      <a class="flex" href="/study/${folder}/${filename}.html">
         <div class="left">
           <h3>${title}</h3>
           <p class="date">Posted on <time datetime="${date}">${formatDate(date)}</time></p>
           <p class="detail">${detail}</p>
-          <button type="button" class="category-tag" onclick="location.href='/articles/${folder}.html'">
+          <button type="button" class="category-tag" onclick="event.stopPropagation(); event.preventDefault(); location.href='/study/${folder}.html'">
             <i class="fa fa-book"></i> ${category}
           </button>
         </div>
-        <img class="preview" src="/articles/${folder}/${filename}/img1.png" alt="preview" />
+        <img class="preview" src="/study/${folder}/${filename}/img1.png" alt="preview" />
       </a>
     `;
     this.appendChild(wrapper);
@@ -147,7 +147,7 @@ export class PostHeader extends HTMLElement {
     const folder = categoryInfo?.folder || "";
 
     this.innerHTML = `
-      <button type="button" class="category-tag" onclick="location.href='/articles/${folder}.html'">
+      <button type="button" class="category-tag" onclick="location.href='/study/${folder}.html'">
         <i class="fa fa-book"></i> ${categoryName}
       </button>
       <h1>${article.title}</h1>
@@ -192,7 +192,7 @@ export class PostFooter extends HTMLElement {
         <img src="/asset/cover.jpg" alt="Seongmin Jung" />
         <h1>Seongmin Jung</h1>
       </div>
-      <h2>Other posts in <a href="/articles/${folder}.html">${categoryName}</a> category</h2>
+      <h2>Other posts in <a href="/study/${folder}.html">${categoryName}</a> category</h2>
     `;
 
     const listHTML = visibleArticles
@@ -200,7 +200,7 @@ export class PostFooter extends HTMLElement {
         const isCurrent = article.filename === this.filename;
         return `
           <li>
-            <a href="/articles/${folder}/${article.filename}.html">
+            <a href="/study/${folder}/${article.filename}.html">
               <span>${isCurrent ? `<b>${article.title}</b>` : article.title}</span>
               <time datetime="${article.date}">${formatDate(article.date)}</time>
             </a>

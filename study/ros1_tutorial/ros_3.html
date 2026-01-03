@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="/css/index.css" />
+    <script type="module" src="/js/main.js" defer></script>
+  </head>
+
+  <body>
+    <web-head></web-head>
+    <web-header></web-header>
+
+    <main>
+      <div class="container">
+        <section id="post">
+          <post-header></post-header>
+
+          <div class="post-body">
+            <h2>Introduction</h2>
+            <p>
+              ROS (Robot Operating System) is a powerful framework for building robotic systems. In order to effectively
+              work with ROS, it's important to understand some key concepts that are central to the system. This
+              includes topics, nodes, messages, and services.
+            </p>
+            <h2>Topics</h2>
+            <p>
+              A topic can be thought of as a bulletin board. Just as a person can post an article on a bulletin board
+              for others to read, a node can publish data to a topic for other nodes to receive. Each topic has a
+              specific name, and nodes can subscribe to a topic to receive the data that is being published to it.
+              Topics are used for a variety of purposes, such as sending sensor data, sending control commands, and
+              more.
+            </p>
+            <p>To see a list of active topics in the system, you can use the command:</p>
+            <pre><code class="language-bash">rostopic list</code></pre>
+            <p>
+              Make sure to run roscore beforehand. To see more detailed information about a specific topic, you can use
+              the command:
+            </p>
+            <pre><code class="language-bash">rostopic info &lt;topic_name&gt;</code></pre>
+
+            <h2>Nodes</h2>
+            <p>
+              A node can be thought of as a person. Just as a person can post an article on a bulletin board or read an
+              article on a bulletin board, a node can publish data to a topic or subscribe to a topic to receive data.
+              Each node performs a specific function, such as processing sensor data or sending control commands. Nodes
+              communicate with each other through topics and services.
+            </p>
+            <p>To see a list of currently running nodes, you can use the command:</p>
+            <pre><code class="language-bash">rosnode list</code></pre>
+            <p>To see more detailed information about a specific node, you can use the command:</p>
+            <pre><code class="language-bash">rosnode info &lt;node_name&gt;</code></pre>
+
+            <h2>Messages</h2>
+            <p>
+              A message can be thought of as the article that is posted on the bulletin board. Just as an article has a
+              specific format, such as a title, author, and content, a message also has a specific format. The format of
+              a message can include various data types, such as integers, floating point numbers, and strings.
+            </p>
+            <p>To see a list of available message types in the system, you can use the command:</p>
+            <pre><code class="language-bash">rosmsg list</code></pre>
+            <p>To see more detailed information about a specific message type, you can use the command:</p>
+            <pre><code class="language-bash">rosmsg show &lt;message_type&gt;</code></pre>
+
+            <h2>Services</h2>
+            <p>
+              A service is a way for nodes to request a specific action or receive a specific piece of information from
+              another node, using a specific request-response format defined by a service definition file.
+            </p>
+            <p>To see a list of available services in the system, you can use the command:</p>
+            <pre><code class="language-bash">rosservice list</code></pre>
+            <p>To see more detailed information about a specific service, you can use the command:</p>
+            <pre><code class="language-bash">rosservice info &lt;service_name&gt;</code></pre>
+
+            <h2>Conclusion</h2>
+            <img class="half" src="/study/ros1_tutorial/ros_3/img1.webp" alt="Conclusion" />
+            <p>
+              In conclusion, understanding the concepts of topics, nodes, messages, and services is essential for
+              working effectively with ROS. By understanding these concepts, you can more easily navigate and work
+              within the ROS ecosystem. The analogy of a person and a bulletin board can help to illustrate the
+              relationships between topics and nodes, and make the concepts more relatable and intuitive.
+            </p>
+            <p>
+              Check out my next article about creating a publisher and a subscriber
+              <a href="/study/ros1_tutorial/ros_4.html">HERE</a>.
+            </p>
+          </div>
+
+          <post-footer></post-footer>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2025 Seongmin Jung<br />Designed and developed by Seongmin Jung</p>
+    </footer>
+  </body>
+</html>

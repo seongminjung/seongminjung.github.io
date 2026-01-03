@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="/css/index.css" />
+    <script type="module" src="/js/main.js" defer></script>
+  </head>
+
+  <body>
+    <web-head></web-head>
+    <web-header></web-header>
+
+    <main>
+      <div class="container">
+        <section id="post">
+          <post-header></post-header>
+
+          <div class="post-body">
+            <h2>To Begin With</h2>
+            <p>
+              This is a summary of the first part of the ICP & Point Cloud Registration series by Prof. Cyrill
+              Stachniss. Lecture slides and videos are available on the
+              <a href="https://www.ipb.uni-bonn.de/msr2-2021/index.html" target="_blank">course website</a> or his
+              <a
+                href="https://youtube.com/playlist?list=PLgnQpQtFTOGQh_J16IMwDlji18SWQ2PZ6&feature=shared"
+                target="_blank"
+                >YouTube channel</a
+              >. Through this series, we will learn the basics of the Iterative Closest Point (ICP) algorithm and build
+              the code from scratch.
+            </p>
+            <h2>What is ICP?</h2>
+            <p>
+              Iterative Closest Point (ICP) is an algorithm to register two point clouds. Point cloud is a set of points
+              in 3D space, and registration is a process of aligning two point clouds. What this algorithm does is
+              better explained with a picture.
+            </p>
+            <img class="half" src="/study/icp_algorithm/icp_1/img1.png" alt="What is ICP?" />
+            <p>
+              The <span class="color-red">red markers</span> indicate the first 2D Lidar scan and the
+              <span class="color-green">green markers</span> indicate the second. Imagine we are in a self-driving car,
+              and the Lidar sensor is scanning the environment. Intuitively, we understand that the car is moving
+              forward because the dots appear to be moving backward. But here is the question for the car:
+              <b>Where exactly is the car located, and how far has it actually moved?</b> These are fundamental question
+              in the field of self-driving car and mobile robotics, since precise localization is tightly related with
+              safety, efficiency, and accuracy.
+            </p>
+
+            <h2>Overview</h2>
+            <p>
+              ICP is a simple and strong algorithm for estimating the transformation between the two point clouds, which
+              can be directly used to derive the past trajectory of the car or robot. The algorithm is as follows:
+            </p>
+            <ol>
+              <li>Find the closest point in the second point cloud for each point in the first point cloud.</li>
+              <li>Compute the transformation that aligns the first point cloud to the second point cloud.</li>
+              <li>Apply the transformation to the first point cloud.</li>
+              <li>Repeat 1-3 until convergence.</li>
+            </ol>
+            <p>
+              Through this series of posts, we will go through each step in detail. In this post, we will focus on
+              computing the transformation given the perfectly matching pairs of points (correspondences).
+            </p>
+
+            <h3>Key Terms and Parameters</h3>
+            <p>
+              Before we dive into the algorithm, let's define some key terms and parameters that will be used throughout
+              this series. We will use the following notations:
+            </p>
+
+            <h4>Key Terms</h4>
+            <ul>
+              <li>
+                <b>Correspondence</b>: A pair of points that are known to be the same. For the sake of simplicity, we
+                artificially designate two points as corresponding if they share the same index, $i$. $x_i$ and $y_i$
+                are the same point in different point cloud.
+              </li>
+              <li>
+                <b>Registration</b>: The process of finding the rotation matrix $\mathbf{R}$ and translation vector
+                $\mathbf{t}$ that aligns the two point clouds $\mathbf{X}$ and $\mathbf{Y}$.
+              </li>
+            </ul>
+
+            <h4>Parameters</h4>
+            <ul>
+              <li><b>Reference (first) point cloud</b>: $\mathbf{Y} = \{y_1, y_2, \cdots, y_n\}$</li>
+              <li><b>Incoming (second) point cloud</b>: $\mathbf{X} = \{x_1, x_2, \cdots, x_n\}$</li>
+              <li><b>Rotation matrix and translation vector</b>: $\mathbf{R}$ and $\mathbf{t}$</li>
+              <li><b>Transformed point cloud</b>: $\bar{\mathbf{X}} = \{\bar{x}_1, \bar{x}_2, \cdots, \bar{x}_n\}$</li>
+            </ul>
+            <p>
+              Therefore, our dataset is defined as described above, consisting of corresponding points such as x1 and
+              y1, x2 and y2, etc., which represent the same point observed from different locations. Note that the
+              coordinate system used is x-forward and y-left.
+            </p>
+
+            <h2>One-Shot Optimal Solution</h2>
+            <p>
+              As mentioned earlier, it has been proven that a one-shot direct algorithm exists for registering two point
+              clouds, provided the correct correspondences are known. The core technique utilized in this process is
+              Singular Value Decomposition (SVD). The procedure involves several key steps:
+            </p>
+            <ol>
+              <li>Determine the centroid for each point cloud.</li>
+              <li>Shift both point clouds such that their centroids coincide with the origin.</li>
+              <li>Construct the rotation matrix $\mathbf{R}$ that aligns the two point clouds.</li>
+              <li>
+                Shift both point clouds back to their initial positions and rotate the second point cloud by
+                $\mathbf{R}$.
+              </li>
+              <li>Find the translation vector $\mathbf{t}$ that aligns the two point clouds.</li>
+            </ol>
+            <p>
+              Quite simple, isn't it? This direct method can be done only if the correct correspondences are known,
+              which means that we know the first point cloud and the second point cloud are the same point observed from
+              different locations. In the next section, we will derive the mathematical formulation for each step.
+            </p>
+
+            <h3>1. Determine the centroid for each point cloud.</h3>
+            <p>
+              The centroid of a point cloud is the average of all points in the point cloud. It can be computed as
+              follows:
+            </p>
+            <p class="math-center">$x_0 = \frac{1}{n} \sum_{i=1}^{n} x_i$</p>
+            <p class="math-center">$y_0 = \frac{1}{n} \sum_{i=1}^{n} y_i$</p>
+
+            <h3>2. Shift both point clouds such that their centroids coincide with the origin.</h3>
+            <p>
+              The centroid of each point cloud is subtracted from all points in the point cloud. This operation shifts
+              the centroid to the origin.
+            </p>
+            <p class="math-center">$x_i = x_i - x_0$</p>
+            <p class="math-center">$y_i = y_i - y_0$</p>
+
+            <h3>3. Construct the rotation matrix $\mathbf{R}$ that aligns the two point clouds.</h3>
+            <h4>
+              3.1. Compute the covariance matrix $\mathbf{H}$ of the two point clouds $\mathbf{X}$ and $\mathbf{Y}$.
+            </h4>
+            <p>
+              The covariance matrix $\mathbf{H}$ is a square matrix that contains the covariance between each pair of
+              elements of a vector. The covariance between two elements $x_i$ and $y_i$ is computed as follows:
+            </p>
+            <p class="math-center">$cov(x_i, y_i) = \sum_{i=1}^{n} (x_i - x_0)(y_i - y_0)$</p>
+            <p>The covariance matrix $\mathbf{H}$ is computed as follows:</p>
+            <p class="math-center">$\mathbf{H} = \sum_{i=1}^{n} (x_i - x_0)(y_i - y_0)$</p>
+
+            <h4>3.2. Construct the rotation matrix $\mathbf{R}$.</h4>
+            <p>
+              The rotation matrix $\mathbf{R}$ is constructed using Singular Value Decomposition (SVD). SVD is a
+              technique to decompose a matrix into three matrices, as follows:
+            </p>
+            <p class="math-center">$\mathbf{H} = \mathbf{U} \mathbf{D} \mathbf{V}^T$</p>
+            <p>
+              $\mathbf{U}$ and $\mathbf{V}$ are orthogonal matrices, and $\mathbf{D}$ is a diagonal matrix. The diagonal
+              elements of $\mathbf{D}$ are called singular values. The singular values are sorted in descending order.
+              The first column of $\mathbf{U}$ is called the left singular vector, and the first column of $\mathbf{V}$
+              is called the right singular vector. The left singular vector and the right singular vector are orthogonal
+              to each other. The left singular vector and the right singular vector corresponding to the largest
+              singular value are called the principal components. The principal components are the directions of the
+              largest variance of the data. The principal components are also called the principal axes.
+            </p>
+            <p>
+              The rotation matrix $\mathbf{R}$ is constructed using the principal components of $\mathbf{X}$ and
+              $\mathbf{Y}$ as follows:
+            </p>
+            <p class="math-center">$\mathbf{R} = \mathbf{V} \mathbf{U}^T$</p>
+
+            <h3>
+              4. Shift both point clouds back to their initial positions and rotate the second point cloud by
+              $\mathbf{R}$.
+            </h3>
+            <p>The rotation matrix $\mathbf{R}$ is applied to the second point cloud $\mathbf{X}$ as follows:</p>
+            <p class="math-center">$\bar{x}_i = \mathbf{R} x_i$</p>
+
+            <h3>5. Find the translation vector $\mathbf{t}$ that aligns the two point clouds.</h3>
+            <p>
+              The translation vector $\mathbf{t}$ is computed as follows. The translation vector $\mathbf{t}$ is the
+              difference between the centroid of the second point cloud $\mathbf{X}$ and the centroid of the rotated
+              second point cloud $\bar{\mathbf{X}}$.
+            </p>
+            <p class="math-center">
+              $\mathbf{t} = \frac{1}{n} \sum_{i=1}^{n} (\bar{x}_i - x_i) = \frac{1}{n} \sum_{i=1}^{n} (\mathbf{R} x_i -
+              x_i)$
+            </p>
+          </div>
+
+          <post-footer></post-footer>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2025 Seongmin Jung<br />Designed and developed by Seongmin Jung</p>
+    </footer>
+  </body>
+</html>

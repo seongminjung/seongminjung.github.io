@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="/css/index.css" />
+    <script type="module" src="/js/main.js" defer></script>
+  </head>
+
+  <body>
+    <web-head></web-head>
+    <web-header></web-header>
+
+    <main>
+      <div class="container">
+        <section id="post">
+          <post-header></post-header>
+
+          <div class="post-body">
+            <h2>Rotation Vectors</h2>
+            <p>
+              앞선 포스팅에서 설명한 Rotation matrix의 경우 9개의 parameter를 가지고 있는데, 실제 3차원 회전은 3DoF를
+              가지므로 redundancy가 생긴다. Transformation matrix의 경우에도 16개의 parameter를 가지고 있지만, 3차원
+              변환은 6DoF를 가진다. 또한 Rotation과 transformation matrix는 determinant가 1이어야 하므로 부가적인
+              constraint가 생긴다.
+            </p>
+            <p>
+              Rotation과 transformation이 많은 경우 주된 표현법으로 사용되지만, 다른 표현법으로 Rotation vector가 있다.
+              방향은 회전축과 평행하고 길이는 회전 각도와 같게 설정한 벡터다. 따라서 3개의 변수로 3DoF를 표현할 수 있다.
+              또한 3차원 translation vector와 함께 사용되어 6개의 변수로 6DoF를 표현할 수 있다.
+            </p>
+            <p>
+              회전축의 방향이 단위벡터 $\mathbf{n}$과 평행하고 회전각이 $\theta$일 때, Rotation vector는
+              $\theta\mathbf{n}$으로 표현될 수 있다.
+            </p>
+            <p>
+              Rotation matrix $\mathbf{R}$와 Rotation vector $\theta\mathbf{n}$의 관계는 다음과 같다. 우선 Rotation
+              vector로부터 rotation matrix를 계산하는 과정은 Rodrigues' formula를 사용하는데, 결과만 살펴보면 아래와
+              같다.
+            </p>
+            <p class="math-center">
+              $R = \cos\theta\mathbf{I} + (1 - \cos\theta)\mathbf{n}\mathbf{n}^T + \sin\theta\mathbf{n}^\wedge$
+            </p>
+            <p>이때 $\mathbf{n}^\wedge$는 skew-symmetric matrix로 다음과 같이 정의된다.</p>
+            <p class="math-center">
+              $\mathbf{n}^\wedge = \begin{bmatrix} 0 & -n_3 & n_2 \\ n_3 & 0 & -n_1 \\ -n_2 & n_1 & 0 \end{bmatrix}$
+            </p>
+            <p>
+              이를 이용하여 Rotation matrix $\mathbf{R}$로부터 Rotation vector $\theta\mathbf{n}$을 계산하는 과정은
+              다음과 같다. 우선 $\theta$의 경우 양변에 trace를 취한다.
+            </p>
+            <p class="math-center">
+              $\begin{align*} \text{tr}(\mathbf{R}) & = \cos\theta\text{tr}(\mathbf{I}) + (1 -
+              \cos\theta)\text{tr}(\mathbf{n}\mathbf{n}^T) + \sin\theta\text{tr}(\mathbf{n}^\wedge) \\ & = 3\cos\theta +
+              (1 - \cos\theta) \\ & = 1 + 2\cos\theta \end{align*}$
+            </p>
+            <p>따라서,</p>
+            <p class="math-center">$\theta = \arccos\left(\frac{\text{tr}(\mathbf{R}) - 1}{2}\right)$.</p>
+            <p>회전축 $\mathbf{n}$의 경우 회전하더라도 변하지 않으므로 그대로 사용할 수 있다.</p>
+            <p>이 변환 공식은 다음 단원인 3. Lie Group and Lie Algebra에서도 등장하는 공식이다.</p>
+
+            <h2>Euler Angles</h2>
+            <p>
+              Rotation vector보다 더 직관적인 방법으로 Euler Angle이 있다. Rotation vector에서는 임의의 회전축이 가능한
+              반면, Euler Angle에서는 X, Y, Z축을 기준으로 회전을 정의하는데, 각 축을 기준으로 몇 도씩 회전했는지를
+              나타낸다. 따라서 3개의 변수로 3차원 회전을 표현할 수 있다. 이때 유의할 점은, 어떤 축을 기준으로 먼저
+              회전시킬지에 따라 결과가 달라진다는 것이다. 또한 회전의 기준이 되는 X, Y, Z축을 고정시킬 것인지,
+              회전축까지 함께 회전시킬 것인지에 따라서도 결과가 달라진다. 여러 분야마다 각각의 convention이 존재하지만
+              이 책에서는 ZYX 순서로 진행하고, 회전축을 함께 회전시키는 방법을 사용한다.
+            </p>
+            <p>Euler Angle은 $[y, p, r]^T$로 표기할 수 있고, 각각 Yaw, Pitch, Roll을 의미한다.</p>
+            <img src="/study/visual_slam/vslam_3/img1.png" alt="Coordinate Systems" />
+            <p>
+              위 그림은 ZYX 순서로 회전하는 경우를 나타낸다. 회전축까지 함께 회전하기 때문에 Y와 X축 회전을 할 때는 처음
+              회전축을 기준으로 하는 것이 아닌 회전된 축을 기준으로 회전한다.
+            </p>
+
+            <h3>Gimbal Lock</h3>
+            <p>
+              Euler Angle의 경우 Gimbal Lock이라는 문제를 내재하고 있는데, 이는 Euler Angle이 SLAM과 같은 문제에
+              직접적으로 활용되지 못하게 하는 원인이다.
+            </p>
+            <img src="/study/visual_slam/vslam_3/img2.png" alt="Gimbal Lock" />
+            <p>
+              위 그림은 ZYX 회전 상황에서 Y축 회전인 pitch가 90도인 경우를 나타낸다. 이러한 경우 X축의 방향과 -Z축의
+              방향이 같아지게 되고, 이로 인해 X축 회전인 roll이 사라지게 된다. 이렇게 DoF를 하나 잃는 상황을 Gimbal Lock
+              또는 Singularity problem이라고 한다. 이론적으로 3개의 수로 3차원 회전을 표현하려고 하면 Gimbal Lock 문제를
+              피할 수 없다. 이러한 문제들로 인해, SLAM에서는 일반적으로 Rotation matrix나 Rotation vector를 사용하지
+              않는다.
+            </p>
+          </div>
+
+          <post-footer></post-footer>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2025 Seongmin Jung<br />Designed and developed by Seongmin Jung</p>
+    </footer>
+  </body>
+</html>

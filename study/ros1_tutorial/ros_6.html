@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="/css/index.css" />
+    <script type="module" src="/js/main.js" defer></script>
+  </head>
+
+  <body>
+    <web-head></web-head>
+    <web-header></web-header>
+
+    <main>
+      <div class="container">
+        <section id="post">
+          <post-header></post-header>
+
+          <div class="post-body">
+            <h2>Introduction</h2>
+            <img class="half" src="/study/ros1_tutorial/ros_6/img1.png" alt="URDF file" />
+            <p>
+              URDF, or Unified Robot Description Format, is an XML file format used in ROS to describe the physical
+              structure of a robot, including its links, joints, and sensors. URDF files are used by ROS to understand
+              the structure of a robot and its movements, allowing ROS to control and visualize the robot. In this
+              article, we will cover the basics of URDF files and how to define a robot model using an URDF file.
+            </p>
+
+            <h2>Create a new package</h2>
+            <p>Create a new ROS package that depends on rviz, urdf, xacro, sensor_msgs, and geometry_msgs.</p>
+            <pre><code class="language-bash">cd ~/blog_ws/src
+catkin_create_pkg my_robot rviz urdf xacro sensor_msgs geometry_msgs
+cd my_robot
+mkdir urdf
+gedit urdf/&lt;filename&gt;.urdf</code></pre>
+            <p>
+              Save your URDF file inside urdf subdirectory. Yon can name the subdirectory as you want. The path should
+              be like this: '~/workspace_name/src/package_name/urdf/filename.urdf'
+            </p>
+
+            <h2>How to define a robot model using an URDF file</h2>
+            <p>
+              Defining a robot model using an URDF file involves creating an XML file that describes the robot's
+              structure, including its links, joints, and sensors. It is important to have a good understanding of the
+              structure of your robot, including the link and joint relationships, to create an accurate URDF file.
+            </p>
+            <p>
+              Here is an example of a simple URDF file for a robot with two links (base_link and end_effector) and one
+              joint (joint1) connecting them:
+            </p>
+            <pre><code class="language-xml">&lt;?xml version="1.0"?&gt;
+&lt;robot name="my_robot"&gt;
+  &lt;link name="base_link"/&gt;
+  &lt;link name="head"/&gt;
+  &lt;joint name="base_link_head_joint" type="fixed"&gt;
+    &lt;parent link="base_link"/&gt;
+    &lt;child link="head"/&gt;
+  &lt;/joint&gt;
+&lt;/robot&gt;</code></pre>
+            <p>
+              In this example, the URDF file defines a robot with two links, "base_link" and "end_effector", and one
+              joint, "joint1". The joint is defined as a continuous joint, meaning that it can rotate indefinitely. The
+              parent link is set as "base_link" and the child link is set as "end_effector", connecting the two links
+              together.
+            </p>
+            <p>Once you have created the URDF file, you can validate it by running the command:</p>
+            <pre><code class="language-bash">check_urdf &lt;path-to-urdf-file&gt;</code></pre>
+            <p>
+              This command will check for the consistency and the errors in your URDF file and if there are no errors,
+              you are good to go. If check_urdf is not installed, use the following command to install it.
+            </p>
+            <pre><code class="language-bash">sudo apt install liburdfdom-dev liburdfdom-tools ros-noetic-urdfdom-py</code></pre>
+
+            <h2>Conclusion</h2>
+            <p>
+              URDF files are an essential part of ROS, as they allow ROS to understand the structure of a robot and its
+              movements. By understanding how to define a robot model using an URDF file, you will be able to more
+              effectively work with ROS and control and visualize your robot.
+            </p>
+            <p>
+              Check my next article about customizing and visualizing your robot
+              <a href="/study/ros1_tutorial/ros_7.html">HERE</a>.
+            </p>
+          </div>
+
+          <post-footer></post-footer>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2025 Seongmin Jung<br />Designed and developed by Seongmin Jung</p>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="/css/index.css" />
+    <script type="module" src="/js/main.js" defer></script>
+  </head>
+
+  <body>
+    <web-head></web-head>
+    <web-header></web-header>
+
+    <main>
+      <div class="container">
+        <section id="post">
+          <post-header></post-header>
+
+          <div class="post-body">
+            <h2>3D Transformations</h2>
+            <p>
+              지금까지 살펴본 변환들은 모두 도형의 형태나 크기를 변환시키지 않고, 단순히 위치를 이동시키는 변환들이다.
+              이를 Euclidean transformation이라고 한다.
+            </p>
+            <p class="math-center">$\mathbf{T} = \begin{bmatrix} R & t \\ 0 & 1 \end{bmatrix}$</p>
+            <p>
+              하지만 도형을 확대/축소시키거나 형태에 변형을 가하는 등 자유도가 높은 변환들도 존재한다. 이러한 변환들은
+              추후 Camera model 등에서 사용되니 간단히 소개하는 형태로 살펴보도록 하겠다.
+            </p>
+
+            <h3>Similarity Transformation</h3>
+            <img class="half" src="/study/visual_slam/vslam_5/img1.jpg" alt="Similarity Transformation" />
+            <p class="math-center">$\mathbf{T} = \begin{bmatrix} sR & t \\ 0 & 1 \end{bmatrix}$</p>
+            <p>
+              Similarity transformation은 Euclidean transformation에 scaling을 추가한 변환으로, 도형의 형태를 유지한 채
+              크기만 변환시킨다. 총 7DoF를 가진다.
+            </p>
+
+            <h3>Affine Transformation</h3>
+            <img class="half" src="/study/visual_slam/vslam_5/img2.jpg" alt="Affine Transformation" />
+            <p class="math-center">$\mathbf{T} = \begin{bmatrix} \mathbf{A} & t \\ 0 & 1 \end{bmatrix}$</p>
+            <p>
+              Affine transformation은 rotation matrix $\mathbf{R}$ 대신 임의의 invertible 행렬 $\mathbf{A}$를 사용하는
+              변환이다. 이때 $\mathbf{A}$는 orthogonal하지 않아도 된다. 정사각형을 마름모로 찌그러뜨리거나 직사각형을
+              평행사변형으로 변환시키는 등의 변환이 이에 해당된다. 총 12DoF를 가진다.
+            </p>
+            <p>2차원 Affine transformation을 시각화하면 아래와 같다.</p>
+            <img class="half" src="/study/visual_slam/vslam_5/img3.jpg" alt="Affine Transformation 2D" />
+            <p>실제 사진에서 2차원 Affine transformation은 아래와 같다.</p>
+            <img src="/study/visual_slam/vslam_5/img4.jpg" alt="Affine Transformation 2D" />
+
+            <h3>Projective Transformation</h3>
+            <img class="half" src="/study/visual_slam/vslam_5/img5.jpg" alt="Projective Transformation" />
+            <p class="math-center">$\mathbf{T} = \begin{bmatrix} \mathbf{A} & t \\ \mathbf{a}^T & 1 \end{bmatrix}$</p>
+            <p>
+              Projective transformation은 가장 자유도가 높은 변환으로, 물체의 원근감까지 표현할 수 있다. 마지막 row의
+              $\mathbf{a}^T$가 원근감 역할을 한다. 이 변환은 3차원 공간을 2차원으로 투영하는 것을 표현할 수 있다. 예를
+              들어 카메라로 바닥의 정사각형 타일을 찍는 경우, 각도에 따라 정사각형이 마름모 등으로 변형될 것이며
+              원근으로 인해 멀리 있는 변의 길이가 줄어들어 변들이 수직이거나 평행하지 않게 될 것이다. 총 15DoF를 가진다.
+            </p>
+            <p>실제 사진에서 2차원 Projective transformation은 아래와 같다.</p>
+            <img src="/study/visual_slam/vslam_5/img6.jpg" alt="Affine Transformation 2D" />
+            <p>
+              여러 종류의 변환을 2D 좌표평면에서 표현하면 아래 그림과 같다. 이때는 Transformation matrix가 3x3이 된다.
+            </p>
+            <img class="half" src="/study/visual_slam/vslam_5/img7.jpg" alt="2D Transformations" />
+
+            <h2>Decomposition of Projective Transformations</h2>
+            <p>임의의 Projective transformation은 similarity, affine, projective 변환으로 분해할 수 있다.</p>
+            <p class="math-center">$\mathbf{T} = \mathbf{T}_s \mathbf{T}_a \mathbf{T}_p$</p>
+            <p class="math-center">
+              $\mathbf{T}_s = \begin{bmatrix} s\mathbf{R} & t \\ \mathbf{0}^T & 1 \end{bmatrix}, \quad \mathbf{T}_a =
+              \begin{bmatrix} \mathbf{K} & 0 \\ \mathbf{0}^T & 1 \end{bmatrix}, \quad \mathbf{T}_p = \begin{bmatrix}
+              \mathbf{I} & 0 \\ \mathbf{v}^T & v \end{bmatrix}$
+            </p>
+          </div>
+
+          <post-footer></post-footer>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2025 Seongmin Jung<br />Designed and developed by Seongmin Jung</p>
+    </footer>
+  </body>
+</html>

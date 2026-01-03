@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="/css/index.css" />
+    <script type="module" src="/js/main.js" defer></script>
+  </head>
+
+  <body>
+    <web-head></web-head>
+    <web-header></web-header>
+
+    <main>
+      <div class="container">
+        <section id="post">
+          <post-header></post-header>
+
+          <div class="post-body">
+            <arxiv-card
+              title="CNN-SLAM: Real-time dense monocular SLAM with learned depth prediction"
+              venue="CVPR 2017"
+              authors="Keisuke Tateno, Federico Tombari, Iro Laina, Nassir Navab"
+              link="https://arxiv.org/abs/1704.03489"
+            >
+            </arxiv-card>
+
+            <h2>1. Abstract</h2>
+            <img class="half" src="/study/paper_summaries/cnn-slam/img1.png" alt="Abstract" />
+            <ul>
+              <li>CNN-predicted depth maps -> Fused with depths from direct monocular SLAM</li>
+              <li>Use depth prediction for estimating absolute scale</li>
+              <li>Fusee semantic labels with dense SLAM -> Semantic scene reconstruction</li>
+            </ul>
+
+            <h2>2. Introduction</h2>
+            <img src="/study/paper_summaries/cnn-slam/img2.jpg" alt="Introduction" />
+
+            <h2>3. Proposed Method</h2>
+            <img src="/study/paper_summaries/cnn-slam/img3.png" alt="Proposed Method" />
+            <img src="/study/paper_summaries/cnn-slam/img4.jpg" alt="Proposed Method" />
+            <img src="/study/paper_summaries/cnn-slam/img5.jpg" alt="Proposed Method" />
+          </div>
+
+          <post-footer></post-footer>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2025 Seongmin Jung<br />Designed and developed by Seongmin Jung</p>
+    </footer>
+  </body>
+</html>
