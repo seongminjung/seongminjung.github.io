@@ -131,6 +131,18 @@ export class WebHeader extends HTMLElement {
 }
 customElements.define("web-header", WebHeader);
 
+export class WebFooter extends HTMLElement {
+  constructor() {
+    super();
+    this.innerHTML = `
+      <footer>
+        <p>&copy; 2026 Seongmin Jung<br />Designed and developed by Seongmin Jung</p>
+      </footer>
+    `;
+  }
+}
+customElements.define("web-footer", WebFooter);
+
 export class PostHeader extends HTMLElement {
   constructor() {
     super();

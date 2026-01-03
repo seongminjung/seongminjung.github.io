@@ -67,7 +67,7 @@
               이 책에서는 ZYX 순서로 진행하고, 회전축을 함께 회전시키는 방법을 사용한다.
             </p>
             <p>Euler Angle은 $[y, p, r]^T$로 표기할 수 있고, 각각 Yaw, Pitch, Roll을 의미한다.</p>
-            <img src="/study/visual_slam/vslam_3/img1.png" alt="Coordinate Systems" />
+            <img src="/articles/visual_slam/vslam_3/img1.png" alt="Coordinate Systems" />
             <p>
               위 그림은 ZYX 순서로 회전하는 경우를 나타낸다. 회전축까지 함께 회전하기 때문에 Y와 X축 회전을 할 때는 처음
               회전축을 기준으로 하는 것이 아닌 회전된 축을 기준으로 회전한다.
@@ -78,7 +78,7 @@
               Euler Angle의 경우 Gimbal Lock이라는 문제를 내재하고 있는데, 이는 Euler Angle이 SLAM과 같은 문제에
               직접적으로 활용되지 못하게 하는 원인이다.
             </p>
-            <img src="/study/visual_slam/vslam_3/img2.png" alt="Gimbal Lock" />
+            <img src="/articles/visual_slam/vslam_3/img2.png" alt="Gimbal Lock" />
             <p>
               위 그림은 ZYX 회전 상황에서 Y축 회전인 pitch가 90도인 경우를 나타낸다. 이러한 경우 X축의 방향과 -Z축의
               방향이 같아지게 되고, 이로 인해 X축 회전인 roll이 사라지게 된다. 이렇게 DoF를 하나 잃는 상황을 Gimbal Lock
@@ -93,8 +93,6 @@
       </div>
     </main>
 
-    <footer>
-      <p>&copy; 2025 Seongmin Jung<br />Designed and developed by Seongmin Jung</p>
-    </footer>
+    <web-footer></web-footer>
   </body>
 </html>
