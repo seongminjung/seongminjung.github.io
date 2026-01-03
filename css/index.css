@@ -476,6 +476,10 @@ figure figcaption {
 
 /* Category Tag */
 .category-tag {
+  border: none;
+  background: none;
+  font: inherit;
+  cursor: pointer;
   font-size: 0.8rem;
   font-weight: 400;
   color: #666;
@@ -576,7 +580,7 @@ figure figcaption {
 }
 
 .item-card .category-tag {
-  margin-bottom: 10px;
+  margin-top: 10px;
 }
 
 .item-card .flex .date {
@@ -699,7 +703,7 @@ figure figcaption {
 
 /* post page */
 #post .category-tag {
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 #post .date {

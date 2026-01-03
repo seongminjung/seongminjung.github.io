@@ -18,12 +18,14 @@ class ArticleItem extends HTMLElement {
     const detail = this.getAttribute("detail") || "Detail Text";
 
     wrapper.innerHTML = `
-      <a class="category-tag" href="/articles/${folder}.html"><i class="fa fa-book"></i> ${category}</a>
       <a class="flex" href="/articles/${folder}/${filename}.html">
         <div class="left">
           <h3>${title}</h3>
           <p class="date">Posted on <time datetime="${date}">${formatDate(date)}</time></p>
           <p class="detail">${detail}</p>
+          <button type="button" class="category-tag" onclick="location.href='/articles/${folder}.html'">
+            <i class="fa fa-book"></i> ${category}
+          </button>
         </div>
         <img class="preview" src="/articles/${folder}/${filename}/img1.png" alt="preview" />
       </a>
@@ -145,9 +147,9 @@ export class PostHeader extends HTMLElement {
     const folder = categoryInfo?.folder || "";
 
     this.innerHTML = `
-      <a class="category-tag" href="/articles/${folder}.html"
-        ><i class="fa fa-book"></i> ${categoryName}</a
-      >
+      <button type="button" class="category-tag" onclick="location.href='/articles/${folder}.html'">
+        <i class="fa fa-book"></i> ${categoryName}
+      </button>
       <h1>${article.title}</h1>
       <p class="date">Posted on <time datetime="${article.date}">${formatDate(article.date)}</time></p>
     `;
