@@ -107,6 +107,11 @@ MathJax.Hub.Config({
       study: "Seongmin Jung | Study",
     };
 
+    if (pagename === "projects") {
+      this.titleElement.textContent = mainPages[pagename];
+      return;
+    }
+
     if (!category && mainPages[pagename]) {
       this.titleElement.textContent = mainPages[pagename];
       return;
