@@ -48,6 +48,11 @@ MathJax.Hub.Config({
         rel: "stylesheet",
         href: "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css",
       },
+      {
+        tag: "link",
+        rel: "stylesheet",
+        href: "https://unpkg.com/academicons@1.9.1/css/academicons.min.css",
+      },
     ];
 
     if (location.hostname.endsWith(".github.io")) {
@@ -66,8 +71,8 @@ MathJax.Hub.Config({
           tag: "script",
           id: "mapmyvisitors",
           type: "text/javascript",
-          src: "//mapmyvisitors.com/map.js?d=lhkwnS8G_vrjHqH6j4zkkmHDJU0apnxe7kZ3wjeFSNc&cl=ffffff&w=a"
-        },
+          src: "//mapmyvisitors.com/map.js?d=lhkwnS8G_vrjHqH6j4zkkmHDJU0apnxe7kZ3wjeFSNc&cl=ffffff&w=a",
+        }
       );
 
       // hide mapmyvisitors widget

@@ -293,6 +293,22 @@ footer {
   border-top-color: #666;
 }
 
+#bio .flex .left .link {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+#bio .flex .left .link a {
+  color: #212529;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+#bio .flex .left .link a:not(:first-child) {
+  font-size: 1.3rem;
+}
+
 @media (max-width: 700px) {
   #bio .flex {
     flex-direction: column-reverse;
@@ -310,12 +326,6 @@ footer {
 
 #bio .flex .profile {
   height: 240px;
-}
-
-#bio .link a {
-  color: #007bff;
-  text-decoration: none;
-  font-weight: 700;
 }
 
 #education .uni {
