@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="/css/index.css" />
+    <script type="module" src="/js/main.js" defer></script>
+  </head>
+
+  <body>
+    <web-head></web-head>
+    <web-header></web-header>
+
+    <main>
+      <div class="container">
+        <section id="project-detail">
+          <a class="back" href="/projects.html"><i class="fa fa-chevron-left"></i> Back to Projects Page</a>
+          <h1>Solving Rubik's Cube with Bimanual Robot Hands</h1>
+          <p>
+            This work presents a simulation-to-learning pipeline for 2×2 Rubik's Cube manipulation using a humanoid
+            robot. A high-fidelity simulation environment was constructed by integrating Isaac Lab with LeRobot,
+            enabling VR-based teleoperation data collection using a Unitree G1 humanoid equipped with a multi-DoF
+            Inspire hand. To address simulation inefficiencies, the cube asset was simplified to reduce collision
+            overhead, and force transmission issues in the robotic hand were resolved through targeted parameter tuning.
+            Approximately 120 teleoperated episodes were collected and used for imitation learning. Training was
+            performed with GR00T N1.5, resulting in stable grasping and rotation behaviors. Quantitative evaluation
+            demonstrated a peak success rate of 60% after stepwise training optimization, while qualitative analysis
+            revealed emergent behaviors such as multi-rotation execution despite single-rotation training data. However,
+            the learned policy showed limited generalization to background variations. This study highlights the
+            importance of simulation fidelity, data consistency, and task scoping in complex dexterous manipulation, and
+            outlines future directions including sim-to-real transfer and high-level planning integration.
+          </p>
+          <!-- <figure class="video">
+            <div class="video-wrap">
+              <iframe
+                src="https://drive.google.com/file/d/1c4TlvHanG_5wa5VBstaK69lmznA0AEJH/preview"
+                allowfullscreen
+              ></iframe>
+            </div>
+            <figcaption>Customly built cube asset for full degree of freedom.</figcaption>
+          </figure> -->
+          <figure class="video">
+            <div class="video-wrap">
+              <iframe
+                src="https://drive.google.com/file/d/1B6oOhRrp7HnTlwjp9MwMDCyGf0ksYOzA/preview"
+                allowfullscreen
+              ></iframe>
+            </div>
+            <figcaption>Simplified version of the cube, used for training.</figcaption>
+          </figure>
+          <figure class="video">
+            <div class="video-wrap">
+              <iframe
+                src="https://drive.google.com/file/d/1-isuFwyeZxbmf0BHrtiJJ7Vg2OTLyexo/preview"
+                allowfullscreen
+              ></iframe>
+            </div>
+            <figcaption>Data collection using VR teleoperation.</figcaption>
+          </figure>
+          </figure>
+          <figure class="video">
+            <div class="video-wrap">
+              <iframe
+                src="https://drive.google.com/file/d/1v1c0R7NY_ols-0EE2kuUeOZ4leCfYIUu/preview"
+                allowfullscreen
+              ></iframe>
+            </div>
+            <figcaption>Rollout of the trained policy. The last trial (~8:00) is the cleanest success.</figcaption>
+          </figure>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2025 Seongmin Jung<br />Designed and developed by Seongmin Jung</p>
+    </footer>
+  </body>
+</html>

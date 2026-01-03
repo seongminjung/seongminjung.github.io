@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="/css/index.css" />
+    <script type="module" src="/js/main.js" defer></script>
+  </head>
+
+  <body>
+    <web-head></web-head>
+    <web-header></web-header>
+
+    <main>
+      <div class="container">
+        <section id="project-detail">
+          <a class="back" href="/projects.html"><i class="fa fa-chevron-left"></i> Back to Projects Page</a>
+          <h1>Underwater ROV Simulation</h1>
+          <p>
+            At <a href="https://www.cwrubotix.org/" target="_blank">CWRUBotix</a>, I developed an underwater ROV
+            simulation for the MATE ROV World Championship 2023. This involved using the Gazebo simulator and ROS to
+            replicate real mission scenarios. The first challenge was buoyancy. With no water model in Gazebo, I
+            adjusted the air density to 1000kg/m<sup>3</sup> and fine-tuned the robot model's mass. Second, I precisely
+            modeled the eight thrusters' power and blade arrangement, applying fluid dynamics principles. Lastly, I
+            integrated ROS for maneuverability and stabilization, mirroring the actual robot's autopilot system. As a
+            result, our simulation evolved into a realistic platform for testing mission execution.
+          </p>
+          <figure class="video">
+            <div class="video-wrap">
+              <iframe src="https://www.youtube.com/embed/zPwEMrhUbnM" allowfullscreen></iframe>
+            </div>
+            <figcaption>ROV basic manipulation test</figcaption>
+          </figure>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2025 Seongmin Jung<br />Designed and developed by Seongmin Jung</p>
+    </footer>
+  </body>
+</html>

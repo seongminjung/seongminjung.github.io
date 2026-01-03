@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="/css/index.css" />
+    <script type="module" src="/js/main.js" defer></script>
+  </head>
+
+  <body>
+    <web-head></web-head>
+    <web-header></web-header>
+
+    <main>
+      <div class="container">
+        <section id="project-detail">
+          <a class="back" href="/projects.html"><i class="fa fa-chevron-left"></i> Back to Projects Page</a>
+          <h1>Neural SLAM with Point Cloud Projection for Faster RGB-D Tracking</h1>
+          <p>
+            Dense visual simultaneous localization and mapping (SLAM) systems have significantly advanced with the
+            integration of learning-based scene representations. These representations enhance mapping fidelity and
+            robustness to noise but are computationally expensive, particularly in repetitive rendering processes.
+            Neural point cloud-based systems, despite their adaptability and state-of-the-art performance, suffer from
+            time-intensive nearest-neighbor searches. We propose a novel projection-first rendering strategy that
+            significantly improves processing speed for tracking, enabling real-time performance. Additionally, we
+            introduce a direct occlusion detection mechanism leveraging keyframe depth information for efficient and
+            accurate occlusion handling without requiring volume rendering. Extensive evaluations on both synthetic
+            (Replica) and real-world (TUM-RGBD) datasets demonstrate that PoP-SLAM significantly improves tracking
+            speed—-achieving around 4 frames per second—-as well as maintaining the superior tracking accuracy in the
+            TUM-RGBD dataset.
+          </p>
+          <figure class="video">
+            <div class="video-wrap">
+              <iframe src="https://www.youtube.com/embed/ZHmww1jNP-k" allowfullscreen></iframe>
+            </div>
+            <figcaption>
+              Evaluation of our method. Left: RGB, Center: projected neural point cloud, Right: trajectory of GT, Ours
+              (orange), Point-SLAM (green) in xy coordinates.
+            </figcaption>
+          </figure>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2025 Seongmin Jung<br />Designed and developed by Seongmin Jung</p>
+    </footer>
+  </body>
+</html>

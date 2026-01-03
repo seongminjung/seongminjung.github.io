@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="/css/index.css" />
+    <script type="module" src="/js/main.js" defer></script>
+  </head>
+
+  <body>
+    <web-head></web-head>
+    <web-header></web-header>
+
+    <main>
+      <div class="container">
+        <section id="project-detail">
+          <a class="back" href="/projects.html"><i class="fa fa-chevron-left"></i> Back to Projects Page</a>
+          <h1>Height-embedded Iterative Closest Point (ICP)</h1>
+          <p>
+            I enhanced pose tracking by integrating scene understanding. I utilized vertically oriented objects in urban
+            settings, such as poles and trees, as landmarks. I created a 2D grid data structure that records the
+            vertical extent of these objects, efficiently condensing the spatial information into a representative
+            value. Then, I developed a pose-tracking algorithm based on 2D Iterative Closest Point (ICP). In the
+            process, each cell was assigned a weight proportional to its height value, considering the significance of
+            each cell's spatial contribution. This approach significantly reduced computational load while maintaining
+            accuracy in relation to the 3D point cloud-based pose-tracking algorithms.
+          </p>
+          <figure class="video">
+            <div class="video-wrap">
+              <iframe
+                src="https://drive.google.com/file/d/1iHjxNshCGbZNZfmJzO52A0Nr5yfJF4xn/preview"
+                allowfullscreen
+              ></iframe>
+            </div>
+            <figcaption>
+              Close-up view of iterative matching between source and target frames, represented as rectangular blocks
+              with corresponding heights.
+            </figcaption>
+          </figure>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2025 Seongmin Jung<br />Designed and developed by Seongmin Jung</p>
+    </footer>
+  </body>
+</html>

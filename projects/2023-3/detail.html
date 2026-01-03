@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="/css/index.css" />
+    <script type="module" src="/js/main.js" defer></script>
+  </head>
+
+  <body>
+    <web-head></web-head>
+    <web-header></web-header>
+
+    <main>
+      <div class="container">
+        <section id="project-detail">
+          <a class="back" href="/projects.html"><i class="fa fa-chevron-left"></i> Back to Projects Page</a>
+          <h1>Isaac Sim Environment for Heterogeneous Multi-Robot Systems</h1>
+          <p>
+            In this project, I built a heterogeneous multi-robot simulation environment using NVIDIA Isaac Sim,
+            combining both ground and aerial robotic platforms within a single virtual scene. Each robot was configured
+            with its own control stack and sensor setup through ROS, allowing realistic testing of navigation,
+            perception, and coordination behaviors. On top of this simulation framework, I integrated the
+            <a href="https://www.cmu-exploration.com/m-tare-planner" target="_blank">M-TARE</a>
+            planner to enable autonomous exploration capabilities, allowing the robots to collaboratively explore
+            unknown environments in real time. By simulating diverse robot types operating together with autonomous
+            exploration and decision-making, this environment serves as a practical testbed for validating multi-robot
+            systems before deploying them on real hardware.
+          </p>
+          <figure class="video">
+            <div class="video-wrap">
+              <iframe
+                src="https://drive.google.com/file/d/1vdaU_WGb0ojeboV7ymEYcrZdA4v_fIpJ/preview"
+                allowfullscreen
+              ></iframe>
+            </div>
+            <figcaption>Live demonstration of a small-robot simulation test environment.</figcaption>
+          </figure>
+        </section>
+      </div>
+    </main>
+
+    <footer>
+      <p>&copy; 2025 Seongmin Jung<br />Designed and developed by Seongmin Jung</p>
+    </footer>
+  </body>
+</html>

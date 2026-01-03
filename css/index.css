@@ -420,6 +420,50 @@ footer {
   }
 }
 
+#project-detail a.back {
+  display: inline-block;
+  font-size: 0.9rem;
+  color: #666;
+  text-decoration: none;
+  margin-bottom: 20px;
+}
+
+#project-detail a.back:hover {
+  color: #212529;
+  text-decoration: underline;
+}
+
+#project-detail a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+#project-detail img {
+  width: 100%;
+  display: block;
+}
+
+#project-detail img.half {
+  width: 50%;
+  margin: 0 auto;
+}
+
+figure {
+  margin: 40px;
+}
+
+figure .video-wrap iframe {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+}
+
+figure figcaption {
+  margin-top: 4px;
+  font-size: 0.9rem;
+  color: #666;
+  text-align: center;
+}
+
 /* Category Tag */
 .category-tag {
   font-size: 0.8rem;
