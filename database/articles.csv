@@ -60,7 +60,7 @@ date,category_id,filename,title,detail
 2025-02-15,3,structure-clip,Structure-CLIP: Towards Scene Graph Knowledge to Enhance Multi-modal Structured Representations,AAAI 2024
 2025-02-18,6,lecture_7,Lecture 7: Normalizing Flows I,Normalizing Flows I
 2025-02-21,6,lecture_8,Lecture 8: Normalizing Flows II,Normalizing Flows II
-2025-02-23,3,mosaic3d,Mosaic3D: Foundation Dataset and Model for Open-Vocabulary 3D Segmentation,ArXiv 2025.02
+2025-02-23,3,mosaic3d,Mosaic3D: Foundation Dataset and Model for Open-Vocabulary 3D Segmentation,CVPR 2025
 2025-02-28,6,lecture_9,Lecture 9: GANs I,GANs I
 2025-03-10,3,mikasa,MiKASA: Multi-Key-Anchor & Scene-Aware Transformer for 3D Visual Grounding,CVPR 2024
 2025-03-15,3,mvt,Multi-View Transformer for 3D Visual Grounding,CVPR 2022
@@ -71,3 +71,4 @@ date,category_id,filename,title,detail
 2025-04-14,3,panoswin,PanoSwin: a Pano-style Swin Transformer for Panorama Understanding,CVPR 2023
 2025-04-21,3,cogvlm,CogVLM: Visual Expert for Pretrained Language Models,NeurIPS 2024
 2025-11-11,3,rt-2,RT-2: Vision-Language-Action Models Transfer Web Knowledge to Robotic Control,CoRL 2023
+2025-11-18,3,rvt,RVT: Robotic View Transformer for 3D Object Manipulation,CoRL 2023 Oral
