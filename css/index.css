@@ -275,7 +275,9 @@ footer {
 
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.15s ease, transform 0.15s ease;
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
   z-index: 10;
 }
 
@@ -305,7 +307,7 @@ footer {
   text-decoration: none;
 }
 
-#bio .flex .left .link a:nth-child(n+3) {
+#bio .flex .left .link a:nth-child(n + 3) {
   font-size: 1.3rem;
 }
 
@@ -751,26 +753,31 @@ figure figcaption {
 
 #post .post-body h2 {
   font-size: 1.6rem;
+  margin-bottom: 30px;
 }
 
-#post .post-body h2:not(:first-child) {
+#post .post-body h2:not(:first-of-type) {
   margin-top: 50px;
-  margin-bottom: 20px;
+  padding-top: 50px;
+  border-top: 1px solid #e6e6e6;
 }
 
 #post .post-body h3 {
-  font-size: 1.4rem;
-  margin-top: 50px;
+  font-size: 1.3rem;
+  margin-top: 30px;
+  margin-bottom: 10px;
 }
 
 #post .post-body h4 {
   font-size: 1rem;
+  margin-top: 20px;
+  margin-bottom: 0px;
 }
 
 #post .post-body p,
 #post .post-body ul,
 #post .post-body ol {
-  margin-top: 20px;
+  margin-top: 0;
   margin-bottom: 20px;
 }
 
@@ -785,14 +792,14 @@ figure figcaption {
 
 #post .post-body img {
   width: 100%;
-  margin-top: 40px;
-  margin-bottom: 40px;
+  margin-top: 30px;
+  margin-bottom: 30px;
   display: block;
 }
 
 #post .post-body img.half {
   width: 50%;
-  margin: 40px auto;
+  margin: 20px auto 20px;
 }
 
 @media (max-width: 700px) {
