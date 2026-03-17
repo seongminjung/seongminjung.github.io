@@ -79,3 +79,4 @@ date,category_id,filename,title,detail
 2026-02-23,3,sdp,Learning Diffusion Policy from Primitive Skills for Robot Manipulation,AAAI 2026
 2026-03-02,3,egoscale,EgoScale: Scaling Dexterous Manipulation with Diverse Egocentric Human Data,ArXiv 2026.02
 2026-03-12,3,uniskill,UniSkill: Imitating Human Videos via Cross-Embodiment Skill Representations,CoRL 2025
+2026-03-14,3,v-jepa,Revisiting Feature Prediction for Learning Visual Representations from Video,ArXiv 2024.04
