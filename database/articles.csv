@@ -80,3 +80,4 @@ date,category_id,filename,title,detail
 2026-03-02,3,egoscale,EgoScale: Scaling Dexterous Manipulation with Diverse Egocentric Human Data,ArXiv 2026.02
 2026-03-12,3,uniskill,UniSkill: Imitating Human Videos via Cross-Embodiment Skill Representations,CoRL 2025
 2026-03-14,3,v-jepa,Revisiting Feature Prediction for Learning Visual Representations from Video,ArXiv 2024.04
+2026-03-17,3,v-jepa2,"V-JEPA 2: Self-Supervised Video Models Enable Understanding, Prediction and Planning",ArXiv 2025.06
