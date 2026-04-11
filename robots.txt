@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://seongminjung.github.io/sitemap.xml
