@@ -1,6 +1,27 @@
 import { loadCSV } from "./csv-reader.js";
 import { parseURL } from "./utils.js";
 
+const MAIN_PAGE_META = {
+  index: {
+    title: "Seongmin Jung",
+    description:
+      "Seongmin Jung is a master's student at Seoul National University, researching 3D Vision and Robotics.",
+  },
+  publications: {
+    title: "Seongmin Jung | Publications",
+    description: "Publications by Seongmin Jung — 3D Vision and Robotics researcher at Seoul National University.",
+  },
+  projects: {
+    title: "Seongmin Jung | Projects",
+    description: "Projects by Seongmin Jung — 3D Vision and Robotics.",
+  },
+  study: {
+    title: "Seongmin Jung | Study",
+    description:
+      "Study notes and paper summaries by Seongmin Jung on topics including deep learning, SLAM, and robotics.",
+  },
+};
+
 export class WebHead extends HTMLElement {
   constructor() {
     super();
@@ -10,18 +31,21 @@ export class WebHead extends HTMLElement {
     const fragment = document.createDocumentFragment();
 
     this.titleElement = document.createElement("title");
-    this.setTitle();
     fragment.appendChild(this.titleElement);
 
-    const metaTags = [
+    this.descriptionElement = document.createElement("meta");
+    this.descriptionElement.setAttribute("name", "description");
+    this.descriptionElement.setAttribute("content", "Seongmin Jung's personal website");
+
+    const otherMetaTags = [
       { charset: "UTF-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1.0" },
-      { name: "description", content: "Seongmin Jung's personal website" },
       { name: "keywords", content: "Seongmin Jung, Robotics" },
       { name: "author", content: "Seongmin Jung" },
       { name: "language", content: "English" },
     ];
-    metaTags.forEach((metaData) => {
+    fragment.appendChild(this.descriptionElement);
+    otherMetaTags.forEach((metaData) => {
       const meta = document.createElement("meta");
       Object.entries(metaData).forEach(([key, value]) => meta.setAttribute(key, value));
       fragment.appendChild(meta);
@@ -95,39 +119,62 @@ MathJax.Hub.Config({
     });
 
     head.insertBefore(fragment, firstLinkOrScript);
+
+    this.setMeta();
   }
 
-  setTitle() {
+  setMeta() {
     const { pagename, category, filename } = parseURL();
 
-    const mainPages = {
-      index: "Seongmin Jung",
-      publications: "Seongmin Jung | Publications",
-      projects: "Seongmin Jung | Projects",
-      study: "Seongmin Jung | Study",
-    };
-
     if (pagename === "projects") {
-      this.titleElement.textContent = mainPages[pagename];
+      this.titleElement.textContent = MAIN_PAGE_META.projects.title;
+      this.descriptionElement.setAttribute("content", MAIN_PAGE_META.projects.description);
       return;
     }
 
-    if (!category && mainPages[pagename]) {
-      this.titleElement.textContent = mainPages[pagename];
+    if (!category && MAIN_PAGE_META[pagename]) {
+      this.titleElement.textContent = MAIN_PAGE_META[pagename].title;
+      this.descriptionElement.setAttribute("content", MAIN_PAGE_META[pagename].description);
       return;
     }
 
     this.filename = filename;
-    loadCSV(category, this.setTitleCallback.bind(this));
+    loadCSV(category, this.setMetaCallback.bind(this));
   }
 
-  setTitleCallback(articles, categoryMap) {
+  setMetaCallback(articles, categoryMap) {
     if (this.filename) {
-      const article = articles.find((article) => article.filename === this.filename);
+      // Individual post page
+      const article = articles.find((a) => a.filename === this.filename);
+      const categoryInfo = categoryMap[article.category_id];
+      const type = categoryInfo?.type;
+
       this.titleElement.textContent = article.title;
+      this.descriptionElement.setAttribute("content", this.buildPostDescription(article, categoryInfo, type));
     } else {
+      // Category index page
       const categoryInfo = categoryMap[articles[0].category_id];
       this.titleElement.textContent = categoryInfo.name;
+      this.descriptionElement.setAttribute(
+        "content",
+        `${categoryInfo.name} — study notes by Seongmin Jung.`
+      );
+    }
+  }
+
+  buildPostDescription(article, categoryInfo, type) {
+    const date = new Date(article.date).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+
+    if (type === "paper") {
+      return `Paper summary of "${article.title}". Presented at ${article.detail}. Posted on ${date}.`;
+    } else if (type === "lecture") {
+      return `Lecture notes on ${article.detail} from ${categoryInfo.name} course. Posted on ${date}.`;
+    } else {
+      return `${article.title} — ${article.detail}. Posted on ${date}.`;
     }
   }
 }

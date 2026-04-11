@@ -49,7 +49,8 @@ function createCategoryMap(categories) {
   categories.forEach(category => {
     map[category.id] = {
       name: category.name,
-      folder: category.folder
+      folder: category.folder,
+      type: category.type,
     };
   });
   return map;

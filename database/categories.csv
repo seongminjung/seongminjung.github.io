@@ -1,8 +1,8 @@
-id,name,folder
-1,ROS1 Tutorial,ros1_tutorial
-2,Iterative Closest Point (ICP) Algorithm,icp_algorithm
-3,Paper Summaries,paper_summaries
-4,Deep Learning for Computer Vision,deep_learning_for_computer_vision
-5,Visual SLAM,visual_slam
-6,Deep Generative Models,deep_generative_models
-7,Deep Reinforcement Learning,deep_reinforcement_learning
+id,name,folder,type
+1,ROS1 Tutorial,ros1_tutorial,tutorial
+2,Iterative Closest Point (ICP) Algorithm,icp_algorithm,tutorial
+3,Paper Summaries,paper_summaries,paper
+4,Deep Learning for Computer Vision,deep_learning_for_computer_vision,lecture
+5,Visual SLAM,visual_slam,tutorial
+6,Deep Generative Models,deep_generative_models,lecture
+7,Deep Reinforcement Learning,deep_reinforcement_learning,lecture
