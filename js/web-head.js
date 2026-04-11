@@ -1,6 +1,9 @@
 import { loadCSV } from "./csv-reader.js";
 import { parseURL } from "./utils.js";
 
+const BASE_URL = "https://seongminjung.github.io";
+const DEFAULT_OG_IMAGE = `${BASE_URL}/asset/profile.jpg`;
+
 const MAIN_PAGE_META = {
   index: {
     title: "Seongmin Jung",
@@ -48,6 +51,28 @@ export class WebHead extends HTMLElement {
     otherMetaTags.forEach((metaData) => {
       const meta = document.createElement("meta");
       Object.entries(metaData).forEach(([key, value]) => meta.setAttribute(key, value));
+      fragment.appendChild(meta);
+    });
+
+    // Open Graph tags
+    this.ogTags = {};
+    [
+      ["og:type", "website"],
+      ["og:site_name", "Seongmin Jung"],
+      ["og:url", window.location.href],
+      ["og:title", "Seongmin Jung"],
+      ["og:description", "Seongmin Jung's personal website"],
+      ["og:image", DEFAULT_OG_IMAGE],
+      ["twitter:card", "summary_large_image"],
+      ["twitter:title", "Seongmin Jung"],
+      ["twitter:description", "Seongmin Jung's personal website"],
+      ["twitter:image", DEFAULT_OG_IMAGE],
+    ].forEach(([property, content]) => {
+      const meta = document.createElement("meta");
+      const attr = property.startsWith("twitter:") ? "name" : "property";
+      meta.setAttribute(attr, property);
+      meta.setAttribute("content", content);
+      this.ogTags[property] = meta;
       fragment.appendChild(meta);
     });
 
@@ -123,18 +148,31 @@ MathJax.Hub.Config({
     this.setMeta();
   }
 
+  setOgTags(title, description, image = DEFAULT_OG_IMAGE) {
+    this.ogTags["og:title"].setAttribute("content", title);
+    this.ogTags["og:description"].setAttribute("content", description);
+    this.ogTags["og:image"].setAttribute("content", image);
+    this.ogTags["twitter:title"].setAttribute("content", title);
+    this.ogTags["twitter:description"].setAttribute("content", description);
+    this.ogTags["twitter:image"].setAttribute("content", image);
+  }
+
   setMeta() {
     const { pagename, category, filename } = parseURL();
 
     if (pagename === "projects") {
-      this.titleElement.textContent = MAIN_PAGE_META.projects.title;
-      this.descriptionElement.setAttribute("content", MAIN_PAGE_META.projects.description);
+      const { title, description } = MAIN_PAGE_META.projects;
+      this.titleElement.textContent = title;
+      this.descriptionElement.setAttribute("content", description);
+      this.setOgTags(title, description);
       return;
     }
 
     if (!category && MAIN_PAGE_META[pagename]) {
-      this.titleElement.textContent = MAIN_PAGE_META[pagename].title;
-      this.descriptionElement.setAttribute("content", MAIN_PAGE_META[pagename].description);
+      const { title, description } = MAIN_PAGE_META[pagename];
+      this.titleElement.textContent = title;
+      this.descriptionElement.setAttribute("content", description);
+      this.setOgTags(title, description);
       return;
     }
 
@@ -148,17 +186,21 @@ MathJax.Hub.Config({
       const article = articles.find((a) => a.filename === this.filename);
       const categoryInfo = categoryMap[article.category_id];
       const type = categoryInfo?.type;
+      const description = this.buildPostDescription(article, categoryInfo, type);
+      const image = `${BASE_URL}/study/${categoryInfo.folder}/${article.filename}/img1.png`;
 
       this.titleElement.textContent = article.title;
-      this.descriptionElement.setAttribute("content", this.buildPostDescription(article, categoryInfo, type));
+      this.descriptionElement.setAttribute("content", description);
+      this.setOgTags(article.title, description, image);
     } else {
       // Category index page
       const categoryInfo = categoryMap[articles[0].category_id];
-      this.titleElement.textContent = categoryInfo.name;
-      this.descriptionElement.setAttribute(
-        "content",
-        `${categoryInfo.name} — study notes by Seongmin Jung.`
-      );
+      const title = categoryInfo.name;
+      const description = `${categoryInfo.name} — study notes by Seongmin Jung.`;
+
+      this.titleElement.textContent = title;
+      this.descriptionElement.setAttribute("content", description);
+      this.setOgTags(title, description);
     }
   }
 
