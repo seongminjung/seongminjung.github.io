@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="/css/index.css" />
+    <script type="module" src="/js/main.js" defer></script>
+  </head>
+
+  <body>
+    <web-head></web-head>
+    <web-header></web-header>
+
+    <main>
+      <div class="container">
+        <section id="post">
+          <post-header></post-header>
+
+          <div class="post-body">
+            <arxiv-card
+              title="Compositional Generative Modeling: A Single Model is Not All You Need"
+              venue="ICML 2024"
+              authors="Yilun Du, Leslie Kaelbling"
+              link="https://arxiv.org/abs/2402.01103"
+            >
+            </arxiv-card>
+
+            <h2>TL;DR</h2>
+            <ul>
+              <li>
+                점점 커지는 단일 monolithic 생성 모델에 의존하는 대신, 여러 작은 생성 모델을 compositional하게 결합하여
+                복잡한 분포를 모델링해야 한다는 position paper이다.
+              </li>
+              <li>
+                분포를 factorize하면 데이터 요구량이 지수적으로 감소하고, 학습 시 보지 못한 분포로 일반화할 수 있으며,
+                새로운 task를 위해 기존 모델을 재조합할 수 있다.
+              </li>
+              <li>
+                Planning, manipulation, visual synthesis, hierarchical reasoning 등 다양한 도메인에서 compositional
+                generative modeling의 유용성을 보여준다.
+              </li>
+              <li>
+                Continuous 분포에서는 EBM과 MCMC를 사용하고, discrete 분포에서는 Gibbs sampling을 사용하여 compositional
+                distribution에서 효과적으로 sampling할 수 있다.
+              </li>
+            </ul>
+
+            <h2>Thoughts</h2>
+            <p>
+              최근 AI 연구가 monolithic scaling에 집중되면서 잊혀지기 쉬운 compositional modeling의 장점을 체계적으로
+              정리한 논문이다. "Single model is not all you need"라는 도발적인 제목이 암시하듯, Attention is All You
+              Need 류의 단일 거대 모델 패러다임에 대한 반론이자 대안적 비전을 제시한다. 저자들의 논점은 크게 세
+              가지이다. 데이터 효율성, 일반화, 재사용성. 각 논점마다 구체적 예시를 제시하여 추상적인 주장에 머물지 않고,
+              probability distribution factorization이라는 수학적으로 깔끔한 framework로 전체를 묶어내는 구성이
+              인상적이다.
+            </p>
+            <p>
+              다만 position paper의 성격상 새로운 방법론을 제시하기보다는 저자들의 기존 연구(Du et al. 시리즈)를
+              통합적으로 소개하는 성격이 강하다. 또한 "언제 compositional이 더 나은가"에 대한 명확한 경계는 제시되지
+              않는다. 예를 들어 GPT-4 같은 monolithic foundation model도 in-context learning을 통해 factorization 비슷한
+              효과를 낸다고 볼 수 있는데, 저자들은 이런 반론을 충분히 다루지 않는다.
+            </p>
+            <p>
+              또한 compositional 접근의 실용적 어려움도 주목할 필요가 있다. 저자들도 지적하듯, 여러 모델을 결합하여
+              sampling하는 것은 MCMC나 Metropolis-Hastings 같은 비효율적인 방법을 필요로 하며, 고차원 연속 공간에서
+              수렴이 느리다. 또한 독립성 가정이 자주 위배되는 실제 데이터에서 올바른 compositional 구조를 자동으로
+              발견하는 것은 여전히 어렵다. 결국 이 논문은 "이 방향이 유망하니 더 연구하자"라는 vision paper로 읽어야
+              하며, 당장의 deployable solution으로 받아들이기는 어렵다.
+            </p>
+
+            <h2>Introduction</h2>
+            <img class="half" src="/study/paper_summaries/cgm/img1.png" alt="Rising size and cost of models" />
+            <p>
+              지난 몇 년간 생성 모델은 NLP(GPT 계열), computer vision, decision-making 등에서 AI 연구의 중심이 되어왔다.
+              그러나 이런 monolithic 모델들은 여전히 intelligent reasoning에 한계가 있고, hallucination이 심하며, 상식적
+              관계 이해가 부족하다. 그럼에도 더 큰 데이터와 더 큰 모델로 학습하면서 학습 비용이 매년 약 5배씩
+              기하급수적으로 증가하여 이미 현대 연산 자원의 한계에 다다랐다. 추론 비용도 막대하다.
+            </p>
+            <p>
+              본 논문은 large monolithic 모델을 계속 확장하는 대신,
+              <b>작은 생성 모델들을 compositional하게 결합하여 복잡한 생성 시스템을 구축하자</b>는 대안적 패러다임을
+              제시한다. 각 구성 모델은 관심 변수의 부분집합에 대한 분포를 담당하며, 이들을 결합하여 전체 분포를
+              표현한다. 개별 모델은 훨씬 단순하고, 적은 데이터로 학습 가능하다. 결합된 모델은 학습 시 보지 못한 분포로도
+              일반화할 수 있다. 단, 각 구성 요소가 분포 내에서 지역적으로 존재한다는 조건 하에서이다.
+            </p>
+            <p>
+              이러한 compositional generative modeling은 자연계의 sparsity와 symmetry를 효과적으로 표현한다. Agent와
+              환경의 상호작용, 여러 source의 데이터 결합, image-language 복합 task 등에서 모두 compositional 구조를 찾을
+              수 있다.
+            </p>
+
+            <h2>Data Efficient Generative Modeling</h2>
+            <p>
+              기존 생성 모델 학습의 지배적 패러다임은 방대한 데이터와 연산으로 단일 monolithic 모델을 구축하는 것이다.
+              하지만 이 접근은 상당한 샘플 복잡도 문제를 가지며, 학습 데이터 분포를 크게 벗어나지 못한다. 예를 들어,
+              단일 분포 $p(A, B, C, D)$를 학습하려면 네 변수의 모든 조합을 보여주는 데이터가 필요하므로 $O(K^4)$개의
+              샘플이 필요하다($K$는 각 변수의 값 수).
+            </p>
+            <p>
+              반면 분포를 factorize하여 독립적인 구성 요소로 나타낼 수 있다면, 샘플 복잡도가 급격히 감소한다. 예를 들어
+              $p(A, B, C, D) \propto p(A) p(B) p(C, D)$로 factorize할 수 있다면 $O(K^2)$개의 샘플만으로 학습 가능하다.
+            </p>
+
+            <h3>Simple Distribution Composition</h3>
+            <img
+              class="half"
+              src="/study/paper_summaries/cgm/img2.png"
+              alt="Distribution composition - product vs mixture"
+            />
+            <p>
+              분포 $p(x)$가 두 분포 $p_1(x)$와 $p_2(x)$의 <b>product</b> $p(x) \propto p_1(x)p_2(x)$이거나
+              <b>mixture</b>
+              $p(x) \propto p_1(x) + p_2(x)$라고 가정한다. Factorization이 성립할 때, $p_1$과 $p_2$를 각각 학습한 뒤
+              compositional하게 결합하면 단일 모델로 $p(x)$를 직접 학습하는 것보다 훨씬 적은 데이터로 더 정확한 분포를
+              얻을 수 있다. Factorization이 가능한 구조에서는 단순 분포 학습조차 factorize한 것이 더 효율적이다.
+            </p>
+
+            <h3>Trajectory and Language Modeling</h3>
+            <img src="/study/paper_summaries/cgm/img3.png" alt="Compositional trajectory generation" />
+            <p>
+              Trajectory $\tau = (s_0, a_0, s_1, a_1, \ldots, s_T, a_T)$ 같은 고차원 sequence 분포의 경우, factorize의
+              이점이 더 커진다. MDP의 Markov 구조를 활용하여 dynamics를 local step의 product로 표현할 수 있다.
+            </p>
+            <p class="math-center">$p(\tau) \propto \prod\limits_{i} p(s_i \mid s_{i-1}, a)$</p>
+            <p>
+              Maze2D의 4D state space와 2D action space에서 실험한 결과, 학습 시작 state가 제한적인 경우 factorized
+              모델이 단일 생성 모델보다 trajectory dynamics를 훨씬 정확하게 포착한다. 또한 단일 모델은 factorized 모델
+              대비 훨씬 더 많은 iteration을 필요로 한다.
+            </p>
+            <p>
+              Language 모델링에서도 compositional 접근의 효과를 확인했다. MATH dataset(Hendrycks et al., 2021)에서
+              GPT-3.5의 5개 instance를 composition한 모델이 $58.0 \pm 2.8\%$의 정확도를 달성하여, mask 기반 GPT-4의
+              $55.0 \pm 2.9\%$를 오히려 능가한다.
+            </p>
+
+            <h3>Visual Synthesis and Video Stylization</h3>
+            <img class="half" src="/study/paper_summaries/cgm/img4.png" alt="Compositional visual synthesis" />
+            <p>
+              Text-to-image synthesis에서, 긴 text description $T = (t_1, t_2, t_3)$를 factorize하여 sub-description별
+              분포의 product로 표현할 수 있다.
+            </p>
+            <p class="math-center">$p(x \mid T) \propto p(x \mid t_1) p(x \mid t_2) p(x \mid t_3)$</p>
+            <p>
+              이런 compositional 방식이 직접 긴 description을 학습한 단일 모델보다 훨씬 정확하게 복잡한 scene을
+              합성한다.
+            </p>
+
+            <h2>Generalization to New Distributions</h2>
+            <p>
+              이전 섹션에서는 학습 시 본 분포를 표현하는 방법을 다뤘다. 이번에는 학습 시 전혀 보지 못한 분포로
+              일반화하는 방법을 다룬다. Factor 각 axis를 따라 narrow slice만 학습하면, composition을 통해 전체 data
+              space를 cover할 수 있다.
+            </p>
+            <p>
+              좁은 학습 분포 $p(\tau)$가 주어졌을 때, $\tau$를 factor 두 개의 product $r(\tau, s_g)$와 $p(\tau)$로
+              표현한다. $r(\tau, s_g)$는 trajectory가 goal $s_g$와 얼마나 부합하는지를 나타내는 high likelihood이다.
+              새로운 goal state는 학습 분포에 없더라도, 두 factor를 곱해 새로운 분포를 구성할 수 있다.
+            </p>
+            <p class="math-center">$q(\tau) \propto p(\tau)r(\tau, s_g)$</p>
+
+            <h3>Planning through Probability Composition</h3>
+            <img
+              class="half"
+              src="/study/paper_summaries/cgm/img5.png"
+              alt="Planning through probability composition"
+            />
+            <p>
+              Maze2D에서 짧은 trajectory chunk만 학습한 모델을 compositional하게 결합하여 훨씬 긴 trajectory를 생성할 수
+              있다. 각 chunk가 환경의 부분 영역만 cover하므로, 여러 chunk를 product로 결합하면 학습 시 본 적 없는 긴
+              경로도 합성할 수 있다. 단일 monolithic 모델로는 학습 분포 밖의 긴 경로를 생성할 수 없다.
+            </p>
+
+            <h3>Manipulation through Constraint Composition</h3>
+            <img
+              class="half"
+              src="/study/paper_summaries/cgm/img6.png"
+              alt="Manipulation through constraint composition"
+            />
+            <p>
+              다양한 manipulation task를 compositional constraint satisfaction 문제로 formulate할 수 있다. Graph
+              $\mathcal{G} = (\mathcal{V}, \mathcal{U}, \mathcal{C})$에서 각 $v \in \mathcal{V}$는 object의 pose 등
+              decision variable이고, 각 $c \in \mathcal{C}$는 collision-free 같은 constraint이다. Constraint별로 학습된
+              generative 모델 $p_c(\mathcal{V}^c \mid \mathcal{U}^c)$를 product로 결합하여 해를 sampling할 수 있다.
+            </p>
+            <p class="math-center">
+              $q(\mathcal{V}) \propto \prod\limits_{c \in \mathcal{C}} p_c(\mathcal{V}^c \mid \mathcal{U}^c)$
+            </p>
+
+            <h3>Hierarchical Planning with Foundation Models</h3>
+            <img
+              class="half"
+              src="/study/paper_summaries/cgm/img7.png"
+              alt="Hierarchical planning through composition"
+            />
+            <p>
+              장기 horizon task에서, language/vision/action 세 foundation model을 결합하여 hierarchical planner를 구축할
+              수 있다. Text goal $g$와 image observation $o$가 주어지면, language model이 grounded plan
+              $\tau_{\text{text}}$를 제안하고, video model이 visual plan $\tau_{\text{image}}$를 생성하고, action
+              model이 execution $\tau_{\text{action}}$을 제공한다.
+            </p>
+            <p class="math-center">
+              $q(\tau_{\text{text}}, \tau_{\text{image}}, \tau_{\text{action}} \mid g) \propto
+              p_{\text{LLM}}(\tau_{\text{text}} \mid g) \, p_{\text{Video}}(\tau_{\text{image}} \mid \tau_{\text{text}},
+              o) \, p_{\text{Action}}(\tau_{\text{action}} \mid \tau_{\text{image}})$
+            </p>
+            <p>
+              세 분포의 product에서 sampling하면 모든 제약과 맞는 plan을 얻을 수 있으며, 자연어 instruction을 visual
+              plan과 action으로 정확히 연결할 수 있다.
+            </p>
+
+            <h2>Generative Modeling with Learned Compositional Structure</h2>
+            <p>
+              앞선 섹션들의 한계는 distribution의 독립 구조에 대한 사전 지식을 필요로 한다는 점이다. 그러나
+              compositional component를 maximum likelihood estimation으로 factorized distribution의 likelihood를
+              최대화하여 jointly하게 발견할 수도 있다.
+            </p>
+            <p class="math-center">$p_\theta(x) \propto \prod\limits_{i} p_\theta^i(x)$</p>
+
+            <h3>Discovering Factors from an Input Image</h3>
+            <img class="half" src="/study/paper_summaries/cgm/img8.png" alt="Composition of discovered objects" />
+            <p>입력 이미지 $x$의 pixel 분포를 component distribution의 product로 parameterize한다.</p>
+            <p class="math-center">$p_\theta(x) \propto \prod\limits_{i} p_\theta(x \mid \text{Enc}_i(x))$</p>
+            <p>
+              $\text{Enc}(\cdot)$은 low-dimensional latent output을 내는 learned neural encoder로, 이미지의 서로 다른
+              영역을 포착한다. Autoencode할 수 있는 모델을 학습하면 각 $p_\theta(x \mid \text{Enc}_i(x))$가 객체나 조명,
+              전역 요인 같은 해석 가능한 분해를 찾는다. Cubes와 spheres에서 학습한 component와 trucks와 boots에서 학습한
+              별도 모델을 결합하여 hybrid scene을 합성할 수 있다.
+            </p>
+
+            <h3>Discovering Image Classes</h3>
+            <img class="half" src="/study/paper_summaries/cgm/img9.png" alt="Discovering image classes" />
+            <p>
+              ImageNet의 5개 클래스 이미지 분포가 주어지면, 각 이미지 클래스에 해당하는 discovered component를 하나씩
+              찾을 수 있다.
+            </p>
+            <p class="math-center">$p_\theta(x) \propto \prod\limits_{i} p_\theta^i(x \mid I) w_i$</p>
+            <p>
+              $w_i$는 component별 mixing weight이다. 발견된 discovered component들을 결합하여 새로운 이미지 분포를
+              형성할 수 있다.
+            </p>
+
+            <h2>Implementing Compositional Generation</h2>
+            <p>
+              Compositional generative modeling은 common generative modeling parameterization과 표준 autoregressive,
+              diffusion 구현으로 쉽게 나타낼 수는 없다. Probability distribution의 product는 각 construct된 sample이
+              모든 구성 요소에서 high likelihood를 가지도록 sampling이 구성되는데, 이 때 complex constraint
+              satisfaction이 필요하다.
+            </p>
+
+            <h3>Sampling from Continuous Compositional Distributions</h3>
+            <p>
+              Energy-Based Model(EBM) 분포 $E(x)$는 실수 스칼라 함수로 정의되며, product는 $E = E_1 + E_2$, mixture는 $E
+              = -\log(e^{-E_1} + e^{-E_2})$의 분해를 통해 compositional 연산을 허용한다. EBM 분포에서 sampling할 때
+              Unadjusted Langevin Algorithm(ULA)로 초기 sample을 얻은 뒤, Langevin dynamics로 고차원 공간에서도
+              효과적으로 sampling한다.
+            </p>
+            <p class="math-center">
+              $x_t = x_{t-1} - \lambda \nabla_x E(x) + \epsilon, \quad \epsilon \sim \mathcal{N}(0, \sigma)$
+            </p>
+            <p>
+              Diffusion model의 $T$ denoising 함수 $\epsilon(x, t)$도 $T$ EBM 분포의 sequence로 해석할 수 있다. 이 해석
+              덕분에 diffusion model을 compositional하게 결합하고, 각 중간 EBM 분포에서 여러 단계의 MCMC를 적용하여
+              composed product distribution에서 sampling할 수 있다. 단순한 reverse diffusion만으로는 composed
+              distribution에서 sampling하지 않으므로, annealed importance sampling이 필요하다.
+            </p>
+
+            <h3>Sampling from Discrete Compositional Distributions</h3>
+            <p>
+              Discrete 공간(high-dimensional label 등)에서 EBM product $E(x)$로부터 sampling할 때는 Gibbs sampling을
+              사용한다. Marginal energy function $E(x_i \mid x_{-i})$을 사용하여 $x$의 각 차원을 반복적으로
+              resample한다. 다만 차원이 커질수록 비효율적이다. 이를 해결하기 위해, 한 생성 모델을 proposal
+              distribution으로 사용하고 나머지 EBM을 Metropolis-Hastings step으로 반영하는 방식도 가능하다.
+            </p>
+
+            <h2>Discussion and Future Directions</h2>
+            <img class="half" src="/study/paper_summaries/cgm/img10.png" alt="Decentralized decision making" />
+            <p>
+              Compositional system은 buildability와 interpretability 측면에서도 장점이 있다. Individual 모델이 데이터의
+              독립적 부분집합을 책임지므로, 각 모델이 별도로 모듈화되어 구축될 수 있다. Inference 시 각 구성 요소를
+              이해하고 모니터링하는 것도 단일 거대 monolithic 모델보다 훨씬 단순하다. 또한 작은 모델은 적은 연산으로
+              효율적으로 실행되며, 여러 머신에 쉽게 배포할 수 있어 환경 친화적이다.
+            </p>
+            <p>
+              인공지능 agent 구축의 맥락에서, compositional architecture는 decentralized decision-making system처럼
+              작동할 수 있다. 각 modality마다 별도의 생성 모델이 존재하고, 다른 모델로부터 받은 정보를 처리하며
+              decision-making에 책임을 진다. 구성된 생성 분포에서 sampling하는 것은 daemon 간 message passing처럼
+              cross-communication을 유도한다. LLM 같은 기존 모델을 text-to-video로 대체하는 식으로 개별 모델을 갈아끼울
+              수도 있다.
+            </p>
+
+            <h3>Limitations</h3>
+            <p>
+              Compositional modeling에는 여러 한계가 있다. 첫째, 현재의 연구는 모델들이 새로운 distribution으로
+              일반화하려는 fixed한 prespecified structure를 가정한다. 자동으로 올바른 compositional structure를 발견하고
+              적절한 per-model weighting을 찾는 것은 중요한 미해결 과제이다. 둘째, 데이터가 naturally하게 독립적 구성
+              요소의 product로 factorize된다고 가정하는데, real-world 데이터는 spurious correlation을 자주 포함하여 이
+              가정을 위배한다. 셋째, separately 학습된 생성 모델을 결합하는 것 외에, compositional 일반화를 개선하는
+              alternative 접근도 있다. 예를 들어 additive model의 이론적 특성 연구가 compositional 일반화로 확장될 수
+              있다. 마지막으로, 개별 모델에 explicit한 compositional generalization을 추가하는 것도 유망한 방향이다.
+            </p>
+          </div>
+
+          <post-footer></post-footer>
+        </section>
+      </div>
+    </main>
+
+    <web-footer></web-footer>
+  </body>
+</html>

@@ -72,11 +72,12 @@ date,category_id,filename,title,detail
 2025-04-21,3,cogvlm,CogVLM: Visual Expert for Pretrained Language Models,NeurIPS 2024
 2025-04-28,3,vlm-grounder,VLM-Grounder: A VLM Agent for Zero-Shot 3D Visual Grounding,CoRL 2024
 2025-05-05,3,3d-vista,3D-VisTA: Pre-trained Transformer for 3D Vision and Text Alignment,ICCV 2023
-2025-05-12,3,sceneverse,"SceneVerse: Scaling 3D Vision-Language Learning for Grounded Scene Understanding",ECCV 2024
-2025-09-30,3,fast3r,"Fast3R: Towards 3D Reconstruction of 1000+ Images in One Forward Pass",CVPR 2025
+2025-05-12,3,sceneverse,SceneVerse: Scaling 3D Vision-Language Learning for Grounded Scene Understanding,ECCV 2024
+2025-09-30,3,fast3r,Fast3R: Towards 3D Reconstruction of 1000+ Images in One Forward Pass,CVPR 2025
 2025-11-11,3,rt-2,RT-2: Vision-Language-Action Models Transfer Web Knowledge to Robotic Control,CoRL 2023
 2025-11-18,3,rvt,RVT: Robotic View Transformer for 3D Object Manipulation,CoRL 2023 Oral
 2025-11-25,3,rdp,Reactive Diffusion Policy: Slow-Fast Visual-Tactile Policy Learning for Contact-Rich Manipulation,RSS 2025
+2026-12-02,3,cgm,Compositional Generative Modeling: A Single Model is Not All You Need,ICML 2024
 2026-01-19,3,implicitrdp,ImplicitRDP: An End-to-End Visual-Force Diffusion Policy with Structural Slow-Fast Learning,ArXiv 2025.12
 2026-01-26,3,dr_robot,Differentiable Robot Rendering,CoRL 2024 Oral
 2026-02-02,3,mip,Much Ado About Noising: Dispelling the Myths of Generative Robotic Control,ArXiv 2025.12
