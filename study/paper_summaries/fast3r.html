@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="/css/index.css" />
+    <script type="module" src="/js/main.js" defer></script>
+  </head>
+
+  <body>
+    <web-head></web-head>
+    <web-header></web-header>
+
+    <main>
+      <div class="container">
+        <section id="post">
+          <post-header></post-header>
+
+          <div class="post-body">
+            <arxiv-card
+              title="Fast3R: Towards 3D Reconstruction of 1000+ Images in One Forward Pass"
+              venue="CVPR 2025"
+              authors="Jianing Yang, Alexander Sax, Kevin J. Liang, Mikael Henaff, Hao Tang, Ang Cao, Joyce Chai, Franziska Meier, Matt Feiszli"
+              link="https://arxiv.org/abs/2501.13928"
+            >
+            </arxiv-card>
+
+            <h2>TL;DR</h2>
+            <ul>
+              <li>
+                DUSt3R의 pairwise 처리 방식을 multi-view로 일반화한 Fast3R을 제안한다. $N$개의 unordered, unposed
+                이미지를 한 번의 forward pass로 처리하여 3D pointmap과 camera pose를 동시에 예측한다.
+              </li>
+              <li>
+                All-to-all self-attention을 사용하는 fusion transformer로 모든 view의 정보를 동시에 참조하므로,
+                DUSt3R에서 필요했던 global alignment 과정이 불필요하다.
+              </li>
+              <li>
+                Position Interpolation을 도입하여 학습 시보다 훨씬 많은 view(1000장 이상)로 추론할 수 있으며, DUSt3R
+                대비 320배 이상 빠른 속도를 달성한다.
+              </li>
+              <li>
+                Camera pose estimation과 3D reconstruction 벤치마크에서 DUSt3R, MASt3R과 경쟁력 있는 정확도를 유지하면서
+                추론 속도와 확장성에서 압도적인 우위를 보인다.
+              </li>
+            </ul>
+
+            <h2>Thoughts</h2>
+            <p>
+              DUSt3R의 pairwise bottleneck을 해결하려는 시도는 자연스러운 발전 방향이고, Fast3R의 접근은 매우 깔끔하다.
+              핵심 아이디어는 단순하다. Pairwise로 처리하던 것을 all-to-all attention으로 한 번에 처리한다는 것인데,
+              이를 실제로 작동하게 만드는 엔지니어링(Position Interpolation, image masking, memory-efficient
+              implementation)이 잘 결합되어 있다. 특히 DUSt3R이 48 view에서 OOM이 나는 반면 Fast3R이 1500 view까지 처리
+              가능하다는 scalability 차이가 인상적이다.
+            </p>
+            <p>
+              다만 정확도 면에서는 DUSt3R/MASt3R과 비교했을 때 확실한 우위가 있다고 보기 어렵다. CO3D에서 RRA는 거의
+              saturate되어 비슷하고, RealEstate10K에서 MASt3R(76.4)보다 낮은 72.7을 기록한다. 3D reconstruction 에서도
+              DUSt3R/MASt3R과 대등한 수준이다. 결국 Fast3R의 핵심 가치는 "비슷한 정확도를 훨씬 빠르게"라는 실용적 장점에
+              있으며, 정확도를 높이는 것은 모델/데이터 scaling으로 해결할 수 있다고 주장하는 구조이다.
+            </p>
+            <p>
+              저자들도 인정하듯, view 수가 매우 많아지면(300장 이상) low-confidence point가 나타나는 문제가 있다. 이는
+              positional embedding의 근본적 한계일 수 있는데, Position Interpolation이 학습 범위 밖의 index를 완벽히
+              처리하기는 어려울 것이다. 또한 현재 real-world scene에서의 학습 데이터가 제한적이라는 점도 한계로
+              남아있으며, synthetic 데이터 활용이나 더 다양한 real 데이터 확보가 향후 성능 향상의 열쇠가 될 것이다.
+            </p>
+
+            <h2>Introduction</h2>
+            <p>
+              Multi-view 3D reconstruction은 autonomous navigation, AR, robotics 등에서 핵심적인 과제이다. 전통적인
+              reconstruction 파이프라인(SfM, MVS)은 feature extraction, correspondence matching, triangulation, global
+              alignment의 순차적 단계를 거치며, 이 과정에서 error가 누적되고 확장성이 제한된다.
+            </p>
+            <p>
+              DUSt3R은 이러한 파이프라인을 end-to-end로 대체하여, RGB 이미지에서 직접 3D 구조를 예측하는 방식을
+              제안했다. Pointmap regression이라는 formulation으로 기존 camera model의 hard constraint를 완화하여 어려운
+              viewpoint에서도 robust한 결과를 얻는다. 하지만 DUSt3R은 본질적으로 pairwise 방식이어서, $N$개 이미지를
+              처리하려면 $O(N^2)$ pair의 pointmap을 생성한 뒤 costly한 global alignment을 수행해야 한다. 이는 48 view만
+              되어도 A100 GPU에서 OOM이 발생할 정도로 확장성에 심각한 한계가 있다.
+            </p>
+            <p>
+              Fast3R은 DUSt3R의 multi-view 일반화로, $N$개의 이미지를 한 번의 forward pass에서 병렬로 처리한다.
+              All-to-all attention을 사용하는 fusion transformer 덕분에 각 frame이 모든 다른 frame의 정보를 동시에
+              참조할 수 있어, iterative alignment 없이 일관된 3D reconstruction을 달성한다. 핵심 기여는 다음과 같다.
+            </p>
+            <ol>
+              <li>
+                Global alignment이 필요 없는 multi-view pointmap estimation을 위한 Transformer 기반 모델 Fast3R을
+                제안한다.
+              </li>
+              <li>
+                View 수에 따른 scaling에서 실질적 이점을 보인다. Per-view 정확도가 더 많은 view에서 향상되며, 학습
+                시보다 훨씬 많은 view로 일반화할 수 있다.
+              </li>
+              <li>
+                Camera pose estimation과 3D reconstruction 벤치마크에서 SOTA 수준의 정확도를 유지하면서, 추론 속도를
+                크게 개선하고 error 누적을 줄인다.
+              </li>
+            </ol>
+
+            <h2>Model</h2>
+            <img src="/study/paper_summaries/fast3r/img1.png" alt="Model architecture of Fast3R" />
+
+            <h3>Problem Definition</h3>
+            <p>
+              $N$개의 unordered, unposed RGB 이미지 $\mathbf{I} \in \mathbb{R}^{N \times H \times W \times 3}$가
+              주어지면, Fast3R은 corresponding pointmap $\mathbf{X} \in \mathbb{R}^{N \times H \times W \times 3}$을
+              예측한다. Pointmap이란 이미지의 각 pixel에 대한 3D location의 집합으로, 여기서 camera pose, depth, 3D
+              구조를 모두 추출할 수 있다.
+            </p>
+            <p>
+              Fast3R은 두 종류의 pointmap을 예측한다. Local pointmap $\mathbf{X}_L$은 각 이미지의 viewing camera 좌표계
+              기준이고, global pointmap $\mathbf{X}_G$는 첫 번째 camera 좌표계 기준이다. 각 pointmap에 대응하는
+              confidence map $\Sigma_L$, $\Sigma_G$도 함께 예측한다.
+            </p>
+            <p class="math-center">
+              $\text{Fast3R} : \mathbf{I} \rightarrow (\mathbf{X}_L, \Sigma_L, \mathbf{X}_G, \Sigma_G)$
+            </p>
+
+            <h3>Training Objective</h3>
+            <p>Total loss는 local과 global pointmap에 대한 loss의 합이다.</p>
+            <p class="math-center">
+              $\mathcal{L}_{\text{total}} = \mathcal{L}_{\mathbf{X}_G} + \mathcal{L}_{\mathbf{X}_L}$
+            </p>
+            <p>
+              각 loss는 confidence-weighted normalized 3D pointwise regression이다. DUSt3R의 loss를 multi-view로
+              일반화한 것으로, 예측된 pointmap과 target pointmap을 각각 mean Euclidean distance로 정규화한 뒤 비교한다.
+            </p>
+            <p class="math-center">
+              $\ell_{\text{regr}}(\hat{\mathbf{X}}, \mathbf{X}) = \left\| \cfrac{1}{z}\hat{\mathbf{X}} -
+              \cfrac{1}{z}\mathbf{X} \right\|, \quad z = \cfrac{1}{|\mathbf{X}|}\sum\limits_{x \in \mathbf{X}} \|x\|_2$
+            </p>
+            <p>
+              Confidence score $\Sigma$를 사용한 pointmap loss는 다음과 같다. Confidence가 높은 pixel에 더 큰 가중치를
+              부여하면서, $\log$ term이 confidence를 무한히 높이는 것을 방지한다.
+            </p>
+            <p class="math-center">
+              $\mathcal{L}_{\mathbf{X}}(\hat{\Sigma}, \hat{\mathbf{X}}, \mathbf{X}) = \cfrac{1}{|\mathbf{X}|}
+              \sum\limits \hat{\Sigma}_+ \cdot \ell_{\text{regr}}(\hat{\mathbf{X}}, \mathbf{X}) + \alpha
+              \log(\hat{\Sigma}_+)$
+            </p>
+            <p>
+              $\hat{\Sigma}_+ = 1 + \exp(\hat{\Sigma})$로 confidence가 항상 양수가 되도록 보장한다. Real-world scan에는
+              glass, thin structure 등에서 체계적인 label noise가 있으므로, confidence weighting이 이를 처리하는 데
+              도움을 준다.
+            </p>
+
+            <h3>Model Architecture</h3>
+            <p>
+              Fast3R은 DUSt3R의 meta-architecture에서 영감을 받아 세 가지 component로 구성된다. Image encoder, fusion
+              transformer, 그리고 pointmap decoding이다. 핵심적으로, 이미지 순서에 대한 가정이 없으며, 모든 output이
+              동시에 예측된다.
+            </p>
+            <ul>
+              <li>
+                <b>Image Encoder</b>: 각 이미지 $I_i$를 CroCo ViT로 독립적으로 인코딩하여 patch feature $H_i =
+                \{h_{i,j}\}_{j=1}^{HW/P^2}$를 얻는다. DINOv2도 유사하게 작동한다.
+              </li>
+              <li>
+                <b>Fusion Transformer</b>: 모든 view의 patch feature를 concatenate하여 24-layer ViT-L에 입력한다.
+                All-to-all self-attention을 수행하여 모든 view의 정보를 동시에 융합한다. Pair 단위가 아닌 전체 view를
+                한꺼번에 처리하는 것이 DUSt3R과의 핵심적인 차이이다.
+              </li>
+              <li>
+                <b>Pointmap Decoding Heads</b>: DPT head 두 개를 사용하여 local과 global pointmap, 그리고 confidence
+                map을 각각 예측한다.
+              </li>
+            </ul>
+            <p>
+              Fusion transformer에 입력하기 전, patch feature에 1D image index positional embedding을 추가한다. 이 index
+              embedding은 같은 이미지에서 온 patch들을 구분하고, $I_1$이 global coordinate frame을 정의하는 anchor
+              역할을 한다는 것을 모델에 알려준다. 이미지 순서에 대한 가정이 없으므로, 이 embedding 없이는 모델이 어떤
+              view가 anchor인지 추론할 수 없다.
+            </p>
+
+            <h4>Image Index Positional Embedding Generalization</h4>
+            <p>
+              Fast3R이 학습 시보다 많은 view를 추론 시에 처리할 수 있어야 한다. 단순히 Spherical Harmonic frequency를
+              사용하여 index를 embed하는 방식은 학습 범위 밖의 index에서 성능이 급격히 저하된다. 이를 해결하기 위해
+              LLM의 Position Interpolation을 차용한다. 학습 시 $N$개 index에서 random하게 sampling하고, 추론 시
+              $N_{\text{test}}$개 index를 같은 범위로 interpolate하여 사용한다. 이 방식으로 $N = 20$으로 학습해도
+              $N_{\text{test}} = 1000$까지 안정적으로 확장할 수 있다.
+            </p>
+
+            <h3>Memory-Efficient Implementation</h3>
+            <p>
+              표준 transformer와 single-pass inference만으로도 model/data sharding, tensor parallelism, gradient
+              checkpointing 등의 기존 기법을 쉽게 적용할 수 있다. FlashAttention을 활용하고, GPU 간 parallelized
+              inference도 가능하다. 학습 시에는 image masking을 사용하여 적은 view로도 효과적으로 학습한다.
+            </p>
+
+            <h2>Experiments</h2>
+
+            <h3>Inference Efficiency</h3>
+            <img
+              class="half"
+              src="/study/paper_summaries/fast3r/img2.png"
+              alt="System performance for different view counts"
+            />
+            <p>
+              Fast3R과 DUSt3R의 view 수에 따른 시간과 메모리 사용량을 비교한다. 512x384 해상도 기준으로, DUSt3R은 48
+              view에서 이미 OOM이 발생하지만, Fast3R은 1500 view까지 단일 A100에서 처리 가능하다. 2 view에서도
+              Fast3R(0.065s)이 DUSt3R(0.092s)보다 빠르며, view 수가 늘어나면 DUSt3R의 $O(N^2)$ 비용 때문에 격차가 더욱
+              벌어진다. 추론 시간이 view 수에 따라 증가하면서도 정확도도 함께 향상되는 점이 특징적이다.
+            </p>
+
+            <h3>Camera Pose Estimation</h3>
+            <img
+              src="/study/paper_summaries/fast3r/img3.png"
+              alt="Multi-view pose regression on CO3D and RealEstate10K"
+            />
+            <p>
+              CO3D의 41개 object category에서 unseen trajectory에 대해 평가한다. DUSt3R을 따라 focal length, camera
+              rotation, camera translation을 predicted global pointmap으로부터 추정한다. RANSAC-PnP를 사용하며,
+              confidence 상위 15% point만 활용하여 outlier를 제거한다.
+            </p>
+            <p>
+              CO3D에서 Fast3R은 RRA와 mAA 모두에서 거의 모든 방법을 능가하며, RRA@15°에서 near-perfect인 96.2%를
+              달성한다. 가장 주목할 점은 속도이다. DUSt3R 대비 320배 이상, MASt3R 대비 1000배 이상 빠르다.
+              RealEstate10K에서는 mAA@30° 72.7로, DUSt3R(67.7)보다 높지만 MASt3R(76.4)보다는 낮다.
+            </p>
+
+            <h3>3D Reconstruction</h3>
+            <img
+              class="half"
+              src="/study/paper_summaries/fast3r/img4.png"
+              alt="Quantitative reconstruction results on scene datasets"
+            />
+            <img
+              class="half"
+              src="/study/paper_summaries/fast3r/img5.png"
+              alt="Quantitative results on object-centric DTU dataset"
+            />
+            <p>
+              7-Scenes, Neural RGB-D, DTU에서 3D reconstruction을 평가한다. Local pointmap이 global보다 더 정확한
+              pointmap을 생성한다는 것을 발견하여, 각 이미지의 local pointmap을 ICP로 global pointmap에 align하여
+              사용한다.
+            </p>
+            <p>
+              Fast3R은 DUSt3R, MASt3R과 경쟁력 있는 reconstruction 품질을 보이면서 훨씬 빠르다. 더 많은 view, 더 많은
+              데이터, 더 나은 학습 방법으로 계속 개선될 여지가 있다.
+            </p>
+
+            <h2>Ablation Studies</h2>
+
+            <h3>Scaling Properties</h3>
+            <p>Fast3R의 핵심 장점 중 하나는 view 수에 대한 scaling 특성이다.</p>
+            <ul>
+              <li>
+                <b>추론 시 view 수 증가</b>: CO3D에서 view 수를 늘릴수록 pose estimation 정확도가 일관되게 향상된다.
+                Orientation(RRA@5)은 3~5 view 정도에서 벤치마크가 saturate되고, translation(RTA@5)은 20 view까지도 계속
+                향상된다. DTU에서도 view 수가 늘수록 reconstruction 품질이 개선된다.
+              </li>
+              <li>
+                <b>학습 시 view 수 증가</b>: 학습에 사용하는 view 수를 늘리면 RRA와 RTA 모두 일관되게 향상된다. 평가 시
+                view 수가 고정되어 있더라도, 즉 학습 시보다 적은 view로 평가하더라도 향상 효과가 유지된다. 이는 더 많은
+                view에서의 학습이 higher-order correspondence를 학습하게 해주기 때문이다.
+              </li>
+            </ul>
+
+            <h3>Training without Position Interpolation</h3>
+            <img
+              class="half"
+              src="/study/paper_summaries/fast3r/img6.png"
+              alt="Effect of sampling image index PE during training"
+            />
+            <p>
+              Position Interpolation 없이 학습하면, 학습 시 사용한 view 수 범위 밖의 index에서 regression loss spike가
+              발생한다. 반면 Position Interpolation을 적용하면, 학습 시 view 수의 6배까지 늘려도 안정적으로 작동한다.
+            </p>
+
+            <h3>Inference without Local Head</h3>
+            <img
+              class="half"
+              src="/study/paper_summaries/fast3r/img7.png"
+              alt="Ablation on the effect of local head on 3D reconstruction"
+            />
+            <p>
+              Local pointmap(ICP로 global에 align)을 사용한 reconstruction과 global pointmap만 사용한 것을 비교한다.
+              Local을 global에 align하는 방식이 모든 데이터셋에서 더 나은 결과를 보인다. 이는 local head가
+              view-invariant한 2D-to-3D geometry만 학습하면 되는 반면, global head는 rigid transformation까지 학습해야
+              하므로 더 어려운 과제를 풀기 때문이다.
+            </p>
+
+            <h2>Conclusion</h2>
+            <p>
+              Fast3R은 $N$개의 이미지를 한 번의 forward pass로 처리하여 3D pointmap을 예측하는 transformer 기반
+              모델이다. DUSt3R의 pairwise 처리 방식과 costly global alignment을 제거하고, all-to-all attention으로 모든
+              view의 정보를 동시에 융합한다. Camera pose estimation과 3D reconstruction에서 경쟁력 있는 정확도를
+              유지하면서 추론 속도를 극적으로 개선한다. 250 FPS 이상으로 작동하며 1500장 이상의 이미지를 단일 forward
+              pass로 처리할 수 있다.
+            </p>
+
+            <h3>Limitations</h3>
+            <p>
+              현재 scaling의 주요 제약은 데이터 품질과 양이다. View 수가 매우 많아지면(300장 이상) 일부 view에서
+              low-confidence point가 발생하는 drifting 현상이 나타난다. 이를 해결하기 위해 (1) 대규모 scene을 포함하는
+              더 많은 데이터, (2) long-context LLM에서 영감을 받은 더 나은 positional embedding, (3) 순서가 있는 image
+              sequence(예: video)의 temporal structure 활용 등의 방향을 제시한다.
+            </p>
+          </div>
+
+          <post-footer></post-footer>
+        </section>
+      </div>
+    </main>
+
+    <web-footer></web-footer>
+  </body>
+</html>
