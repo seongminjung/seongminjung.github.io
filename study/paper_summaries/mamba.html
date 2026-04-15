@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="/css/index.css" />
+    <script type="module" src="/js/main.js" defer></script>
+  </head>
+
+  <body>
+    <web-head></web-head>
+    <web-header></web-header>
+
+    <main>
+      <div class="container">
+        <section id="post">
+          <post-header></post-header>
+
+          <div class="post-body">
+            <arxiv-card
+              title="Mamba: Linear-Time Sequence Modeling with Selective State Spaces"
+              venue="COLM 2024 Oral, Outstanding Paper Award"
+              authors="Albert Gu, Tri Dao"
+              link="https://arxiv.org/abs/2312.00752"
+            >
+            </arxiv-card>
+
+            <h2>TL;DR</h2>
+            <ul>
+              <li>
+                기존 structured state space model(SSM)은 시간에 따라 파라미터가 고정되어(LTI) 입력 내용에 따라 정보를
+                선택적으로 처리하지 못한다. Mamba는 SSM의 파라미터 $B$, $C$, $\Delta$를 입력의 함수로 만들어 이 한계를
+                극복한다.
+              </li>
+              <li>
+                입력 의존적 파라미터로 인해 convolution 형태의 효율적 연산이 불가능해지는 문제를 hardware-aware parallel
+                scan 알고리즘으로 해결하여, GPU 메모리 계층을 효과적으로 활용한다.
+              </li>
+              <li>H3 아키텍처의 SSM 블록과 MLP 블록을 하나의 Mamba 블록으로 통합한 단순한 아키텍처를 제안한다.</li>
+              <li>
+                언어, DNA, 오디오 등 여러 도메인에서 Transformer와 동등하거나 우수한 성능을 달성하며, inference 시 5배
+                높은 throughput과 sequence 길이에 대한 선형 스케일링을 보여준다.
+              </li>
+            </ul>
+
+            <h2>Thoughts</h2>
+            <p>
+              Mamba의 핵심 아이디어는 놀라울 정도로 간결하다. 기존 SSM의 파라미터를 입력에 의존적으로 만든다는 것이
+              전부이다. 하지만 이 단순한 변화가 가져오는 결과는 상당하다. LTI SSM이 근본적으로 할 수 없었던
+              content-based reasoning이 가능해지고, 이를 통해 Transformer 수준의 성능에 도달한다. Selection mechanism이
+              RNN의 gating과 수학적으로 연결된다는 점도 이론적으로 깔끔하다. 결국 SSM의 discretization이 gating의 원칙적
+              기반이라는 관점은, 그동안 heuristic하게 설계되어온 gating mechanism에 체계적인 프레임워크를 제공한다.
+            </p>
+            <p>
+              실험 측면에서도 언어, DNA, 오디오라는 세 가지 서로 다른 modality에서 일관되게 좋은 성능을 보여주는 점이
+              인상적이다. 특히 scaling law 실험에서 Transformer++라는 강력한 baseline을 sequence 길이가 길어질수록
+              능가하는 결과는 설득력이 있다. Hardware-aware 구현의 디테일도 실용성을 높이는 중요한 기여이다.
+            </p>
+            <p>
+              한편, 논문에서도 언급하듯 실험이 3B 파라미터 이하의 비교적 작은 모델에 한정되어 있다는 점은 아쉽다. 7B
+              이상 스케일에서 Mamba가 Transformer를 여전히 따라잡을 수 있는지는 불확실하다. 또한 Transformer 생태계가
+              가진 fine-tuning, RLHF, in-context learning, quantization 등의 풍부한 downstream affordance가 Mamba에도
+              그대로 적용되는지는 별도의 검증이 필요하다. 실제로 Mamba 이후 나온 후속 연구들(Mamba-2, Jamba 등)이
+              Transformer 요소와 결합하는 hybrid 접근을 택한 것은, 순수 SSM만으로는 모든 시나리오를 커버하기 어려울 수
+              있음을 시사한다.
+            </p>
+
+            <h2>Introduction</h2>
+            <p>
+              현대 foundation model의 backbone은 대부분 Transformer와 self-attention이다. Self-attention은 context
+              window 내 정보를 밀도 있게 활용할 수 있지만, 유한한 window 밖의 정보를 다루지 못하고, window 크기에 대해
+              quadratic하게 연산량이 증가하는 근본적인 단점이 있다. Linear attention, gated convolution, SSM 등 다양한
+              subquadratic 아키텍처가 제안되었지만, 언어처럼 정보 밀도가 높은 discrete modality에서는 Transformer에
+              미치지 못했다.
+            </p>
+            <p>
+              이 논문은 기존 SSM의 핵심 약점이 content-based reasoning 능력의 부재라고 진단한다. 그리고 SSM 파라미터를
+              입력의 함수로 만드는 <b>selection mechanism</b>을 통해 이 문제를 해결한다. 이 변경은 convolution 기반의
+              효율적 연산을 불가능하게 만드는데, <b>hardware-aware parallel scan</b> 알고리즘으로 극복한다. 이러한
+              selective SSM을 H3와 MLP 블록을 통합한 단순한 아키텍처에 적용하여 <b>Mamba</b>를 완성한다.
+            </p>
+            <p>
+              Mamba는 Transformer 대비 5배 높은 inference throughput을 가지며, sequence 길이에 대해 선형으로 스케일한다.
+              100만 길이의 sequence까지 성능이 향상된다. Language modeling에서 Mamba-3B는 같은 크기의 Transformer를
+              능가하고, 2배 큰 Transformer와 맞먹는 성능을 달성한다.
+            </p>
+            <img
+              src="/study/paper_summaries/mamba/img1.png"
+              alt="Overview of selective SSM with hardware-aware state expansion"
+            />
+
+            <h2>State Space Models</h2>
+            <p>
+              Structured state space model(S4)은 sequence를 처리하는 모델 클래스로, RNN과 CNN 양쪽의 특성을 가진다. 연속
+              시스템 $(A, B, C)$로 정의되며, 1차원 입력 $x(t)$를 잠재 상태 $h(t)$를 거쳐 출력 $y(t)$로 매핑한다.
+            </p>
+            <p class="math-center">$h'(t) = Ah(t) + Bx(t), \quad y(t) = Ch(t)$</p>
+            <p>
+              이를 실제로 discrete sequence에 적용하려면 discretization이 필요하다. Step size $\Delta$를 사용하여 연속
+              파라미터 $(\Delta, A, B)$를 discrete 파라미터 $(\overline{A}, \overline{B})$로 변환한다. Zero-order
+              hold(ZOH) 방식의 경우 다음과 같다.
+            </p>
+            <p class="math-center">
+              $\overline{A} = \exp(\Delta A), \quad \overline{B} = (\Delta A)^{-1}(\exp(\Delta A) - I) \cdot \Delta B$
+            </p>
+            <p>
+              Discretization 이후 모델은 두 가지 방식으로 연산할 수 있다. 하나는 <b>linear recurrence</b>로, 각 시점에서
+              $h_t = \overline{A}h_{t-1} + \overline{B}x_t$, $y_t = Ch_t$를 계산한다. 다른 하나는
+              <b>global convolution</b>으로, 커널 $\overline{K} = (C\overline{B}, C\overline{A}\overline{B}, \ldots)$를
+              사용하여 $y = x * \overline{K}$로 한번에 계산한다. 학습 시에는 convolution 모드(병렬화 가능)를, inference
+              시에는 recurrence 모드(상수 시간 per step)를 사용하는 것이 일반적이다.
+            </p>
+
+            <h3>Linear Time Invariance</h3>
+            <p>
+              위 수식에서 파라미터 $(\Delta, A, B, C)$와 그에 따른 $(\overline{A}, \overline{B})$는 모든 시점에서
+              동일하다. 이것이 <b>linear time invariance(LTI)</b> 속성이며, 기존의 모든 structured SSM이 가진 특성이다.
+              LTI 속성 덕분에 convolution으로 효율적으로 계산할 수 있지만, 동시에 입력 내용에 따라 동적으로 동작을 바꿀
+              수 없다는 한계가 있다.
+            </p>
+
+            <h3>SSM Architectures</h3>
+            <p>
+              SSM은 end-to-end 신경망에 통합할 수 있는 standalone sequence transformation이다. 주요 baseline 아키텍처는
+              다음과 같다.
+            </p>
+            <ul>
+              <li><b>Linear attention</b>은 self-attention의 근사로, degenerate한 linear SSM으로 볼 수 있다.</li>
+              <li>
+                <b>H3</b>는 SSM을 두 개의 gated connection으로 감싼 아키텍처이며, SSM 앞에 shift-SSM이라는 local
+                convolution을 추가한다.
+              </li>
+              <li>
+                <b>Hyena</b>는 H3와 동일한 아키텍처에서 S4 layer를 MLP로 parameterize한 global convolution으로 대체한다.
+              </li>
+              <li>
+                <b>RetNet</b>은 추가적인 gate와 더 단순한 SSM을 사용하며, multi-head attention(MHA)의 변형을 병렬 연산
+                경로로 활용한다.
+              </li>
+              <li>
+                <b>RWKV</b>는 attention-free Transformer에 기반한 language modeling용 RNN으로, "WKV" 메커니즘은 두 SSM의
+                비율로 볼 수 있다.
+              </li>
+            </ul>
+
+            <h2>Selective State Space Models</h2>
+
+            <h3>Motivation: Selection as Compression</h3>
+            <img src="/study/paper_summaries/mamba/img2.png" alt="Selective Copying and Induction Heads tasks" />
+            <p>
+              Sequence modeling의 근본적인 문제는 context를 더 작은 state로 <b>압축</b>하는 것이다. Attention은
+              context를 전혀 압축하지 않고 전부 저장하므로(KV cache) 효과적이지만 비효율적이다. 반면 recurrent 모델은
+              유한한 state를 가지므로 효율적이지만, state가 context를 얼마나 잘 압축하느냐에 따라 효과가 제한된다.
+            </p>
+            <p>
+              이 원리를 보여주는 두 가지 synthetic task가 있다. <b>Selective Copying</b> task는 토큰의 위치를 무작위로
+              배치하여, 모델이 관련 토큰을 기억하고 무관한 토큰을 무시하는 content-aware 추론을 요구한다.
+              <b>Induction Heads</b>
+              task는 "Harry Potter"라는 bigram을 본 후, 다음에 "Harry"가 나오면 "Potter"를 예측하는 context-aware 연관
+              기억을 요구한다. LTI 모델은 고정된 dynamics로 입력에 따라 hidden state를 다르게 갱신할 수 없으므로, 이러한
+              task에서 실패한다.
+            </p>
+            <p>
+              요약하면, 효율적이면서도 효과적인 sequence 모델을 만들려면 state가 작으면서도 context의 필요한 정보를
+              담아야 한다. 이를 위한 기본 원칙이 <b>selectivity</b>이다. Selection mechanism이 sequence 차원을 따라
+              정보의 전파와 상호작용을 제어한다.
+            </p>
+
+            <h3>Improving SSMs with Selection</h3>
+            <p>
+              Selection mechanism의 핵심 아이디어는 SSM의 파라미터 $B$, $C$, $\Delta$를 입력의 함수로 만드는 것이다.
+              구체적으로는 다음과 같이 정의한다.
+            </p>
+            <p class="math-center">
+              $s_B(x) = \text{Linear}_N(x), \quad s_C(x) = \text{Linear}_N(x), \quad s_\Delta(x) =
+              \text{Broadcast}_D(\text{Linear}_1(x))$
+            </p>
+            <p>
+              여기서 $\tau_\Delta = \text{softplus}$이다. 이 변경으로 파라미터들은 길이 차원 $L$을 갖게 되어
+              time-varying해지며, 더 이상 convolution으로 계산할 수 없다. 대신 recurrence(scan) 모드만 사용 가능하다.
+            </p>
+
+            <h3>Hardware-Aware State Expansion</h3>
+            <p>
+              Selective SSM은 recurrence로만 계산해야 하므로, GPU에서 효율적으로 실행하기 위한 hardware-aware 알고리즘이
+              필요하다. 핵심 관찰은 두 가지이다. 첫째, 긴 sequence에서 recurrence의 FLOPs가 convolution보다 오히려 적을
+              수 있다. 둘째, sequential한 recurrence의 문제와 큰 메모리 사용량 문제를 해결해야 한다.
+            </p>
+            <p>
+              해결 방식은 GPU 메모리 계층을 활용하는 것이다. 느린 HBM에 $(B, L, D, N)$ 크기의 확장된 state를
+              materialize하는 대신, scan 입력 $(\overline{A}, \overline{B})$를 HBM에서 빠른 SRAM으로 직접 로드하여
+              discretization과 recurrence를 SRAM에서 수행한 뒤, 최종 출력만 HBM에 기록한다. Sequential recurrence임에도
+              work-efficient parallel scan 알고리즘으로 병렬화가 가능하다. 또한 backpropagation을 위한 중간 상태를
+              저장하지 않고 recomputation하여 메모리를 절약한다. 결과적으로 fused selective scan layer의 메모리 요구량은
+              FlashAttention과 동일하다.
+            </p>
+
+            <h3>A Simplified SSM Architecture</h3>
+            <img
+              src="/study/paper_summaries/mamba/img3.png"
+              alt="Mamba block architecture comparison (H3, Gated MLP, Mamba)"
+            />
+            <p>
+              기존 SSM 아키텍처(H3)는 SSM 블록과 MLP 블록이 교대로 배치되는 구조이다. Mamba는 이 두 블록을 하나로
+              통합한다. Gated attention unit(GAU)에서 영감을 받아, H3 블록의 첫 번째 multiplicative gate를 activation
+              function으로 대체하고, MLP 블록 대신 SSM을 main branch에 추가한다. 확장 계수 $E = 2$를 사용하고 이 블록을
+              2개 쌓아 Transformer의 $12D^2$ 파라미터와 맞춘다. Activation으로는 SiLU/Swish를 사용하며, 선택적으로
+              LayerNorm을 추가한다.
+            </p>
+
+            <h3>Properties of Selection Mechanisms</h3>
+
+            <h4>Connection to Gating Mechanisms</h4>
+            <p>
+              Selection mechanism과 RNN gating 사이에는 중요한 연결이 있다. $N = 1$, $A = -1$, $s_\Delta =
+              \text{Linear}(x)$, $\tau_\Delta = \text{softplus}$로 설정하면, selective SSM recurrence는 다음과 같은
+              형태가 된다.
+            </p>
+            <p class="math-center">$g_t = \sigma(\text{Linear}(x_t)), \quad h_t = (1 - g_t)h_{t-1} + g_tx_t$</p>
+            <p>
+              이는 전통적인 RNN gating과 동일한 구조이다. 따라서 SSM의 discretization이 gating mechanism의 원칙적
+              기반이라고 볼 수 있다.
+            </p>
+
+            <h4>Interpretation of Selective Parameters</h4>
+            <p>
+              각 selective 파라미터의 역할은 다음과 같다. <b>$\Delta$</b>는 현재 입력에 집중할지 무시할지를 조절한다. 큰
+              $\Delta$는 state를 리셋하고 현재 입력에 집중하며, 작은 $\Delta$는 state를 유지하고 현재 입력을 무시한다.
+              <b>$B$</b>와 <b>$C$</b>를 selective하게 만들면 입력 $x_t$를 state $h_t$에 넣을지, state $h_t$에서 출력
+              $y_t$를 어떻게 뽑을지를 더 세밀하게 제어할 수 있다.
+            </p>
+            <p>
+              $\Delta$의 selectivity가 가장 핵심적인 역할을 한다. $A$는 $\Delta$와의 상호작용을 통해서만 모델에 영향을
+              미치므로($\overline{A} = \exp(\Delta A)$), $\Delta$의 selectivity만으로도 $(\overline{A}, \overline{B})$
+              전체의 selectivity를 확보할 수 있다.
+            </p>
+
+            <h4>Interpretation of Selection Effects</h4>
+            <p>Selection의 효과는 세 가지로 해석된다.</p>
+            <ul>
+              <li><b>Variable spacing</b>으로, 입력 사이의 무관한 noise 토큰을 걸러낼 수 있다.</li>
+              <li>
+                <b>Filtering context</b>로, selective 모델은 불필요한 context를 무시할 수 있어 context 길이가 길어질수록
+                성능이 단조적으로 향상된다. LTI 모델은 긴 convolution 커널이 모든 정보를 모으므로 오히려 context가
+                길어지면 noisy해진다.
+              </li>
+              <li>
+                <b>Boundary resetting</b>으로, 여러 독립 sequence가 이어붙여진 상황에서 sequence 경계마다 state를 리셋할
+                수 있다.
+              </li>
+            </ul>
+
+            <h2>Empirical Evaluation</h2>
+
+            <h3>Synthetic Tasks</h3>
+            <img class="half" src="/study/paper_summaries/mamba/img4.png" alt="Selective Copying accuracy" />
+            <img src="/study/paper_summaries/mamba/img5.png" alt="Induction Heads extrapolation" />
+            <p>
+              <b>Selective Copying</b>에서 gated 아키텍처(H3, Mamba)에 기존 SSM(S4, Hyena)을 넣으면 성능이 부분적으로만
+              향상되지만, selective SSM(S6)을 넣으면 쉽게 해결한다. Mamba + S6 조합이 99.8%의 정확도를 달성한다.
+            </p>
+            <p>
+              <b>Induction Heads</b>에서 Mamba는 이 task를 완벽하게 해결하며, 학습 시 본 것보다 4000배 긴 100만 길이의
+              sequence까지 완벽하게 일반화한다. 다른 방법은 2배 이상 extrapolation에 실패한다.
+            </p>
+
+            <h3>Language Modeling</h3>
+
+            <h4>Scaling Laws</h4>
+            <img src="/study/paper_summaries/mamba/img6.png" alt="Scaling laws on The Pile" />
+            <p>
+              Chinchilla protocol에 따라 125M에서 1.3B 파라미터까지의 모델을 The Pile에서 학습한다. Mamba는 모든
+              attention-free 모델보다 우수하며, Transformer++라는 매우 강력한 recipe(PaLM, LLaMA 기반으로 rotary
+              embedding, SwiGLU MLP, RMSNorm 등을 적용)의 성능에 처음으로 도달한 attention-free 모델이다. 특히 sequence
+              길이가 길어질수록 그 격차가 유리해진다.
+            </p>
+
+            <h4>Downstream Evaluations</h4>
+            <img src="/study/paper_summaries/mamba/img7.png" alt="Zero-shot evaluation results" />
+            <p>
+              다양한 zero-shot downstream task에서 Mamba는 같은 크기의 open-source 모델 중 최고 성능을 달성한다. 동일한
+              tokenizer, dataset, 학습량(300B tokens)으로 학습한 모델 간 비교에서, Mamba-130M은 Pythia-160M의 평균을
+              능가하고, Mamba-1.4B는 Pythia-1.4B를 6.80 대 7.51의 Pile perplexity로 앞선다. Mamba-3B는 같은 크기의
+              Transformer보다 우수하며, 2배 큰 Pythia-6.9B와 RWKV-7.4B의 평균과 비슷하거나 능가한다.
+            </p>
+
+            <h3>DNA Modeling</h3>
+            <img src="/study/paper_summaries/mamba/img8.png" alt="DNA scaling laws (model size and sequence length)" />
+            <p>
+              DNA는 유한한 이산 토큰의 sequence라는 점에서 언어와 유사하며, long-range dependency가 중요한 도메인이다.
+              HG38 인간 게놈 데이터셋에서 next token prediction으로 pretraining한 결과, Mamba는 model size에 대해
+              HyenaDNA와 Transformer++ 모두보다 우수한 scaling을 보인다. 가장 큰 모델(약 40M 파라미터)에서 Mamba는
+              Transformer++과 HyenaDNA를 약 3~4배 적은 파라미터로 맞먹는다.
+            </p>
+            <p>
+              Context 길이에 대한 scaling에서도 Mamba는 100만 길이까지 pretraining perplexity가 지속적으로 개선된다.
+              반면 HyenaDNA는 context가 길어지면 오히려 성능이 나빠진다. LTI 모델은 정보를 선택적으로 무시할 수 없어서,
+              긴 convolution 커널이 불필요한 정보까지 모두 aggregation하기 때문이다.
+            </p>
+            <p>
+              Great Apes 종 분류라는 까다로운 downstream task에서도, Mamba 모델이 HyenaDNA보다 높은 정확도를 달성하며
+              context 길이에 따라 성능이 꾸준히 향상된다.
+            </p>
+
+            <h3>Audio Modeling and Generation</h3>
+            <p>
+              오디오 파형 modality에서는 SaShiMi 아키텍처와 학습 프로토콜을 기반으로 실험한다. YoutubeMix 피아노 음악
+              데이터셋에서 autoregressive pretraining을 수행한 결과, Mamba와 SaShiMi(S4+MLP) baseline 모두 context가
+              길어질수록 성능이 향상되지만, Mamba가 더 나으며 길이가 길어질수록 격차가 벌어진다.
+            </p>
+            <p>
+              SC09 음성 생성 benchmark에서 Mamba는 기존 GAN 및 diffusion 기반 모델보다 우수한 성능을 보여준다. 작은 6M
+              파라미터 모델도 state-of-the-art에 도달하며, 24M 모델은 크게 능가한다.
+            </p>
+
+            <h3>Speed and Memory Benchmarks</h3>
+            <img src="/study/paper_summaries/mamba/img9.png" alt="Scan speed and inference throughput benchmarks" />
+            <p>
+              SSM scan 연산(state expansion $N = 16$)의 속도를 벤치마크한 결과, Mamba의 효율적 scan은 표준 구현 대비
+              학습 시 최대 40배 빠르다. FlashAttention-2와 비교하면 sequence 길이 2K를 넘어서는 구간에서 더 빠르다.
+            </p>
+            <p>
+              End-to-end inference throughput에서 Mamba는 recurrent 모델로서 KV cache가 필요 없으므로 같은 크기의
+              Transformer 대비 4~5배 높은 throughput을 달성한다. Mamba-6.9B(untrained)의 throughput이 5배 작은
+              Transformer-1.3B보다 높을 정도이다.
+            </p>
+
+            <h3>Model Ablations</h3>
+            <img src="/study/paper_summaries/mamba/img10.png" alt="Selective parameter ablations" />
+            <p>
+              350M 규모의 language modeling 설정에서 다양한 ablation을 수행한다. 아키텍처 측면에서, 기존 non-selective
+              LTI SSM들(S4, Hyena) 간에는 큰 성능 차이가 없지만, selective SSM(S6)으로 교체하면 큰 성능 향상이 있다.
+              Mamba 아키텍처가 H3와 유사하게 동작하면서도 더 단순하다.
+            </p>
+            <p>
+              Selective 파라미터 ablation에서 $\Delta$가 가장 중요한 파라미터이며, 여러 파라미터를 함께 selective하게
+              만들면 시너지 효과가 있다. 전부 selective인 경우 perplexity가 10.93에서 8.71로 크게 개선된다.
+            </p>
+            <p>
+              State dimension $N$을 증가시키면 추가 파라미터 비용은 1% 수준이면서 perplexity가 1.0 이상 개선된다. 다만
+              이 효과는 $B$와 $C$도 selective일 때만 유의미하다. 이는 selection이 state 크기를 효과적으로 활용하기 위한
+              전제 조건임을 확인해준다.
+            </p>
+
+            <h2>Conclusion</h2>
+            <p>
+              Mamba는 structured state space model에 selection mechanism을 도입하여 context-dependent reasoning을
+              가능하게 하면서도 sequence 길이에 대한 선형 스케일링을 유지한다. Attention이나 MLP 없이 단순한 아키텍처로
+              언어, 오디오, 게노믹스 등 다양한 도메인에서 Transformer 모델과 동등하거나 우수한 성능을 달성한다.
+            </p>
+
+            <h3>Discussion</h3>
+            <p>
+              논문에서 지적하는 주요 논의 사항은 다음과 같다. 첫째, <b>continuous-discrete spectrum</b>에서 SSM은 연속
+              시스템의 discretization이므로 오디오, 비디오 같은 연속 modality에 유리한 inductive bias를 가진다.
+              Selection mechanism은 텍스트, DNA 같은 discrete modality에서의 약점을 극복하지만, 반대로 연속 modality에서
+              LTI SSM이 잘하던 것을 저해할 수 있다. 둘째, Transformer 생태계가 갖춘 fine-tuning, prompting, RLHF,
+              quantization 등의 <b>downstream affordance</b>가 SSM 대안에도 동일하게 적용되는지는 미해결 과제이다. 셋째,
+              실험이 Llama 같은 강력한 open-source LLM 이하의 소규모 모델에 한정되어 있어, <b>7B 이상 스케일</b>에서의
+              검증이 필요하다.
+            </p>
+          </div>
+
+          <post-footer></post-footer>
+        </section>
+      </div>
+    </main>
+
+    <web-footer></web-footer>
+  </body>
+</html>
