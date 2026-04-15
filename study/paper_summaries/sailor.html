@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="/css/index.css" />
+    <script type="module" src="/js/main.js" defer></script>
+  </head>
+
+  <body>
+    <web-head></web-head>
+    <web-header></web-header>
+
+    <main>
+      <div class="container">
+        <section id="post">
+          <post-header></post-header>
+
+          <div class="post-body">
+            <arxiv-card
+              title="A Smooth Sea Never Made a Skilled SAILOR: Robust Imitation via Learning to Search"
+              venue="NeurIPS 2025"
+              authors="Arnav Kumar Jain, Vibhakar Mohta, Subin Kim, Atiksh Bhardwaj, Juntao Ren, Yunhai Feng, Sanjiban Choudhury, Gokul Swamy"
+              link="https://arxiv.org/abs/2506.05294"
+            >
+            </arxiv-card>
+
+            <h2>TL;DR</h2>
+            <ul>
+              <li>
+                Behavioral cloning(BC)의 근본적 한계는 expert가 방문한 state에서만 무엇을 할지 가르친다는 점이다.
+                Agent가 실수로 OOD state에 들어가면 회복 방법을 모른다. 데이터를 5~10배 늘려도 이 gap이 사라지지 않는다.
+              </li>
+              <li>
+                SAILOR는 expert demonstration으로부터 world model(WM)과 reward model(RM)을 학습하고, test-time에 latent
+                space에서 MPPI로 residual plan을 탐색하여 base policy의 실수를 바로잡는다. 물고기를 주는 대신 (BC)
+                낚시하는 법을 가르치는 (learning to search) 접근이다.
+              </li>
+              <li>
+                Warm-start, online fine-tuning, expert iteration의 3단계로 WM, RM, critic을 안정적으로 학습한다. Expert
+                iteration 단계에서는 탐색 결과를 base policy에 distill하여 test-time compute를 재활용한다.
+              </li>
+              <li>
+                3개 benchmark의 12개 visual manipulation task에서 SAILOR는 동일 데이터로 학습된 Diffusion Policy를
+                일관되게 능가하며, model-free inverse RL(DPPO-IRL)보다 interaction-efficient하고 reward hacking에도
+                robust하다.
+              </li>
+            </ul>
+
+            <h2>Thoughts</h2>
+            <p>
+              논문 제목의 "A smooth sea never made a skilled sailor"라는 비유가 문제의식을 인상적으로 압축한다. BC는
+              expert의 깔끔한 trajectory만 보고 배우기 때문에 정작 파도(실수)를 만났을 때 대응할 수 없다. 이 직관을
+              generation-verification gap이라는 이론적 프레임으로 정당화하고, 구체적 알고리즘으로 풀어낸 구성이 좋다.
+              Dreamer 계열 world model, MPPI, inverse RL, DAgger 스타일 expert iteration이라는 기존 재료들을 잘 조합해낸
+              작품이다.
+            </p>
+            <p>
+              실험 설계도 설득력 있다. 12개의 다양한 manipulation task에서 일관된 개선을 보이며, "단순히 데이터를 늘리면
+              되지 않나"라는 자연스러운 반론을 5~10배 scaling 실험으로 직접 반박한다. Model-free inverse RL 대비
+              interaction-efficiency, reward hacking robustness 같은 속성까지 꼼꼼하게 검증한 점이 인상적이다. RM이
+              task의 미묘한 실패를 localize하는 qualitative 결과도 인상적이다.
+            </p>
+            <p>
+              다만 아쉬운 점도 여럿 있다. 먼저 논문 자체가 인정하듯, WM pretraining의 scaling 탐구가 빠져 있고 expert
+              iteration으로 distill된 policy가 Square 같은 어려운 task에서는 full search를 따라잡지 못한다. 더
+              근본적으로, 모든 실험이 시뮬레이션(Robomimic, RoboSuite, ManiSkill)에 머물러 있어 실제 로봇에서 WM의
+              generalization이나 MPPI의 real-time 적합성을 검증한 결과가 없다. 또한 500k env step이라는 적지 않은 online
+              interaction을 요구하므로 순수 imitation이라기보다는 expert-warm-started model-based RL에 가깝다.
+              "imitation via learning to search"라는 framing이 엄밀히 맞는지는 생각해볼 여지가 있다. WM의 품질이 task
+              성능의 상한을 결정한다는 점도 다시 말하면 contact-rich한 deformable manipulation처럼 dynamics 모델링이
+              본질적으로 어려운 도메인으로 확장 시에는 병목이 될 가능성이 크다.
+            </p>
+
+            <h2>Introduction</h2>
+            <img
+              src="/study/paper_summaries/sailor/img1.png"
+              alt="SAILOR overview - DP fails at OOD state, local search in WM, SAILOR avoids failure, distillation"
+            />
+            <p>
+              현대 imitation learning의 주류는 diffusion policy(DP)나 VLA 같은 expressive 모델을 expert
+              demonstration으로 behavioral cloning 하는 방식이다. 데이터를 늘리고 모델을 키우면 언젠가 로봇의 "ChatGPT
+              moment"가 올 것이라는 낙관이 기반에 깔려 있다. 그러나 언어 모델링 같은 단순한 경우조차 next-token
+              prediction 만으로는 부족했고, RLHF 같은 interactive learning이 필수적이었다. 복잡한 embodiment, stochastic
+              dynamics, partial observability를 다뤄야 하는 robot learning에서 단순 scaling이 통하지 않을 가능성은 더
+              크다.
+            </p>
+            <p>
+              BC가 대량의 데이터로 학습되어도 실수를 하는 이유는 expert demonstration의 support에서 벗어나는 상황이
+              필연적으로 생기기 때문이다. 이를 compounding error 문제라고 부른다. 이상적 해결책은 agent가 실수로부터
+              회복하는 방법을 학습하는 것이다. 그러려면 두 가지 능력이 필요하다. <b>Prediction</b>(자신의 행동 결과를
+              이해하는 능력)과 <b>evaluation</b>(어떤 결과가 더 좋은지 판단하는 능력)이다.
+            </p>
+            <p>
+              본 논문은 expert demonstration과 base-policy rollout의 혼합 데이터로 local world model(WM)과 reward
+              model(RM)을 학습하고, test-time에 학습된 RM을 WM 내부에서 planning 대상으로 사용해 base policy의 실수를
+              바로잡는다. 별도의 human correction 없이 expert demonstration만으로 recovery를 학습한다는 점이 핵심이다.
+              이 composite architecture를
+              <b>SAILOR</b>(<b>S</b>earching <b>A</b>cross <b>I</b>magined <b>L</b>atents <b>O</b>nline for
+              <b>R</b>ecovery)라 부른다. 주요 기여는 다음과 같다.
+            </p>
+            <ol>
+              <li>
+                3개 benchmark의 12개 visual manipulation task에서 SAILOR가 Diffusion Policy를 꾸준히 능가하며, DP
+                데이터를 5~10배 늘려도 이 gap이 사라지지 않음을 보인다. SAILOR는 DP 파라미터를 직접 업데이트하는
+                model-free inverse RL(DPPO)보다도 interaction-efficient하다.
+              </li>
+              <li>
+                안정적이고 sample-efficient한 학습을 위한 알고리즘 요소들을 면밀히 ablation한다. 특히 WM 학습 기간을
+                "warm-start"하는 것, WM을 hybrid 데이터(expert + base policy)로 online fine-tuning하는 것, 탐색 결과를
+                base policy에 주기적으로 distill하는 것이 성능에 결정적임을 확인한다.
+              </li>
+              <li>
+                학습된 RM이 long-horizon manipulation task의 미묘한 실패를 잘 포착하며, MPPI sample 수를 늘려도 성능이
+                저하되지 않아 reward hacking에도 robust함을 보여준다.
+              </li>
+            </ol>
+
+            <h2>Robust Imitation via Learning to Search</h2>
+
+            <h3>What is Learning to Search?</h3>
+            <img
+              class="half"
+              src="/study/paper_summaries/sailor/img2.png"
+              alt="SAILOR inference architecture with WM, RM, V, MPPI"
+            />
+            <p>
+              SAILOR는 base policy $\pi^{\text{base}}$가 생성한 nominal plan $a^{\text{base}}_{t:t+k}$를 보정할 residual
+              plan $\Delta^\star_{t:t+k}$를 학습된 search algorithm으로 생성한다. 구체적으로, 학습된 world model WM,
+              reward model RM, critic V를 사용하여 WM 내부에서 potential corrected plan을 stochastic하게 rollout하고,
+              RM과 V로 점수를 매긴 뒤 가장 높은 점수의 plan의 첫 단계를 환경에서 실행하고 re-plan한다(MPC 방식).
+              Inference 시 풀어야 하는 local search 문제는 다음과 같다.
+            </p>
+            <p class="math-center">
+              $\Delta^\star_{t:t+k} = \arg\max\limits_{\Delta_{t:t+k}} \mathbb{E}_{z_t \sim \text{WM}(z_{t-1},
+              a_{t-1})}\left[\sum\limits_{h=0}^{k-1} \gamma^h \text{RM}(z_{t+h}) + \gamma^k \text{V}(z_{t+k}) \mid o_t,
+              a_{t:t+k} = a^{\text{base}}_{t:t+k} + \Delta_{t:t+k}\right]$
+            </p>
+
+            <h3>SAILOR Components</h3>
+
+            <h4>Base Policy</h4>
+            <p>
+              $\pi^{\text{base}}$는 관측 $o_t$로부터 $k$-step plan $a^{\text{base}}_{t:t+k}$를 생성하는 임의의
+              policy이다. 본 논문에서는 구현의 편의를 위해 task-specific Diffusion Policy를 behavioral cloning으로
+              학습해 사용한다. 다만 SAILOR framework 자체는 VLA 같은 pretrained generalist policy에도 적용 가능하다.
+            </p>
+
+            <h4>World Model</h4>
+            <p>
+              고차원 observation 공간에서의 dynamics 모델링을 피하기 위해 Recurrent State-Space Model(RSSM, DreamerV3)
+              아키텍처를 채택한다. WM은 세 요소로 구성된다. Encoder $\text{enc}: \mathcal{Z} \times \mathcal{O} \times
+              \mathcal{A} \to \mathcal{Z}$는 관측을 latent space $\mathcal{Z}$로 인코딩한다. Latent dynamics model
+              $\text{f}: \mathcal{Z} \times \mathcal{A} \to \Delta(\mathcal{Z})$는 next latent state를 예측한다. Decoder
+              $\text{dec}: \mathcal{Z} \to \mathcal{O}$는 latent state로부터 observation을 재구성한다. 중요한 점은 세
+              요소를 expert demonstration $\mathcal{D}$와 base-policy rollout $\mathcal{B}$의 <b>hybrid 데이터</b>
+              위에서 함께 학습한다는 것이다. 이 hybrid 학습은 WM이 base policy가 실제로 방문할 distribution을 정확하게
+              커버하도록 보장한다.
+            </p>
+
+            <h4>Reward Model</h4>
+            <p>
+              RM $: \mathcal{Z} \to \mathbb{R}$은 latent state가 얼마나 "expert-like"한가를 점수로 매긴다. Expert와
+              learner rollout의 latent embedding을 discriminator로 구분하는 moment-matching loss로 학습한다.
+            </p>
+            <p class="math-center">
+              $\ell(\mathcal{D}, \mathcal{B}, \text{RM}) = \mathbb{E}_{(z, a, o) \sim
+              \mathcal{B}}[\text{RM}(\text{enc}(z, a, o))] - \mathbb{E}_{(z, a, o) \sim
+              \mathcal{D}}[\text{RM}(\text{enc}(z, a, o))]$
+            </p>
+            <p>
+              학습 안정화를 위해 gradient penalty를 추가한다. RM은 WM 학습 중 iterative하게 업데이트되어 현재 composite
+              SAILOR stack이 만드는 실수를 감지한다. 이는 inverse RL 접근에서 verifier(RM)를 학습하는 것이
+              generator(policy) 를 학습하는 것보다 sample-efficient하다는 generation-verification gap을 활용한다.
+            </p>
+
+            <h4>Critic</h4>
+            <p>
+              $k$ step을 넘어가는 truncated horizon rollout을 가능하게 하려고, terminal value function 역할을 하는
+              critic V를 학습한다. V는 $\lambda$-return으로 bootstrap한다.
+            </p>
+            <p class="math-center">
+              $\text{v}^\lambda_t = \text{RM}(z_t) + \gamma\left((1 - \lambda)\text{V}(z_t) + \lambda
+              \text{v}^\lambda_{t+1}\right), \quad \text{v}^\lambda_{t+k} = \text{V}(z_{t+k})$
+            </p>
+            <p>
+              5개 critic network의 ensemble을 사용하며, terminal estimate에서 무작위로 2개를 샘플하고 ensemble 전체의
+              표준편차에 비례하는 uncertainty penalty를 뺀다.
+            </p>
+
+            <h4>MPPI Planner</h4>
+            <p>
+              Search algorithm으로 Model-Predictive Path Integral(MPPI)을 쓴다. 각 iteration에서 Gaussian
+              $\mathcal{N}(\mu, \sigma^2)$로부터 $N = 256$개의 residual plan $\Delta^n_{t:t+k}$를 샘플하고, WM 내부에서
+              rollout하여 $\hat{Q}^n = \sum\limits_{h=0}^{k-1} \gamma^h \text{RM}(z^n_{t+h}) + \gamma^k
+              \text{V}(z^n_{t+k})$로 점수를 매긴다. 상위 64개를 골라 $\mu, \sigma$를 업데이트한다. 6회 iteration 후 최종
+              plan을 sample한다. MPPI가 low-dimensional latent space에서 작동하므로 GPU에서 large batch를 병렬로 평가할
+              수 있다.
+            </p>
+
+            <h3>The Three Phases of Training</h3>
+            <p>SAILOR는 세 단계로 학습된다.</p>
+            <ol>
+              <li>
+                <b>Phase I. Warm-Start</b>. Base policy $\pi^{\text{base}}$만으로 환경에서 rollout을 수집하여 buffer
+                $\mathcal{B}$를 채운 뒤, WM, RM, critic을 $\mathcal{D}$와 $\mathcal{B}$의 혼합 데이터로 co-training한다.
+              </li>
+              <li>
+                <b>Phase II. Online Fine-Tuning</b>. 전체 SAILOR stack(search 포함)으로 rollout을 수행하며, WM, RM, V를
+                hybrid 데이터로 주기적으로 업데이트한다.
+              </li>
+              <li>
+                <b>Phase III. Expert Iteration</b>. 주기적으로 test-time search의 결과를 base policy에 distill한다. 최근
+                $(o, a)$ 쌍 중 일부를 꺼내 post-hoc으로 SAILOR stack으로 relabel하여 새로운 action label을 만들고, 이를
+                BC로 base policy를 fine-tune한다. SAILOR를 expert로 삼아 base policy에 DAgger update를 적용하는 것과
+                같다.
+              </li>
+            </ol>
+
+            <h2>Experiments</h2>
+
+            <h3>Benchmarks</h3>
+            <p>
+              3개 benchmark의 12개 visual manipulation task로 평가한다. Robomimic(Lift, Can, Square), RoboSuite(Door,
+              Stack, Bread, Cereal, Round, BreadCanRandom), ManiSkill(PullCube, PokeCube, LiftPeg). Multi-step
+              pick-and-place, articulated object manipulation(Door), tool use(Square, Round, PokeCube) 등 다양한 task
+              유형을 포함한다. Observation space는 wrist camera와 third-person camera의 RGB 이미지 + proprioception이다.
+              SAILOR는 expert demonstration $\mathcal{D}$와 환경 interaction budget만 주어진다.
+            </p>
+
+            <h3>Main Results</h3>
+            <img
+              src="/study/paper_summaries/sailor/img3.png"
+              alt="Main results across 12 tasks comparing SAILOR vs DP"
+            />
+            <p>
+              <b>SAILOR는 동일 데이터로 학습된 DP를 꾸준히 능가한다.</b> 모든 환경과 모든 데이터 규모에서 SAILOR가
+              DP보다 우수한 성공률을 보인다. 특히 low-data regime에서 격차가 크게 벌어지는데, 이는 L2S가 inverse RL의
+              sample efficiency 이점(generator가 아닌 verifier를 학습)을 이어받기 때문이다.
+            </p>
+            <img src="/study/paper_summaries/sailor/img4.png" alt="Dataset scaling showing DP plateaus at 5-10x data" />
+            <p>
+              <b>데이터를 늘려도 gap이 사라지지 않는다.</b> DP가 학습할 expert demonstration 수 $|\mathcal{D}|$를 5~10배
+              늘려봐도 100개 demonstration 이상부터는 performance plateau가 나타나며, SAILOR의 수준에 도달하지 못한다.
+              단순 offline scaling이 해답이 아님을 뒷받침하는 결과이다.
+            </p>
+            <img src="/study/paper_summaries/sailor/img5.png" alt="Interaction efficiency vs DPPO-IRL" />
+            <p>
+              <b>WM 기반이 더 interaction-efficient하다.</b> Model-free inverse RL(DPPO-IRL)은 DP 파라미터를 직접
+              업데이트하는 방식으로 같은 RM을 사용해도 SAILOR보다 훨씬 많은 interaction이 필요하다. Interaction budget을
+              5배 늘려도 DPPO-IRL은 SAILOR를 따라잡지 못한다. 각 observation을 단일 데이터 포인트가 아니라
+              counter-factual trajectory tree의 seed로 활용하는 것이 WM의 효용이다.
+            </p>
+
+            <h3>Qualitative Analysis</h3>
+            <img
+              src="/study/paper_summaries/sailor/img6.png"
+              alt="RM detecting nuanced failures at multi-stage tasks"
+            />
+            <p>
+              학습된 RM이 무엇을 감지하는지 qualitative하게 조사한다. Base policy가 일부 step까지 성공한 뒤 실패하는
+              trajectory를 sample하고, failure 직전 state에서 episode를 잘라 SAILOR가 그 지점부터 회복하게 한다.
+              Sequential pick, tool grasp, tool hang 같은 복잡한 task에서 RM이 base policy의 미묘한 실패(approach 실패,
+              grasp 실패 등)를 정확히 포착하고, SAILOR가 이를 counterfactually 회피한다.
+            </p>
+            <img
+              src="/study/paper_summaries/sailor/img7.png"
+              alt="Robustness to reward hacking with increasing MPPI samples"
+            />
+            <p>
+              <b>Reward hacking에 강건하다.</b> Test-time scaling 접근의 흔한 우려는 샘플을 많이 뽑으면 학습된 proxy
+              reward를 "해킹"하여 실제 metric이 나빠진다는 것이다. MPPI sample 수 $N$을 늘리면 성능이 지속적으로
+              향상되며, 8배로 늘려도 저하가 없다. SAILOR는 reward hacking에 강건하다.
+            </p>
+
+            <h3>Ablations</h3>
+            <img
+              src="/study/paper_summaries/sailor/img8.png"
+              alt="Ablations of warm-start, hybrid WM training, and expert iteration"
+            />
+            <p>3가지 핵심 구성 요소를 ablate한다.</p>
+            <ul>
+              <li>
+                <b>Warm-Start</b>. Interaction budget의 약 20%를 warm-start phase에 할당하면 성능이 크게 좋아진다.
+                $\pi^{\text{base}}$의 distribution에 정확한 WM, RM, V를 확보하는 것이 Phase II 탐색을 안정시킨다.
+              </li>
+              <li>
+                <b>Hybrid WM Training</b>. WM을 expert와 learner 데이터의 mix로 학습하면 초기 성능뿐 아니라 최종 성능도
+                개선되는 경우가 있다(Cereal 등). Hybrid 데이터가 expert-relevant 영역과 learner-relevant 영역을 모두
+                커버하기 때문이다.
+              </li>
+              <li>
+                <b>Expert Iteration</b>. 탐색 결과를 base policy에 주기적으로 distill하면 base policy가 과거 실수로부터
+                회복하는 방법을 "체화"하여 Phase II 탐색의 부담을 줄인다. Test-time compute를 새로운 base policy로
+                재활용하는 셈이다.
+              </li>
+            </ul>
+            <img class="half" src="/study/paper_summaries/sailor/img9.png" alt="Residual planning vs residual policy" />
+            <p>
+              <b>Residual planning vs residual policy</b>. Residual을 online planning으로 찾는 대신 actor-critic으로
+              학습된 residual policy(RP)를 사용하는 방안도 ablation 한다. SAILOR의 명시적 test-time planning이 board
+              전체에 걸쳐 RP를 앞선다. MPPI의 wall-clock overhead는 latent space 연산 덕분에 base DP forward pass 대비
+              무시할 수준이다(0.014초/iter vs 0.066초/step).
+            </p>
+
+            <h2>Conclusion</h2>
+            <p>
+              SAILOR는 expert demonstration만으로 world model과 reward model을 학습하고, test-time에 이들을 조합한 local
+              search로 base policy의 실수를 바로잡는 learning-to-search framework이다. 추가적인 human feedback 없이도
+              base policy의 실패에서 회복하며 expert의 outcome에 도달한다. 12개 visual manipulation task에서 DP 대비
+              5~10배 데이터 scaling으로도 좁히지 못하는 성능 gap을 달성하며, 학습된 RM이 미묘한 실패를 감지하고 SAILOR
+              stack 전체가 reward hacking에 강건함을 확인한다.
+            </p>
+
+            <h3>Discussion</h3>
+            <p>
+              저자들은 L2S가 imitation의 scaling law 관점에서 특히 유망한 이유 두 가지를 강조한다. 첫째,
+              <b>data efficiency</b>. Verifier(RM)를 학습하는 것이 generator(policy)를 학습하는 것보다 적은 데이터로
+              가능하며, horizon이 길어질수록 generation-verification gap이 커진다. 둘째, <b>compute efficiency</b>.
+              L2S는 test-time에 실제로 방문하는 state에서만 planning하면 되고, expert iteration을 통해 이 compute를
+              재활용할 수 있다. 본 논문은 이 scaling law을 실증적으로 탐구하기보다 방향성을 제시하는 쪽이며, 저자들이
+              Sutton의 "bitter lesson"을 인용하며 search와 learning의 결합이 올바른 길임을 주장하는 마무리가 인상적이다.
+            </p>
+
+            <h3>Limitations and Future Directions</h3>
+            <p>
+              논문 자체가 지적하는 주요 한계는 WM을 internet-scale dataset에서 pretraining하는 스케일을 탐구하지
+              않았다는 점이다. Foundation world model을 backbone으로 삼으면 recovery 능력의 일반화가 크게 향상될 여지가
+              있다. 또한 SAILOR 전체 framework가 Base Policy, WM, RM, MPPI 등 모든 컴포넌트에 agnostic하므로 VLA 같은 더
+              일반적인 base policy와 결합하면 추가적인 robustness를 얻을 수도 있다.
+            </p>
+          </div>
+
+          <post-footer></post-footer>
+        </section>
+      </div>
+    </main>
+
+    <web-footer></web-footer>
+  </body>
+</html>
