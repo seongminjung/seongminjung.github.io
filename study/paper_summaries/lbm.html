@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="/css/index.css" />
+    <script type="module" src="/js/main.js" defer></script>
+  </head>
+
+  <body>
+    <web-head></web-head>
+    <web-header></web-header>
+
+    <main>
+      <div class="container">
+        <section id="post">
+          <post-header></post-header>
+
+          <div class="post-body">
+            <arxiv-card
+              title="A Careful Examination of Large Behavior Models for Multitask Dexterous Manipulation"
+              venue="ArXiv 2025.07"
+              authors="TRI LBM Team"
+              link="https://arxiv.org/abs/2507.05331"
+            >
+            </arxiv-card>
+
+            <h2>TL;DR</h2>
+            <ul>
+              <li>
+                TRI는 약 1,700시간의 실제 및 시뮬레이션 로봇 데이터로 multitask Diffusion Transformer 정책(Large
+                Behavior Model, LBM)을 학습하고, 1,800회의 real-world blind A/B rollout과 47,000회의 시뮬레이션
+                rollout을 통해 single-task baseline과 엄밀하게 비교한다.
+              </li>
+              <li>
+                주요 결과는 세 가지이다. Finetuned LBM은 동일 양의 task 데이터로 학습한 single-task 모델보다 일관되게
+                좋고, distribution shift 하에서 강건함의 격차가 더 커지며, 같은 성능에 도달하는 데 3~5배 적은 task
+                데이터로 충분하다.
+              </li>
+              <li>
+                통계적 신뢰도를 위해 blind A/B 테스트, rubric 기반 task completion, Bayesian posterior 기반 violin plot,
+                Compact Letter Display를 사용한 hypothesis test 등을 결합한 평가 파이프라인을 제안한다. 논문 기여의 상당
+                부분이 "어떻게 믿을 만하게 비교하는가"에 있다.
+              </li>
+              <li>
+                Finetuning 없이 그대로 쓴 pretrained LBM은 seen task에서 single-task와 통계적으로 구분되지 않거나 오히려
+                약간 밀리는 경우도 있다. Pretraining이 만능이 아니고, pretraining 데이터 양을 늘릴수록 finetuned 성능이
+                매끄럽게 올라가는 scaling 효과가 현재 관측되는 주된 이득이다.
+              </li>
+            </ul>
+
+            <h2>Thoughts</h2>
+            <p>
+              이 논문의 가장 큰 기여는 모델이 아니라 <b>평가 파이프라인</b>이다. VLA, Octo, RDT, π0 등 대형 로봇 정책
+              연구가 쏟아지고 있지만, 대부분의 성능 비교는 task 개수가 적고 초기 조건 통제가 느슨해 어떤 모델이 정말로
+              낫다고 말하기가 어렵다. 저자들은 blind A/B, 초기 조건 overlay, rubric QA, Bayesian posterior, Compact
+              Letter Display 같은 방법을 결합해 단일 로봇 정책 논문이 감당하기 힘든 규모의 통계적 검정을 수행한다. 이
+              프로토콜 자체가 커뮤니티에 넘겨주는 자산으로 보인다.
+            </p>
+            <p>
+              모델적 기여는 상대적으로 적다. 아키텍처는 표준 Diffusion Transformer에 CLIP ViT, 언어 임베딩, end-effector
+              pose를 condition으로 넣은 구조로, Diffusion Policy와 RDT 흐름의 자연스러운 연장이다. 저자들도 아키텍처
+              참신성이 아니라 <i>pretraining의 효과를 신뢰성 있게 측정</i>하는 데 초점을 맞췄음을 명시한다. 결과로
+              확인된 효과는 분명하지만 드라마틱하지는 않다. 같은 양의 task 데이터에서 finetuned LBM이 single-task를
+              꾸준히 이기고, distribution shift에서 격차가 벌어지며, 3~5배 데이터 효율을 보이는 정도이다.
+            </p>
+            <p>
+              흥미로운 부분은 논문이 스스로 보여주는 <b>부정적 증거들</b>이다. Pretrained LBM(finetuning 없이)은
+              대부분의 seen task에서 single-task와 통계적으로 구분되지 않고, real-world에서는 오히려 single-task보다
+              낮은 경우가 있다. <i>TurnCupUpsideDown</i>처럼 finetuned LBM이 오히려 단일 task 모델을 크게 밑도는 사례도
+              존재한다. 데이터 normalization 버그 하나가 아키텍처 변경보다 큰 성능 차이를 내는 것도 보여준다. "large
+              pretraining이 항상 좋다"라는 암묵적 가정에 대한 경계심을 정직하게 드러낸다.
+            </p>
+            <p>
+              아쉬운 점도 있다. 우선 <b>모델 크기와 언어 능력</b>이 제한적이다. 언어 encoder가 CLIP 수준이라 language
+              steerability가 약하고, 저자들도 더 큰 VLA로 가면 결론이 달라질 수 있다고 인정한다. 따라서 지금의 scaling
+              law가 Gemini Robotics나 RT-2 수준에서도 유효한지는 열린 문제이다. 또한 pretraining과 finetuning 데이터
+              사이의 <i>trade-off</i>만 언급되었을 뿐, co-training이나 continual 학습 같은 대안과의 비교가 없다.
+              마지막으로 1,800회 rollout이라는 거대한 실험에도 불구하고 task 자체는 여전히 tabletop bimanual에
+              한정된다는 점도 한계이다.
+            </p>
+
+            <h2>Introduction</h2>
+            <img
+              src="/study/paper_summaries/lbm/img1.png"
+              alt="Overall LBM pipeline showing pretraining, finetuning, and evaluation with statistical analysis"
+            />
+            <p>
+              Behavior cloning 기반의 로봇 정책은 언어, 비전 도메인의 foundation model 흐름을 따라 대규모 multitask
+              정책(Large Behavior Model, LBM)으로 옮겨가는 중이다. 그런데 이 흐름이 실제로 얼마나 효과적인지 엄밀히
+              측정하는 일은 아직 덜 연구되어 있다. 로봇 하드웨어 비용, task별 초기 조건 변동, evaluator의 주관성 때문에
+              한 모델이 다른 모델보다 "정말로" 낫다는 걸 통계적으로 입증하는 것은 어렵다.
+            </p>
+            <p>
+              TRI의 LBM 팀은 약 1,700시간 분량의 데이터로 Diffusion Transformer 기반 LBM을 여러 개 학습한 뒤, 이들을
+              single-task baseline과 같은 조건에서 비교하기 위한 정교한 평가 파이프라인을 설계하고 실행한다. Blind A/B
+              테스트, 초기 조건 overlay로 재현성을 확보한 real-world rollout, rubric 기반 task completion 측정, Bayesian
+              posterior 기반 통계 분석을 결합한다. 이 구조 위에서 다음 세 가지 질문에 답한다.
+            </p>
+            <ol>
+              <li>LBM pretraining은 같은 양의 task 데이터로 finetuning 했을 때 single-task 성능을 이기는가?</li>
+              <li>Distribution shift 상황에서 LBM이 더 robust한가?</li>
+              <li>Pretraining 데이터 양을 늘릴수록 finetuned 성능이 예측 가능하게 좋아지는가?</li>
+            </ol>
+            <p>
+              결론은 모두 "그렇다"이지만, 효과 크기가 생각보다 보수적이며, finetuning을 거치지 않은 pretrained LBM은
+              오히려 기대 이하라는 점이 함께 관찰된다. 단순한 "LBM이 이겼다"를 넘어 어디서 얼마나 이기는지를 수치로
+              정량화한 것이 이 논문의 실질적 가치이다.
+            </p>
+
+            <h2>Large Behavior Model Architecture</h2>
+            <img
+              src="/study/paper_summaries/lbm/img2.png"
+              alt="LBM Diffusion Transformer architecture with ViT, CLIP text, proprioception conditioning"
+            />
+            <p>
+              LBM은 vision, 언어, proprioception을 조건으로 action을 생성하는 <b>Diffusion Transformer (DiT)</b>
+              policy이다. Action 공간은 20차원 bimanual end-effector command(양 팔의 6D pose와 gripper width)이며, 한
+              번의 forward에서 16 step을 예측하고 배포 시에는 10 Hz로 동작하며 앞쪽 8 step을 실행한 뒤 re-plan한다.
+            </p>
+            <p>
+              학습 목표는 일반적인 diffusion policy와 같다. Action $A^0_t$에 step $k$에 비례하는 Gaussian noise를 더한
+              $A^k_t$를 만든 뒤, noise prediction network $\epsilon_\theta$가 이를 복원하도록 다음 DDPM loss를
+              최소화한다.
+            </p>
+            <p class="math-center">$\mathcal{L}(\theta) = \|\epsilon_k - \epsilon_\theta(O_t, A^k_t, k)\|^2_2$</p>
+            <p>배포 시에는 DDIM으로 $K$ step 역방향 업데이트를 수행한다.</p>
+            <p class="math-center">
+              $A^{k-1}_t = \alpha\left(A^k_t - \gamma \cdot \epsilon_\theta(O_t, A^k_t, k)\right)$
+            </p>
+            <p>
+              Observation feature $O_t$는 6대의 RGB camera image를 CLIP ViT-B/16에 태워 얻은 CLS token, CLIP text
+              encoder의 language feature, end-effector pose를 concatenate한 것이다. Vision encoder는 학습 중
+              finetune하고 language encoder는 얼려둔다. DiT는 8개 block, embedding dim 768로 구성되며 observation
+              feature는 adaptive LayerNorm(adaLN) 방식으로 diffusion timestep과 함께 주입된다.
+            </p>
+
+            <h3>Pretraining Data and Recipe</h3>
+            <p>
+              Pretraining 데이터인 <b>Ramen</b>은 두 부분으로 나뉜다. 내부 수집한 약 545시간의 <b>TRI-Ramen</b>(real
+              468시간, sim 45시간, UMI 32시간)과 OpenX-Embodiment에서 발췌한 약 1,150시간의 <b>OXE-Ramen</b>이다. 내부
+              데이터는 9개의 하드웨어 로봇 station과 7 pair의 UMI 핸드헬드 기기로 수집되었으며 모두 bimanual 형태로
+              정규화된다. TRI-Ramen과 OXE-Ramen은 각각 별도의 normalization parameter로 처리한 뒤 batch 단위로
+              balance하여 학습한다.
+            </p>
+            <p>
+              Pretraining은 48k step, batch size 2560, learning rate 3e-4로 수행한다. 이후 개별 task에 대해 finetuning
+              단계에서는 learning rate 2e-5, batch size 320로 real task에 30k step, sim task에 10k step 돌린다.
+              Single-task baseline은 동일 아키텍처를 처음부터 해당 task 데이터로만 학습하여 얻는다. 즉 모든 비교는
+              <i>같은 모델 크기, 같은 recipe, 다른 pretraining 유무</i>로 통제된다.
+            </p>
+
+            <h2>Evaluation Protocol</h2>
+            <img
+              src="/study/paper_summaries/lbm/img3.png"
+              alt="Experiment overview with bimanual platform and example evaluation tasks"
+            />
+            <p>
+              평가는 Franka FR3 이중 팔 tabletop platform에서 이루어진다. 시뮬레이션은 Drake 기반
+              <code>lbm_eval</code> 환경이고, real-world는 실제 robot station에서 수행한다. Task는 TRI-Ramen에 포함된
+              <b>seen</b> task와 포함되지 않은 <b>unseen</b> task로 나뉜다. 시뮬레이션은 seen 16개 + unseen 8개, real은
+              seen 3개 + unseen 5개를 사용한다. Unseen 중 복잡한 real task에는 <i>SetBreakfastTable</i>,
+              <i>BikeRotorInstall</i>, <i>CutAppleInSlices</i> 같은 장기 다단계 작업이 포함된다.
+            </p>
+            <p>
+              데이터 수집은 각 task를 2~4개 station에 나눠 약 100 demonstration씩 모으는 구조로 다양성을 확보한다.
+              Real-world 평가는 task당 50 rollout, 시뮬레이션은 task당 200 rollout을 수행한다. 이 두 축을 합치면 총
+              1,800회의 real A/B rollout과 약 47,000회의 시뮬레이션 rollout에 해당한다.
+            </p>
+
+            <h3>Controlled Initial Conditions and Distribution Shifts</h3>
+            <p>
+              Real-world 평가의 가장 큰 노이즈는 <i>초기 조건</i>이다. 저자들은 <b>overlay workflow</b>를 도입한다.
+              카메라 이미지 위에 원하는 초기 배치를 반투명하게 겹쳐 보여주고, evaluator가 실제 장면을 overlay에 맞춰
+              복원한다. 이로써 매 rollout의 object 위치가 시뮬레이션과 동일한 분포에서 샘플되며, trial 간 분산도 크게
+              줄어든다.
+            </p>
+            <p>Distribution shift는 세 가지 축으로 설계한다.</p>
+            <ul>
+              <li>
+                <b>Nominal</b>은 학습 분포와 같은 조건이며, 시뮬레이션에서는 bin 위치, object 종류, 조명 등이 학습
+                분포에서 재샘플된다.
+              </li>
+              <li>
+                <b>Object-centric shift</b>는 novel manipuland 및 distractor를 섞은 조건이다. 저자들은 의도적으로
+                pretraining 데이터에 없는 물체를 골라 사용한다.
+              </li>
+              <li>
+                <b>Station shift</b>는 finetuning 데이터에 포함되지 않은 로봇 station에서 실행하는 조건으로, 하드웨어
+                교차 전이를 본다.
+              </li>
+            </ul>
+
+            <h3>Metrics and Statistical Analysis</h3>
+            <p>
+              주 지표는 <b>success rate (SR)</b>과 <b>task completion (TC)</b>이다. TC는 task마다 evaluator가 채우는
+              rubric 질문(“apple을 grasp했는가”, “drop했는가”)의 충족 비율이며, 이 rubric의 신뢰도를 검증하기 위해
+              별도의 QA 팀이 전체 rollout의 약 27%를 재채점한다. 그 결과 success 판정 불일치율은 2.31%, rubric 문항
+              불일치율은 6.25%였고, 불일치 rollout에 대해 한 차례 수정한 뒤 최종 결과를 산출했다.
+            </p>
+            <p>
+              통계 분석은 Bayesian과 frequentist 도구를 함께 쓴다. 각 개별 policy의 SR은 uniform Beta prior 위에서
+              Bernoulli 관측으로 posterior를 계산한 뒤 <b>violin plot</b>으로 표시한다. TC는 uniform Dirichlet
+              posterior를 쓴다. 여러 policy 비교는 binary SR에 대해서는 sequential test, TC에 대해서는 Welch t-test를
+              사용하고, Bonferroni 보정으로 전체 95% 신뢰도를 유지한다. 결과는 <b>Compact Letter Display (CLD)</b>로
+              요약해 같은 글자를 공유하지 않는 두 policy는 95% 신뢰도로 분리된 것으로 해석한다.
+            </p>
+            <p>
+              이 전체 파이프라인의 효용은, 단일 숫자가 아니라 "통계적으로 구분되지 않는다"는 negative result까지 명확히
+              표시해 준다는 점이다. 뒤의 결과에서도 차이가 없는 task와 차이가 있는 task가 함께 드러난다.
+            </p>
+
+            <h2>Results</h2>
+
+            <h3>Performance on "Seen" Tasks</h3>
+            <img
+              src="/study/paper_summaries/lbm/img4.png"
+              alt="LBM performance on seen tasks in real and sim, nominal and distribution shift"
+            />
+            <p>
+              먼저 pretraining에 포함된 task에서의 성능을 본다. Figure에서 회색이 single-task baseline, 청록색이
+              finetuning 없는 pretrained LBM, 자주색이 finetuned LBM이다. 각 violin 위의 글자가 CLD 레이블이며, 같은
+              글자를 공유하지 않는 정책끼리는 통계적으로 분리된다.
+            </p>
+            <p>
+              <b>Finetuned LBM은 seen task에서 single-task를 꾸준히 이긴다.</b> Aggregate 비교에서 finetuned LBM은
+              real-world 3개 task와 sim 16개 task 모두에서 nominal과 distribution shift 양쪽 조건에서 single-task와
+              구분된다. 개별 task 단위로 보면 real 3/3, sim 15/16에서 성능이 같거나 더 좋고(CLD "a"), 격차는
+              distribution shift 조건에서 더 커진다. 예외가 하나 있는데, 시뮬레이션 <i>TurnCupUpsideDown</i>에서
+              finetuned LBM이 오히려 single-task보다 크게 낮은 0.335 성공률을 기록한다. 분석해 보면 절반에 가까운
+              rollout에서 로봇이 시작 자세에서 벗어나지 못한 채 timeout이 걸리는 현상이다.
+            </p>
+            <p>
+              <b>반면 finetuning 없는 pretrained LBM은 애매하다.</b> Aggregate에서 pretrained LBM은 nominal real-world와
+              station shift에서 single-task보다 <i>나쁘다</i>. 개별 task를 보면 pretrained LBM은 real 모든 task에서
+              single-task와 구분되지 않거나 더 나쁘고(5/8 indistinguishable, 3/8 worse), sim에서도 nominal에서 3/16만
+              단일 task 대비 유의하게 낫다. 저자들은 이를 두 가지로 설명한다. 첫째, real-world task에서 더 자주 밀리는
+              경향. 둘째, 논문 후반에서 밝히는 pretraining 단계의 <i>data normalization 버그</i>가 있었고, 이 버그
+              하나가 아키텍처/데이터 선택보다 큰 성능 차이를 설명할 수 있다.
+            </p>
+            <p>
+              <b>Distribution shift에서 격차가 벌어진다.</b> Nominal 대비 distribution shift를 걸면 모든 정책의 성공률이
+              떨어지지만 감소 폭은 finetuned LBM이 가장 작다. Sim에서 aggregate의 separation이 shift 조건에서 더 커지고,
+              unseen task에서도 같은 경향이 이어진다. Pretraining이 특정 object나 station 변화에 대한 robustness를
+              "보너스"로 준다는 가설과 잘 맞는다.
+            </p>
+
+            <h3>Performance on "Unseen" Tasks</h3>
+            <img
+              src="/study/paper_summaries/lbm/img5.png"
+              alt="LBM performance on unseen tasks in real and sim under nominal conditions"
+            />
+            <p>
+              Unseen task는 pretraining에 전혀 포함되지 않은 task이며, 여기서는 pretrained LBM의 zero-shot 성능을 기대할
+              수 없으므로 finetuned LBM과 single-task를 비교한다. Real task로는 <i>BikeRotorInstall</i>,
+              <i>CleanLitterBox</i>, <i>CleanKitchenCounter</i>, <i>CutAppleInSlices</i>, <i>SetBreakfastTable</i> 다섯
+              가지를 쓴다. 공통점은 장기, 다단계, 도구 사용이 섞인 복잡한 작업이라는 점이다.
+            </p>
+            <p>
+              <b>성공률</b>에서 finetuned LBM이 single-task를 aggregate 기준으로 nominal과 distribution shift 모두에서
+              상회한다. 다만 absolute SR은 대체로 낮아서 개별 task 단위 separation은 제한적이다. Real에서 2/5 task, sim
+              nominal에서 3/5 task, sim distribution shift에서 1/5 task가 유의하게 좋다.
+            </p>
+            <p>
+              <b>Task completion</b>을 보면 차이가 더 선명해진다. Real 4/5 task, sim 4/5 task에서 finetuned LBM이
+              statistically 더 높은 TC를 기록한다. <i>SetBreakfastTable</i> 같은 task는 single-task가 단 한 번도 완전히
+              성공하지 못하는 반면 finetuned LBM은 더 많은 단계를 완수한다. <i>BikeRotorInstall</i>과
+              <i>CutAppleInSlices</i>에서도 single-task가 전 rollout에서 실패하는 조건이 있고 finetuned LBM은 부분
+              진행을 보인다. SR만 보면 보이지 않는 "부분 성공"의 질적 차이를 TC가 포착한다.
+            </p>
+
+            <h3>Finetuning Data Efficiency</h3>
+            <img
+              class="half"
+              src="/study/paper_summaries/lbm/img6.png"
+              alt="SetBreakfastTable finetuning scaling law comparing LBM 15/50/100% vs single-task"
+            />
+            <p>
+              Unseen task에서 task별 데이터 양을 15%, 50%, 100%로 나눠 finetuning하면서 single-task와 비교한다. Sim
+              aggregate 기준, 어느 비율에서든 finetuned LBM이 single-task보다 높은 TC를 기록하며 50% 이상에서는 SR에서도
+              유의하게 높다. Interpolation하면 single-task가 전체 데이터로 달성하는 성능을 finetuned LBM은 약
+              <b>30% 이하의 task 데이터</b>로 달성한다.
+            </p>
+            <p>
+              Real의 <i>SetBreakfastTable</i>에서는 이 효과가 더 극적이다. 15% 데이터만 쓴 finetuned LBM이 이미 전체
+              데이터로 학습한 single-task baseline을 통계적으로 상회한다. 장기 다단계 작업일수록 multitask pretraining의
+              sample 효율 이득이 크다는 해석이다.
+            </p>
+
+            <h3>Pretraining Scaling Laws</h3>
+            <img
+              class="half"
+              src="/study/paper_summaries/lbm/img7.png"
+              alt="LBM performance with varying pretraining subsets from 0 to 100% TRI-Ramen plus OXE-Ramen"
+            />
+            <p>
+              Pretraining 데이터 양 자체가 finetuned 성능을 좌우하는지 본다. TRI-Ramen의 25%, 50%, 100%와 OXE-Ramen을
+              조합한 네 가지 pretraining 세트를 준비하고, 각각에서 동일한 unseen 5개 task에 finetuning을 걸어 TC의
+              mean을 비교한다.
+            </p>
+            <p>
+              <b>결과는 매끄럽다.</b> 0%(단일 task), TRI-Ramen 25%, 50%, 100%, TRI+OXE 전부의 순으로 TC가 단조 증가하며,
+              15% finetuning data에서는 다섯 모델이 모두 통계적으로 분리된다. 즉 pretraining 데이터가 많을수록 finetuned
+              성능이 더 좋다는 scaling 효과가 이 스케일에서 관측된다. 저자들은 이 결과를 기반으로
+              <i>pretraining 데이터와 task 데이터 간 trade-off</i>를 정식화한다. Task 데이터가 적을수록 pretraining
+              규모의 효과가 크고, task 데이터가 풍부하면 pretraining이 덜 중요해진다.
+            </p>
+            <p>
+              Inflection point나 discontinuity는 관측되지 않는다. 현재 스케일에서는 "더 많이 pretrain하면 더 좋다"가
+              성립하지만, 이 trend가 10배 이상 스케일에서도 유지될지에 대한 답은 이 논문의 범위를 넘는다.
+            </p>
+
+            <h2>Discussion and Conclusion</h2>
+            <p>
+              LBM은 task-specific 엔지니어링에서 데이터 중심의 범용 정책으로 옮겨가는 기조에 힘을 실어주지만, 그 이득은
+              현재 스케일에서 중간 정도의 크기로 나타난다. Finetuned LBM은 꾸준히 single-task를 이기고 distribution
+              shift에서 robustness가 올라가며, 같은 성능을 3~5배 적은 task 데이터로 달성한다. 반면 finetuning 없는
+              pretrained LBM은 기대만큼 좋은 정책이 아니며, 특히 real-world에서는 baseline에 밀리는 경우가 많다.
+            </p>
+            <p>
+              실용적으로 더 큰 메시지는 "<b>무엇을 측정하느냐가 무엇을 믿느냐를 결정한다</b>"이다. 로봇 정책 연구는
+              sample 부족과 평가 노이즈 때문에 signal-to-noise가 낮으므로, 충분한 trial 수와 엄밀한 통계 없이는 효과의
+              유무를 잘못 결론내기 쉽다. 저자들은 data normalization 같은 "무심한" 설계 선택 하나가 아키텍처 전체를
+              바꾸는 것만큼 결과를 좌우할 수 있다는 점을 직접 관측하고 기록한다.
+            </p>
+
+            <h3>Limitations</h3>
+            <p>
+              논문이 명시하는 한계는 네 가지이다. 첫째, 모델 weight의 학습 stochasticity까지 confidence interval에
+              반영하지는 않으며 이는 매우 비싼 추가 실험이 된다. 둘째, task당 50 real rollout도 signal-to-noise 한계가
+              있어 작은 효과는 놓칠 수 있다. 셋째, evaluator 오류와 초기 조건 변동이 0은 아니라 측정값에 잔여 noise가
+              남는다. 넷째, 사용한 언어 encoder가 CLIP 수준으로 작아서 language steerability가 제한되며, 더 큰 VLA로
+              가면 본 논문의 결론이 다르게 나올 수 있다.
+            </p>
+            <p>
+              여기에 블로그 관점에서 덧붙일 한계가 몇 가지 있다. Task 범위가 tabletop bimanual에 묶여 있어 mobile
+              manipulation이나 contact-rich 조작으로 확장 시 결론이 이어질지 불확실하다. Co-training이나 continual
+              finetuning 같은 대안적 학습 레시피가 같은 데이터 자원으로 어떤 trade-off를 보여주는지에 대한 실험도 없다.
+              Pretraining 데이터의 질(humanoid 기반 OpenX 데이터의 품질 편차)이 scaling law 곡선에 어떻게 기여하는지
+              분리 분석도 남아 있다. 이 논문은 LBM이 "작동한다"를 엄밀히 보여주는 것에 집중했고, "왜" 작동하는지에 대한
+              질문은 후속 연구의 몫으로 남긴다.
+            </p>
+          </div>
+
+          <post-footer></post-footer>
+        </section>
+      </div>
+    </main>
+
+    <web-footer></web-footer>
+  </body>
+</html>
