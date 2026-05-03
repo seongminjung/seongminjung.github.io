@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="/css/index.css" />
+    <script type="module" src="/js/main.js" defer></script>
+  </head>
+
+  <body>
+    <web-head></web-head>
+    <web-header></web-header>
+
+    <main>
+      <div class="container">
+        <section id="post">
+          <post-header></post-header>
+
+          <div class="post-body">
+            <arxiv-card
+              title="Training Agents Inside of Scalable World Models"
+              venue="ArXiv 2025.09"
+              authors="Danijar Hafner, Wilson Yan, Timothy Lillicrap"
+              link="https://arxiv.org/abs/2509.24527"
+            >
+            </arxiv-card>
+
+            <h2>TL;DR</h2>
+            <ul>
+              <li>
+                Dreamer 4는 고정된 offline 데이터셋만으로 Minecraft에서 다이아몬드를 획득한 최초의 agent이다. 환경과의
+                online 상호작용 없이 imagination training만으로 2만 스텝이 넘는 장기 조작 시퀀스를 해결한다.
+              </li>
+              <li>
+                World model은 shortcut forcing objective와 block-causal transformer를 조합해 H100 한 장에서 21 FPS의
+                real-time interactive inference를 달성한다. Object interaction과 game mechanic 예측 정확도에서 Oasis,
+                Lucid, MineWorld 같은 기존 Minecraft world model을 크게 능가한다.
+              </li>
+              <li>
+                Action conditioning을 배우는 데 필요한 action-labeled video 양이 매우 작다. VPT 전체 2541시간 중
+                100시간의 action만으로 85% PSNR, 100% SSIM 수준을 회복하며, Overworld에서만 학습한 action을 Nether와
+                End에 일반화한다.
+              </li>
+              <li>
+                Dreamer 4는 VPT offline agent를 100배 적은 데이터로 상회하고, Gemma 3 기반 VLA 대비 iron pickaxe
+                성공률을 약 3배로 끌어올린다. 같은 world model representation 위에서 imagination training이 behavior
+                cloning보다 정책을 더 robust하고 효율적으로 만든다는 것이 핵심 증거이다.
+              </li>
+            </ul>
+
+            <h2>Thoughts</h2>
+            <p>
+              Dreamer 4가 던지는 주된 메시지는 "offline imagination으로 Minecraft 다이아몬드가 된다"라는 존재 증명이다.
+              VPT가 보여준 것처럼 Minecraft에서 다이아몬드를 얻는 것은 원래 대량의 online RL 없이는 거의 불가능한 과제로
+              여겨졌는데, Dreamer 4는 VPT 대비 100배 적은 데이터로 환경 상호작용 없이 0.7%의 rollout에서 다이아몬드를
+              획득한다. 낮은 절대 수치처럼 보이지만, 장기 의존성과 rare event가 맞물린 과제에서 전혀 불가능하다고
+              여겨지던 영역을 뚫었다는 점이 중요하다. Minecraft는 이제 model-based offline RL의 새로운 hard benchmark로
+              쓸 만해졌다.
+            </p>
+            <p>
+              아키텍처적으로 가장 신선한 부분은 <b>shortcut forcing objective</b>와 <b>x-space prediction</b>이다.
+              Diffusion forcing이 autoregressive 긴 비디오 생성에서 고주파 오차를 누적시키는 문제를 파고들어,
+              v-prediction 대신 clean representation을 직접 예측하고 손실도 x-space에서 계산한다. 여기에 ramp loss
+              weight로 high-noise 영역에 용량을 집중시키는 설계까지 더해져, 4 step 샘플링만으로 64 step diffusion
+              forcing에 근접한 FVD를 찍는다. "빠른 샘플링"이라는 표현 이상의 구조적 개선이다.
+            </p>
+            <p>
+              한편 약점도 분명하다. 첫째, imagination training의 policy optimization은 여전히 world model의 환상에
+              갇힌다. 논문 스스로 inventory 예측이 부정확하고 context가 9.6초에 불과함을 인정하는데, diamond success
+              rate 0.7%가 본질적으로 이 오차 누적의 반영이다. 둘째, 모든 정량적 지표가 같은 VPT 데이터셋과 같은
+              Minecraft 환경에 종속되어 있어, action generalization 실험을 제외하면 "데이터 다양성" 이야기를 뒷받침할
+              정량적 근거가 부족하다. 셋째, tokenizer, 2B 모델, 256~1024 TPU라는 자원은 커뮤니티가 재현하기에 무겁다.
+              Dreamer 3처럼 소형 연구자도 돌릴 수 있는 재구현이 나오기 전까지는 "scalable recipe"라는 표현의 신뢰도가
+              얼마나 정착할지 지켜볼 필요가 있다.
+            </p>
+            <p>
+              그럼에도 이 논문의 포지셔닝은 좋다. Genie 3 같은 controllable video model은 scene 다양성은 크지만 정밀한
+              상호작용을 못 잡고, Dreamer 3 계열은 정밀하지만 작은 환경에 한정되어 있다. Dreamer 4는 두 축을 한 모델에서
+              타협시키는 첫 시도로 보이며, 특히 unlabeled video에서 world knowledge를 흡수하고 소량의 action으로
+              embodiment grounding을 학습한다는 방향성이 web-scale robotics 데이터로 확장 가능한 청사진을 제시한다.
+            </p>
+
+            <h2>Introduction</h2>
+            <img
+              src="/study/paper_summaries/dreamer_4/img1.png"
+              alt="Teaser showing imagined rollouts for gather wood, mine cobblestone, craft stone pickaxe, mine diamonds inside the world model"
+            />
+            <p>
+              World model은 주어진 행동의 결과를 예측하게 해 agent에게 planning과 imagination 기반 RL의 기반을 제공한다.
+              Dreamer 3 계열은 이 접근이 robotics와 게임에서 잘 작동함을 보였지만, 학습한 환경이 좁아서 복잡한 시각
+              분포로는 확장되지 못했다. 반대로 Genie 3 같은 controllable video model은 웹 규모의 데이터에서 일반적
+              장면을 생성할 수 있지만, 물리적 상호작용과 게임 구조를 정확히 모사하지 못해 imagination training에 쓰기
+              어렵다.
+            </p>
+            <p>
+              Dreamer 4는 이 간극을 메우려는 시도이다. 빠르고 정확한 world model 안에서 강화학습을 돌려 복잡한 제어
+              문제를 푸는 scalable agent를 제안하고, Minecraft에서 <b>오직 offline 데이터만으로</b> 다이아몬드를 얻는
+              최초의 결과를 보여준다.
+            </p>
+            <p>논문의 기여를 정리하면 다음과 같다.</p>
+            <ol>
+              <li>Imagination training으로 long-horizon 제어 과제를 푸는 scalable agent Dreamer 4를 제안한다.</li>
+              <li>
+                VPT 기반 offline 설정에서 Minecraft 다이아몬드를 획득하며, 기존 VPT offline baseline을 100배 적은
+                데이터로 상회한다.
+              </li>
+              <li>
+                Shortcut forcing objective와 efficient transformer를 통해 H100 한 장에서 real-time interactive inference
+                를 달성하는 고용량 world model을 제안한다.
+              </li>
+              <li>
+                소량의 action-labeled video로도 강한 action conditioning을 학습하고, unlabeled video에서 world
+                knowledge를 흡수할 수 있음을 보인다.
+              </li>
+            </ol>
+
+            <h2>World Model Agent</h2>
+            <img
+              src="/study/paper_summaries/dreamer_4/img2.png"
+              alt="World model design with causal tokenizer and interactive dynamics block-causal transformer"
+            />
+            <p>
+              Dreamer 4는 크게 <b>causal tokenizer</b>와 <b>interactive dynamics model</b> 두 부분으로 구성되며, 같은
+              block-causal transformer 구조를 공유한다. Tokenizer는 raw 비디오 프레임을 연속 잠재 표현으로 압축하고,
+              dynamics는 action과 interleaved 된 잠재 시퀀스를 shortcut forcing으로 예측한다. Pretrain된 world model에
+              task 토큰을 주입해 behavior cloning과 reward head를 finetune한 뒤, 마지막으로 imagination 안에서 policy를
+              RL로 학습한다. 전체 학습은 세 단계로 정리된다.
+            </p>
+            <ol>
+              <li>
+                <b>World model pretraining</b>. 비디오로 tokenizer를 학습하고, token과 action으로 dynamics를 학습한다.
+              </li>
+              <li><b>Agent finetuning</b>. Task 토큰을 dynamics에 끼워 넣고 policy와 reward head를 학습한다.</li>
+              <li>
+                <b>Imagination training</b>. 학습된 world model과 policy로 생성한 imagined rollout 위에서 value head와
+                policy head를 업데이트한다.
+              </li>
+            </ol>
+
+            <h3>Causal Tokenizer</h3>
+            <p>
+              Tokenizer는 encoder와 decoder 사이에 bottleneck을 둔 구조로, 시간 축으로 causal attention만 허용해 한
+              프레임씩 decoding할 수 있다. 각 time step에서 입력은 현재 이미지의 patch token과 learned latent token을
+              함께 넣고, encoder 통과 후 latent token만 뽑아 저차원으로 linear projection한 뒤 <code>tanh</code>을
+              씌운다. Decoder는 이 bottleneck 표현을 모델 차원으로 되돌리고 patch를 복원한다. 학습은 MSE와 LPIPS를
+              결합한 단순 재구성 손실 위에서 이루어지고, MAE 스타일의 patch dropout $p \sim U(0, 0.9)$를 통해 spatial
+              consistency를 개선한다.
+            </p>
+            <p class="math-center">
+              $\mathcal{L}(\theta) = \mathcal{L}_{\text{MSE}}(\theta) + 0.2\, \mathcal{L}_{\text{LPIPS}}(\theta)$
+            </p>
+
+            <h3>Interactive Dynamics with Shortcut Forcing</h3>
+            <p>
+              Dynamics는 tokenizer 출력 위에서 동작한다. 각 time step에는 공간 토큰 $S_z$개, register 토큰 $S_r$개,
+              그리고 shortcut signal level과 step size를 나타내는 단일 토큰이 concat된다. Action은 구성 요소별로
+              $S_a$개의 토큰으로 임베딩되고, discrete 컴포넌트는 embedding lookup, continuous 컴포넌트는 linear
+              projection으로 처리한다. Unlabeled 비디오의 경우 learned embedding 하나로 대체된다.
+            </p>
+            <p>
+              학습 목표는 shortcut forcing이다. Diffusion forcing을 기반으로 하되, signal level $\tau$와 step size $d$를
+              함께 조건으로 받아 적은 step 수로 interactive inference가 가능한 모델을 만드는 shortcut model 아이디어를
+              시퀀스 영역으로 확장한다. Sequence의 각 timestep $t$에 대해 $\tau_t, d_t$가 독립적으로 샘플링되며, 입력은
+              corrupted representation $\tilde{z}_t = (1-\tau_t) z_0 + \tau_t z_1$로 주어진다.
+            </p>
+            <p>
+              기존 v-prediction $v = x_1 - x_0$는 출력을 한 덩어리로 내보내는 데 우수하다. 하지만 비디오를 프레임별로
+              sequential하게 출력해야 하는 본 모델에서는 <b>clean representation $z_1$을 직접 예측</b>하는
+              x-prediction을 채택한다. 긴 autoregressive rollout에서 고주파 예측 오차가 누적되는 것을 막기 위한
+              선택이다. Flow loss와 bootstrap loss는 모두 x-space로 환산해 계산한다.
+            </p>
+            <p class="math-center">
+              $\mathcal{L}(\theta) = \begin{cases} \|\hat{z}_1 - z_1\|^2_2 & \text{if } d = d_{\min} \\ (1 - \tau)^2
+              \|(\hat{z}_1 - \tilde{z})/(1 - \tau) - \text{sg}(b_1 + b_2)/2\|^2_2 & \text{else} \end{cases}$
+            </p>
+            <p>
+              Low signal level($\tau$가 0에 가까운 경우)은 flow matching 항이 mean prediction으로 퇴화하고 bootstrap
+              항이 상대적으로 결정론적이라 학습 신호가 약하다. 이를 보완하기 위해 <b>ramp loss weight</b> $w(\tau) =
+              0.9\tau + 0.1$을 도입해 학습 신호가 강한 영역($\tau$가 1에 가까운 경우)에 용량을 집중시킨다. Inference
+              시에는 context를 $\tau_{\text{ctx}} = 0.1$로 살짝 손상시켜 robust한 생성을 유도하며, $K = 4$ sampling
+              step으로 한 프레임을 생성한다.
+            </p>
+
+            <h3>Imagination Training</h3>
+            <p>
+              Pretrain된 world model을 agent로 바꾸는 단계에서는 task 임베딩을 받는 <b>agent 토큰</b>을 dynamics
+              시퀀스에 추가 modality로 끼워 넣는다. Agent 토큰은 자기 자신과 다른 모든 modality에 attend할 수 있지만,
+              다른 modality는 agent 토큰에 attend할 수 없다. 이는 world model의 미래 예측이 현재 task가 아니라 실제
+              action에만 의해 결정되게 하여 causal confusion을 막는 장치이다.
+            </p>
+            <p>
+              Task 토큰에서 뽑은 embedding $h_t$로부터 MLP head가 policy와 reward를 예측하고, 학습은 다음 multi-token
+              prediction (MTP) 손실로 이루어진다. 이때 데이터셋에서 제공하는 reward를 학습에 이용한다.
+            </p>
+            <p class="math-center">
+              $\mathcal{L}(\theta) = -\sum\limits_{n=0}^{L} \ln p_\theta(a_{t+n} \mid h_t) - \sum\limits_{n=0}^{L} \ln
+              p_\theta(r_{t+n} \mid h_t)$
+            </p>
+            <p>이 단계에서도 video prediction loss를 계속 걸어 기존 능력을 보존한다.</p>
+            <p>
+              이후 <b>imagination RL</b> 단계에서는 transformer를 frozen시키고 policy head와 value head만 업데이트한다.
+              Rollout은 offline dataset의 context에서 시작해 world model을 스스로 unroll하며, flow head에서 표현 $z$를,
+              policy head에서 action $a$를 샘플링해 이어 붙이는 방식이다. Value head는 $\lambda$-return으로 TD 학습된다.
+            </p>
+            <p class="math-center">
+              $R^\lambda_t = r_t + \gamma c_t\bigl((1 - \lambda) v_t + \lambda R^\lambda_{t+1}\bigr), \quad R^\lambda_T
+              = v_T$
+            </p>
+            <p>
+              Policy는 PMPO 목적 함수를 쓰는데, advantage의 부호만 사용하고 크기는 무시해 여러 task 간 리턴 스케일
+              차이를 완화한다. Positive set $\mathcal{D}^+$와 negative set $\mathcal{D}^-$를 각각 평균 log-likelihood로
+              다뤄 균형을 잡고, behavior prior와의 reverse KL을 추가해 policy가 합리적 행동 공간에 머무르게 한다.
+            </p>
+            <p class="math-center">
+              $\mathcal{L}(\theta) = \cfrac{1 - \alpha}{|\mathcal{D}^-|} \sum\limits_{i \in \mathcal{D}^-} \ln
+              \pi_\theta(a_i \mid s_i) - \cfrac{\alpha}{|\mathcal{D}^+|} \sum\limits_{i \in \mathcal{D}^+} \ln
+              \pi_\theta(a_i \mid s_i) + \cfrac{\beta}{N} \sum\limits_{i=1}^{N} \text{KL}\bigl[\pi_\theta(a_i \mid s_i)
+              \,\|\, \pi_{\text{prior}}\bigr]$
+            </p>
+            <p>
+              $\alpha = 0.5$, $\beta = 0.3$. Imagined state를 $A_t \geq 0$이면 $\mathcal{D}^+$로, 아니면
+              $\mathcal{D}^-$로 분기시킨다.
+            </p>
+
+            <h3>Efficient Transformer</h3>
+            <p>
+              핵심 아키텍처는 시간과 공간을 분리한 2D transformer이다. Block-causal attention으로 한 time step 안의 모든
+              토큰은 서로 attend할 수 있지만, 시간 축으로는 과거만 본다. 표준 구성 위에 pre-layer RMSNorm, RoPE, SwiGLU,
+              QKNorm, attention logit soft capping을 얹어 학습을 안정화한다.
+            </p>
+            <p>다음 세 가지로 inference 속도를 확보한다.</p>
+            <ul>
+              <li>Space-only / time-only attention을 분리해 dense attention의 FLOPs를 줄인다.</li>
+              <li>Temporal attention은 4 layer마다 한 번씩만 넣어 KV cache 접근을 줄인다.</li>
+              <li>Dynamics의 모든 attention에 GQA를 적용해 KV head 개수를 줄인다.</li>
+            </ul>
+            <p>
+              학습 시에는 짧은 batch와 긴 batch를 번갈아 가며 돌리다가 마지막에 긴 batch로만 finetune한다. Batch 길이는
+              모델 context 길이보다 길도록 해서 transformer가 항상 시퀀스 맨 앞을 시작 프레임으로 보는 데 overfit되지
+              않도록 한다.
+            </p>
+
+            <h2>Experiments</h2>
+            <p>
+              실험은 VPT contractor dataset(2541시간, 360p 20 FPS의 마우스와 키보드 annotation)을 주로 쓴다. 모델은
+              tokenizer 400M과 dynamics 1.6B를 합친 2B 규모이고, 256에서 1024개의 TPU-v5p 위에서 device당 batch 1로 FSDP
+              sharding을 사용해 학습한다. Minecraft는 공간 토큰 256개와 192 프레임 context로, real world 비디오는 공간
+              토큰 512개와 96 프레임 context로 설정한다.
+            </p>
+
+            <h3>Offline Diamond Challenge</h3>
+            <img
+              src="/study/paper_summaries/dreamer_4/img3.png"
+              alt="Agent performance on Minecraft offline diamond challenge with VPT, BC, VLA, Dreamer 4"
+            />
+            <p>
+              Diamond challenge는 환경 상호작용 없이 VPT contractor dataset만 가지고 빈 인벤토리에서 60분 내
+              다이아몬드를 획득하는 과제이다. 비교 대상은 (1) VPT finetuned, (2) task-unconditioned BC(notask), (3)
+              task-conditioned BC, (4) Gemma 3 기반 VLA, (5) behavior cloning만 거친 WM+BC, (6) 전체 imagination
+              training까지 거친 Dreamer 4 이다.
+            </p>
+            <p>
+              결과는 milestone item별로 분명한 차이를 보인다. VPT finetuned는 stick 단계(53%)까지는 버티지만 iron
+              pickaxe에 이르지 못한다. BC는 contractor action을 직접 쓰는 덕에 VPT finetuned를 전반적으로 앞서고,
+              VLA(Gemma 3)는 iron pickaxe에서 11%를 찍는다.
+              <b>Dreamer 4는 stone pickaxe 단계까지 90% 이상의 success rate</b>를 유지하고 iron pickaxe 29%, 다이아몬드
+              0.7%로, 비교 대상 중 유일하게 offline만으로 다이아몬드를 획득한다. 특히 milestone이 어려워질수록
+              imagination training의 상대 이득이 커지는데, 이는 world model이 reward 희소 구간에서 보너스 경험을 생성해
+              policy를 안정적으로 끌고 간다는 해석과 잘 맞는다.
+            </p>
+
+            <img
+              src="/study/paper_summaries/dreamer_4/img4.png"
+              alt="Agent ablations showing success rate and time to reach milestone items"
+            />
+            <p>
+              같은 world model representation을 쓰는 WM+BC가 BC를 앞서고, 최종 Dreamer 4는 WM+BC를 다시 앞선다. 또한
+              Milestone 도달 시간(오른쪽 그래프)을 보면 Dreamer 4가 모든 milestone에 가장 빨리 도달한다. 즉 imagination
+              training이 단순히 BC 대비 성공률을 넘어
+              <b>더 빠르게 학습하는</b> 정책을 만든다는 증거이다.
+            </p>
+
+            <h3>Human Interaction and World Model Quality</h3>
+            <img
+              src="/study/paper_summaries/dreamer_4/img5.png"
+              alt="Human interaction comparison on build 3x3 wall task between Dreamer, Oasis, Lucid"
+            />
+            <p>
+              World model 자체의 품질을 보기 위해 사람이 직접 world model 안에서 task를 수행한다. 사람은 시작 프레임과
+              task 설명을 받고 마우스와 키보드로 상호작용하며, 3x3 벽 세우기, 구덩이 파기, 나무 베기, 보트 타기 등 16개
+              시나리오를 수행한다.
+            </p>
+            <p>
+              <b>Dreamer 4는 16개 중 14개</b>를 성공하며 블록의 정확한 배치와 같은 상호작용을 유지한다. 반면 Oasis는
+              5개만 성공하고 벽 쌓기 같은 task에서는 몇 블록 놓자마자 공간을 hallucinate해 실패한다. Lucid는 모든
+              task에서 생성이 발산하거나 상호작용을 무시한다. Dreamer 4의 실패 원인도 분석되는데, 9.6초 context 한계와
+              imprecise한 inventory 예측이 주된 원인이다.
+            </p>
+
+            <img
+              class="half"
+              src="/study/paper_summaries/dreamer_4/img6.png"
+              alt="Comparison of Minecraft world models including params, resolution, context, FPS, human task success"
+            />
+            <p>
+              Figure 6의 표는 기존 Minecraft world model과 Dreamer 4를 모델 크기, 해상도, context 길이, inference FPS,
+              human task 성공률로 비교한다. Dreamer 4는 2B 파라미터로 640×360 해상도와 9.6초 context를 유지하며 H100 한
+              장에서 21 FPS를 낸다. 대형 Oasis(약 5 FPS)나 MineWorld(2 FPS)와 달리 real-time interaction이 가능한 유일한
+              모델이면서 14/16이라는 큰 폭의 human task 성공률 격차를 보인다.
+            </p>
+
+            <img
+              src="/study/paper_summaries/dreamer_4/img7.png"
+              alt="Robotics generations for counterfactual actions with pick up, flip bowl, press ball, move towel, throw bowl"
+            />
+            <p>
+              보조 실험으로 Minecraft와 무관한 robotics 데이터셋에서도 Dreamer 4를 학습시켰다. 사람이 imagined robot의
+              counterfactual action을 컨트롤하면 공 집기, 그릇 뒤집기, 수건 밀기 같은 상호작용이 물리적으로 그럴듯하게
+              생성된다. 기존 video 모델이 보이는 causal confusion을 극복하고 있다는 증거이다.
+            </p>
+
+            <h3>Action Generalization</h3>
+            <img
+              src="/study/paper_summaries/dreamer_4/img8.png"
+              alt="Action generalization with action data hours sweep and Overworld-to-Nether/End extrapolation"
+            />
+            <p>
+              웹 규모로 확장하려면 대부분의 비디오가 unlabeled여야 한다. 이 실험은 VPT 2541시간 비디오는 모두 쓰되,
+              action label은 0, 10, 100, 1000, 2541시간만 제공한 뒤 16-step generation의 PSNR/SSIM을 측정한다.
+              <b>100시간의 action만으로 85% PSNR과 100% SSIM</b>에 도달하고, 10시간에서도 53% PSNR과 75% SSIM을
+              회복한다. Action conditioning의 대부분이 작은 양의 라벨로 학습된다는 의미이다.
+            </p>
+            <p>
+              더 흥미로운 것은 extrapolation 실험이다. Dreamer 4를 Overworld와 Nether/End 비디오 모두로 학습하되
+              action은 Overworld에만 제공한 뒤 Nether/End에서 action-conditioned 생성을 평가한다. 본 적 없는 시각
+              도메인에서도 PSNR 기준 76%, SSIM 기준 80% 성능을 유지해,
+              <b>unlabeled 비디오에서 습득한 world knowledge에 소량의 action으로 embodiment를 붙이는 전략</b>이 실제로
+              작동함을 보인다. 이는 후속 연구에서 web video로 확장할 때의 핵심 근거이다.
+            </p>
+
+            <h3>Model Design Cascade</h3>
+            <img
+              class="half"
+              src="/study/paper_summaries/dreamer_4/img9.png"
+              alt="Cascade of model design choices from diffusion forcing to final Dreamer 4 with FVD and FPS"
+            />
+            <p>
+              World model의 설계 선택들이 어떻게 쌓여 최종 성능을 만드는지는 cascade ablation에서 명확해진다. 시작점은
+              dense attention과 v-prediction diffusion forcing(FVD 306, 0.8 FPS)이고, 여기에 단계별로 (1) 4-step
+              sampling, (2) shortcut model, (3) x-prediction, (4) x-space loss, (5) ramp weight, (6) alternating batch
+              lengths, (7) 4 layer마다 temporal attention, (8) GQA, (9) time-factorized long context, (10) register
+              tokens, (11) 공간 토큰 $N_z = 128, 256$ 증가를 차례로 적용한다.
+            </p>
+            <p>
+              (4) x-space loss에서 FVD가 326에서 151로, (5) ramp weight에서 다시 102로, (6) alternating batch에서
+              102에서 80으로, (7) 4 layer마다 temporal attention에서 80에서 70으로 떨어진다. 특히 (7)은 FPS를 9.1에서
+              18.9로 두 배 가까이 올린다. 최종 Dreamer 4는 FVD 57, 21 FPS로 shortcut forcing과 efficient transformer를
+              합친 결과물이 단순한 속도 개선을 넘어 품질 자체를 크게 개선함을 확인할 수 있다.
+            </p>
+
+            <img
+              class="half"
+              src="/study/paper_summaries/dreamer_4/img10.png"
+              alt="Generation quality for shortcut forcing vs diffusion forcing across sampling steps"
+            />
+            <p>
+              Shortcut forcing 단독의 이득은 sampling step 스윕에서 드러난다. Diffusion forcing은 64 step에서야 낮은
+              FVD에 도달하지만, shortcut forcing은 <b>4 step만으로 diffusion forcing 64 step과 비슷한 FVD</b>를
+              기록한다. Real-time interactive inference를 지탱하는 핵심 축이다.
+            </p>
+
+            <h2>Related Work</h2>
+            <p>
+              <b>Minecraft agents</b>. VPT는 YouTube 비디오에 action labeler를 학습시켜 정책을 behavior cloning과
+              targeted finetuning으로 학습하며, early-game 데이터 필터링으로 이따금 wooden pickaxe를 얻는다. 그 위에
+              194K 시간 규모의 online RL을 얹으면 다이아몬드까지 도달한다. Dreamer 3는 MineRL의 abstract crafting action
+              공간에서 1.4K시간 online 상호작용으로 다이아몬드를 얻는다. Dreamer 4는 VPT와 동일한 2.5K시간 contractor
+              dataset과 저수준 마우스/키보드 action 공간에서, 그리고 online 상호작용 없이 다이아몬드를 얻는다.
+            </p>
+            <p>
+              <b>Scalable world models</b>. Genie 3는 넓은 scene을 잘 생성하지만 물리적 상호작용이 얕고, Oasis와 Lucid,
+              MineWorld 같은 Minecraft world model은 실시간이거나 상호작용적이지만 게임 메카닉 재현이 부정확하다.
+              GameNGen, DIAMOND, GAIA처럼 특정 도메인에 특화된 모델도 존재한다. Dreamer 4는 속도와 정확성을 동시에
+              확보하면서 imagination training을 뒷받침할 수 있다는 점에서 이들과 구분된다.
+            </p>
+            <p>
+              <b>Fast generation</b>. MaskGit, diffusion distillation, consistency model, shortcut model, Mean Flow 등
+              sampling step을 줄이는 방법은 다양하다. Shortcut model은 step size까지 조건으로 받아 별도의 distillation
+              단계나 schedule 없이 한 번의 training으로 빠른 생성을 가능하게 한다는 점이 특징이며, Dreamer 4는 이를
+              시퀀스 모델링으로 확장하고 x-space loss와 ramp weight로 비디오 영역에 맞게 재설계한다.
+            </p>
+
+            <h2>Conclusion</h2>
+            <p>
+              Dreamer 4는 offline 데이터만으로 복잡한 장기 제어 문제를 푸는 scalable agent이다. Shortcut forcing
+              objective와 efficient transformer로 real-time interactive inference를 유지하면서도 object interaction과
+              game mechanic을 정확히 예측하고, 소량의 action label만으로 embodiment grounding을 학습한다. Minecraft
+              다이아몬드는 이 조합이 실제 제어 문제에서 뽑아내는 능력의 강한 증거이다.
+            </p>
+
+            <h3>Limitations</h3>
+            <p>논문이 직접 언급하는 한계는 9.6초라는 짧은 context와 부정확한 inventory 예측이다.</p>
+            <p>
+              여기에 블로그 관점에서 덧붙이자면, 비교 평가의 대부분이 VPT 데이터셋과 Minecraft에 집중되어 robotics
+              파트의 정량적 평가가 부족하다. 또한 2B 모델과 수백 개의 TPU라는 학습 자원은 커뮤니티 재현이 쉽지 않아
+              "scalable recipe"라는 표현이 얼마나 퍼질지는 후속 재현 연구에 달려 있다. Tokenizer와 dynamics를 함께
+              학습하는 2단계 구조 역시 tokenizer 오차가 dynamics 상한을 제한하는 구조이므로, joint training이나
+              end-to-end latent 학습과의 비교가 향후 필요하다.
+            </p>
+
+            <h3>Future Work</h3>
+            <p>
+              저자들이 제시하는 방향은 일반 인터넷 비디오 기반의 pretraining, long-term memory 통합, 언어 이해 기능
+              추가, corrective online 데이터의 소량 활용, 장기 과제를 자동 분할하는 goal discovery 다섯 가지이다.
+            </p>
+          </div>
+
+          <post-footer></post-footer>
+        </section>
+      </div>
+    </main>
+
+    <web-footer></web-footer>
+  </body>
+</html>

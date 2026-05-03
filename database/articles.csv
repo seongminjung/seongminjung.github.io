@@ -91,3 +91,4 @@ date,category_id,filename,title,detail
 2026-04-08,3,mamba,Mamba: Linear-Time Sequence Modeling with Selective State Spaces,"COLM 2024 Oral, Outstanding Paper Award"
 2026-04-15,3,sailor,A Smooth Sea Never Made a Skilled SAILOR: Robust Imitation via Learning to Search,NeurIPS 2025
 2026-04-21,3,lbm,A Careful Examination of Large Behavior Models for Multitask Dexterous Manipulation,ArXiv 2025.07
+2026-04-24,3,dreamer_4,Training Agents Inside of Scalable World Models,ArXiv 2025.09
