@@ -92,3 +92,4 @@ date,category_id,filename,title,detail
 2026-04-15,3,sailor,A Smooth Sea Never Made a Skilled SAILOR: Robust Imitation via Learning to Search,NeurIPS 2025
 2026-04-21,3,lbm,A Careful Examination of Large Behavior Models for Multitask Dexterous Manipulation,ArXiv 2025.07
 2026-04-24,3,dreamer_4,Training Agents Inside of Scalable World Models,ArXiv 2025.09
+2026-05-04,3,dexwild,DexWild: Dexterous Human Interactions for In-the-Wild Robot Policies,RSS 2025
