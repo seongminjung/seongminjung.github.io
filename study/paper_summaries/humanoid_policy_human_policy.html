@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="/css/index.css" />
+    <script type="module" src="/js/main.js" defer></script>
+  </head>
+
+  <body>
+    <web-head></web-head>
+    <web-header></web-header>
+
+    <main>
+      <div class="container">
+        <section id="post">
+          <post-header></post-header>
+
+          <div class="post-body">
+            <arxiv-card
+              title="Humanoid Policy ~ Human Policy"
+              venue="CoRL 2025"
+              authors="Ri-Zhao Qiu, Shiqi Yang, Xuxin Cheng, Chaitanya Chawla, Jialong Li, Tairan He, Ge Yan, David J. Yoon, Ryan Hoque, Lars Paulsen, Ge Yang, Jian Zhang, Sha Yi, Guanya Shi, Xiaolong Wang"
+              link="https://arxiv.org/abs/2503.13441"
+            >
+            </arxiv-card>
+
+            <h2>TL;DR</h2>
+            <ul>
+              <li>
+                Egocentric human demonstration을 humanoid manipulation policy의 cross-embodiment 학습 데이터로 직접
+                활용한다.
+              </li>
+              <li>
+                Apple Vision Pro와 Meta Quest 3 등 consumer-grade VR 기기로 수집한 PH²D 데이터셋(약 27k demo, 3M
+                frame)을 공개한다.
+              </li>
+              <li>
+                HAT는 ACT 구조를 그대로 쓰되 humanoid와 사람을 같은 6D wrist + finger tip state-action space에 두고
+                co-training만으로 둘을 정렬한다.
+              </li>
+              <li>
+                I.D.에서는 robot-only와 비슷하지만, background/texture/object placement가 바뀌는 O.O.D.에서 성공률이
+                거의 두 배로 뛴다.
+              </li>
+              <li>
+                같은 20분의 데이터 수집 시간 안에서 humanoid teleop 60개를 모으는 것보다 humanoid 30개에 human 120개를
+                섞는 쪽이 더 나은 policy를 만든다.
+              </li>
+            </ul>
+
+            <h2>Thoughts</h2>
+            <p>
+              이 논문의 메시지는 단순하다. Robot teleoperation은 비싸지만 사람이 VR 헤드셋을 쓰고 같은 task를 수행하는
+              것은 싸고 빠르고 어디서나 가능하다. 그렇다면 human action을 robot policy의 또 다른 embodiment 데이터로
+              취급하면 된다는 것이다. HumanPlus는 사람을 humanoid로 mapping해서 teleop을 했고, EgoMimic은 visual
+              artifact 제거 같은 정렬에 공을 들였지만, 본 논문은 retargeting을 학습 surrogate로 쓰지 않고 policy가 직접
+              사람의 wrist + fingertip 분포를 모델링하도록 한다. 학습 후 IK와 finger retargeting으로 robot action을
+              만든다. 알고리즘적 novelty보다는 데이터 파이프라인과 design choice의 설득력이 강한 논문이다.
+            </p>
+            <p>
+              가장 흥미로운 ablation은 state-action space를 통일하지 않으면 O.O.D. 성능이 무너진다는 결과이다.
+              Humanoid는 joint position, 사람은 EEF 표현을 따로 쓰면 policy가 둘을 구분하는 지름길을 학습하고, 그 결과
+              사람 데이터에서 본 새로운 배경이나 위치에 대한 일반화가 robot 측으로 전이되지 않는다. 결국 human data의
+              가치는 단순히 "양"이 아니라 "robot과 동일한 표현 공간에 놓였을 때 비로소 의미"를 가진다는 점을 명확히 보여
+              준다.
+            </p>
+            <p>
+              개인적으로 가장 걸리는 점은 사람이 자연스럽게 만드는 whole-body 움직임을 일부러 억제해서 데이터를 모은다는
+              점이다. 데이터 수집자에게 앉은 자세로 작업하라고 요청하고 또 사람의 동작을 4배 느리게 interpolation하면,
+              결국 사람 데이터에서 끌어올 수 있는 분포는 humanoid가 따라할 수 있는 부분으로 좁아진다. 사람 데이터의 가장
+              큰 잠재력이 in-the-wild 다양성에 있다고 본다면, 이 논문의 데이터 수집 가정은 그 다양성을 제한한 셈이다.
+              Humanoid의 whole-body locomotion과 manipulation이 함께 발전해야 PH²D 같은 데이터셋을 그 본래 분포로 사용할
+              수 있을 것이다. 또한 fingertip 좌표를 그대로 policy 입력으로 쓰는 설계는 5-finger dexterous hand에서는
+              자연스럽지만, parallel gripper처럼 그 매핑이 명확하지 않은 end-effector에서 같은 효과가 나올지는 별도의
+              검증이 필요해 보인다.
+            </p>
+
+            <h2>Introduction</h2>
+            <img
+              src="/study/paper_summaries/humanoid_policy_human_policy/img1.png"
+              alt="Teaser overview: egocentric vision, unified state-action space, robot policies"
+            />
+            <p>
+              Robot manipulation을 위한 imitation learning은 teleoperation으로 모은 robot demonstration에 의존해 왔지만,
+              이 방식은 비용이 많이 들고 확장에 한계가 있다. 한편 humanoid teleoperation을 자세히 들여다보면 결국 사람이
+              자기 팔을 움직이고 그 motion이 geometric retargeting을 거쳐 로봇 관절로 옮겨질 뿐이다. 그렇다면 robot
+              action은 human action에서 한 번의 transformation만큼 떨어져 있다고 볼 수 있다.
+            </p>
+            <p>
+              이 논문은 이 관점을 그대로 받아들여, robot을 사람과 같은 표현 공간에서 모델링한다고 제안한다. 사람의 hand
+              pose와 head pose만 정확히 잡으면 egocentric human demonstration은 어디서나, 누구든, 로봇 없이 모을 수 있는
+              훨씬 확장 가능한 학습 데이터가 된다.
+            </p>
+            <p>
+              구체적으로 저자들은 두 가지를 함께 제안한다. 첫째, <b>PH²D</b> (Physical Humanoid-Human Data)는 consumer
+              grade VR 기기로 수집한 task-oriented egocentric 데이터셋으로, 3차원 상에서의 hand pose와 6D wrist pose,
+              그리고 자연어 instruction이 함께 라벨링되어 있다. 둘째, <b>HAT</b> (Human Action Transformer)는 humanoid와
+              사람을 같은 state-action space에서 모델링하는 transformer 기반 policy다. 학습 시에는 human data와 humanoid
+              data를 함께 co-training하고, 배포 시에는 inverse kinematics와 hand retargeting으로 사람 action을 robot
+              action으로 바꾼다.
+            </p>
+            <p>
+              결과적으로 background, texture, object placement 같은 다양한 종류의 일반화에서 robot-only baseline 대비 큰
+              개선이 관찰되며, 같은 데이터 수집 시간 예산 안에서는 human data가 robot data보다 sample efficiency도 더
+              좋다. 즉 cross-embodiment 학습의 데이터 소스로 사람을 쓰는 것이 단순히 "더 많이 모을 수 있다"를 넘어 "더
+              잘 일반화된다"라는 주장을 실험적으로 뒷받침한다.
+            </p>
+
+            <h2>Related Work</h2>
+
+            <h3>Imitation Learning for Robot Manipulation</h3>
+            <p>
+              Imitation learning 분야에서는 hardware/software co-design을 통한 효율적인 teleoperation, 그리고 여러 robot
+              embodiment에서 모은 데이터로 foundation policy를 학습하는 연구들이 cross-embodiment generalization을 끌어
+              올렸다. 그러나 robot demonstration의 수집 비용은 여전히 부담이고, internet-scale 데이터로 발전한
+              vision/NLP 분야와 비교하면 robot data의 규모는 매우 작다.
+            </p>
+
+            <h3>Learning from Human Videos</h3>
+            <p>
+              사람 영상에서 policy를 학습하려는 시도는 크게 observation을 정렬하는 방향과 action을 정렬하는 방향으로
+              나뉜다. Observation alignment 계열은 affordance, object keypoint, object representation 같은 중간 표현을
+              surrogate로 쓰고, action alignment 계열은 motion trajectory, optical flow, object-centric action, 또는
+              전용 하드웨어로 수집한 hand tracking을 활용한다. HumanPlus는 사람 3D pose를 humanoid에 remapping해서
+              teleoperation에 사용하지만, 본 논문은 retargeting을 policy 학습의 학습 surrogate로 쓰지 않는다는 점에서
+              구분된다. 사람의 hand pose 자체를 state/action으로 그대로 쓰고, 로봇 하드웨어가 굳이 데이터 수집 시점에
+              필요 없게 만든다.
+            </p>
+
+            <h3>Cross-Embodiment</h3>
+            <p>
+              여러 embodiment에 대해 단일 policy를 학습하는 cross-embodiment pre-training은 일반화 성능 향상에 효과가
+              있는 것으로 알려져 있다. 특히 중간 표현을 거치지 않고 end-to-end로 robot data를 섞어 학습하는 최근
+              연구들은 compounding perceptive error를 줄인다는 장점이 있다. 본 논문의 PH²D + HAT는 이 흐름의 데이터
+              소스를 다른 robot이 아니라 사람으로 확장하는 시도로 볼 수 있다.
+            </p>
+
+            <h3>Concurrent Work</h3>
+            <p>
+              DexCap은 글러브와 chest-mounted RGBD 카메라로 3D hand pose를 잡지만 3D 입력을 가정하고, EgoMimic은
+              wearable device를 쓰지만 시각 센서 정렬에 엄격한 가정을 둔다. PH²D는 데이터셋의 규모와 객체 다양성이 더
+              크고, 다양한 카메라에서 policy가 robust하게 작동하도록 한다.
+            </p>
+
+            <h2>Method</h2>
+
+            <h3>PH²D: Task-oriented Physical Humanoid-Human Data</h3>
+            <img
+              class="half"
+              src="/study/paper_summaries/humanoid_policy_human_policy/img3.png"
+              alt="Consumer-grade VR devices used for data collection"
+            />
+            <p>
+              기존 egocentric human video 데이터셋은 task-oriented가 아니거나(예를 들어 dancing 같은 동작이 섞여
+              있다거나), 정확한 hand/head pose가 없거나, 전용 하드웨어를 요구한다. PH²D는 (1) 로봇 실행과 겹치는 task만
+              수집하고, (2) VR SDK가 제공하는 well-engineered hand/head tracking을 그대로 활용하고, (3) task, 카메라
+              센서, 동작을 다양화해서 vision/behavior 양쪽의 domain gap을 줄이는 방향으로 설계되었다.
+            </p>
+            <p>지원하는 데이터 수집 setup은 두 가지이다.</p>
+            <ul>
+              <li>
+                <b>Apple Vision Pro + Built-in Camera.</b> Vision OS 앱을 만들어 ARKit으로 3D head/hand pose를 받고 내장
+                카메라로 시각 관측을 모은다.
+              </li>
+              <li>
+                <b>Meta Quest 3 / Apple Vision Pro + ZED Camera.</b> OpenTeleVision 기반 웹 앱으로 3D head/hand pose를
+                얻고, 3D 프린트한 마운트로 ZED Mini Stereo 카메라를 장착해 stereo 시각 입력을 추가한다. 비용은 ~700 USD
+                미만이다.
+              </li>
+            </ul>
+            <p>
+              데이터 수집 자체는 조작자에게 로봇이 수행할 task와 겹치는 동작을 시키고("grasp a can of coke zero with
+              right hand"처럼 자연어 instruction을 함께 기록), proprioception과 시각 입력을 closest timestamp로
+              동기화하는 방식이다.
+            </p>
+            <img
+              class="half"
+              src="/study/paper_summaries/humanoid_policy_human_policy/img2.png"
+              alt="Comparisons of task-oriented egocentric human datasets"
+            />
+            <p>
+              결과적으로 PH²D는 약 26,824개의 demo, 3M frame 규모로, DexCap이나 EgoMimic 같은 비슷한 task-oriented
+              데이터셋보다 demo 수와 frame 수에서 한 자릿수 이상 크다. 동일한 setup으로 humanoid teleoperation을 진행해
+              규모는 작지만 정렬된 humanoid 데이터(약 1,552 demo)도 함께 모은다.
+            </p>
+            <h4>Action Domain Gap</h4>
+            <p>
+              사람의 동작과 robot teleoperation 사이에는 두 가지 domain gap이 있다. 첫째, 사람은 manipulation 중에
+              어깨/허리 같은 whole-body가 무의식적으로 움직인다. 둘째, 사람은 로봇보다 훨씬 빠르고 정교하다. 첫 번째
+              문제는 데이터 수집 시 사용자가 앉은 자세로 작업하게 해서 줄이고, 두 번째 문제는 학습 시 사람의
+              translation과 rotation을 interpolation으로 늘리는 방식으로 "느리게 만들어" 해결한다. Slow-down factor는
+              사람과 humanoid의 평균 task completion time 비율인 $\alpha_{\text{slow}} = 4$로 일관되게 사용한다.
+            </p>
+
+            <h3>HAT: Human Action Transformer</h3>
+            <img src="/study/paper_summaries/humanoid_policy_human_policy/img4.png" alt="Overview of HAT" />
+            <p>
+              HAT는 humanoid와 사람을 모두 같은 표현 공간에 두고 action chunk를 예측하는 transformer policy다.
+              구조적으로는 ACT를 그대로 따르되, state encoder가 통일된 state-action space에서 동작한다는 점만 다르다.
+            </p>
+            <p>
+              데이터셋은 두 가지로 정의된다. Robot teleoperation으로 모은 humanoid 데이터 $\mathcal{D}_{\text{robot}} =
+              \{(\mathbf{S}_i, \mathbf{A}_i)\}_{i=1}^N$와 PH²D human 데이터 $\mathcal{D}_{\text{human}} = \{(\tilde
+              {\mathbf{S}}_i, \tilde{\mathbf{A}}_i)\}_{i=1}^M$이다. 사람 데이터 수집이 훨씬 빠르므로 $M \gg N$이 된다.
+              policy $\pi: \mathbf{S} \to \mathbf{A}$는 현재 관측 $\mathbf{s}_t$로부터 향후 multi-step action chunk
+              $\mathbf{a}_{t+1}$을 예측한다.
+            </p>
+
+            <h4>Unified State-Action Space</h4>
+            <p>
+              Humanoid와 사람 모두 두 개의 end-effector를 가지고, 본 논문의 humanoid는 사람의 자율적인 머리 움직임을
+              흉내내는 2DoF 능동 neck도 갖추고 있다. 이를 활용해 (S, A)와 ($\tilde{\text{S}}, \tilde{\text{A}}$)를 같은
+              형식으로 두는 것이 핵심이다. Proprioceptive observation은 54차원 벡터로, head, left wrist, right wrist의
+              6D rotation 표현, 두 wrist의 xyz 위치, 그리고 양손 합쳐 10개의 finger tip 위치로 구성된다. 5-finger
+              dexterous hand가 달린 humanoid에서는 사람과 humanoid의 finger tip 사이에 bijective mapping이 자연스럽게
+              존재하므로 이 표현이 그대로 통한다.
+            </p>
+
+            <h4>Visual Domain Gap</h4>
+            <p>
+              사람과 humanoid의 시각 데이터에는 카메라 센서의 차이와 end-effector의 외형 차이라는 두 종류의 domain gap이
+              존재한다. 그러나 데이터를 충분히 다양하게 모으면 visual artifact 제거나 generative method를 쓸 필요는
+              없고, color jittering과 Gaussian blurring 같은 기본 image augmentation만으로도 충분한 regularization이
+              된다는 것이 저자들의 입장이다.
+            </p>
+
+            <h4>Training</h4>
+            <p>최종 loss는 chunked L1 loss에 EEF translation에 대한 추가 가중치를 더한 형태이다.</p>
+            <p class="math-center">
+              $\mathcal{L} = \ell_1(\pi(s_i), a_i) + \lambda \cdot \ell_1(\pi(s_i)_{\text{EEF}}, a_{i,\text{EEF}})$
+            </p>
+            <p>
+              여기서 $\lambda = 2$는 finger tip keypoint를 지나치게 정밀하게 맞추기보다 end-effector 위치 정확도를 우선
+              학습하도록 균형을 잡는 hyperparameter이다.
+            </p>
+
+            <h2>Experiments</h2>
+
+            <h3>Experimental Setup</h3>
+            <img
+              class="half"
+              src="/study/paper_summaries/humanoid_policy_human_policy/img5.png"
+              alt="Hardware illustration of Humanoid A and Humanoid B"
+            />
+            <p>
+              실험 플랫폼은 두 종류의 humanoid이다. Humanoid A는 Unitree H1, Humanoid B는 팔 구성이 다른 Unitree
+              H1-2이며, 둘 다 6-DoF Inspire dexterous hand와 능동 neck을 갖추고 있고 wrist 카메라는 없다. Humanoid B는
+              cross-humanoid 일반화 검증용으로 주로 사용한다.
+            </p>
+            <p>
+              시각 backbone으로는 frozen DinoV2 ViT-S를 쓰고, transformer는 action chunk를 예측하는 ACT 형태로 학습한다.
+              배포 시에는 policy가 출력한 wrist 6D pose에 inverse kinematics를 적용하고 finger tip은 hand
+              retargeting으로 robot action으로 바꾼다.
+            </p>
+            <p>
+              비교 대상은 두 가지이다. 첫째 ACT는 robot 데이터만 사용해 joint position을 state로 받는 베이스라인이고,
+              둘째 HAT는 같은 구조에 unified state-action space를 적용한 본 논문의 방법이다. HAT는 별도 명시가 없는 한
+              robot 데이터와 human 데이터로 co-training되며, task별로 250~400개의 robot demonstration으로 별도
+              checkpoint를 학습한다.
+            </p>
+            <p>
+              평가는 cup passing, horizontal grasping, vertical grasping (picking), pouring 네 가지 dexterous
+              manipulation task에서 수행한다. 각 task는 학습 demo와 비슷한 setup에서 평가하는 in-distribution (I.D.)
+              설정과, robot 데이터에는 없지만 human 데이터에는 있는 out-of-distribution (O.O.D.) 설정으로 나누어
+              측정한다. 각 task는 background, texture, object placement 중 하나의 일반화 축에 집중하도록 설계되어 있다.
+            </p>
+
+            <h3>Main Evaluation</h3>
+            <img
+              src="/study/paper_summaries/humanoid_policy_human_policy/img6.png"
+              alt="Success rate of autonomous skill execution"
+            />
+            <p>
+              I.D. 환경에서는 ACT, HAT(human 데이터 없음), HAT(co-trained) 사이의 성능 차이가 크지 않다. 차이가
+              두드러지는 곳은 O.O.D. 평가이다. Co-training된 HAT는 robot-only 베이스라인 대비 거의 100% 가까운 개선을
+              보인다. Background, object texture, object placement 세 종류의 일반화 모두에서 사람 데이터의 풍부한
+              시각/공간 분포가 humanoid policy로 전이된다. 단일 임베디먼트 데이터에 policy가 과적합되는 imitation
+              learning의 고질적 문제를 사람 데이터가 누그러뜨리는 셈이다.
+            </p>
+
+            <h3>Few-Shot Transfer across Heterogeneous Embodiments</h3>
+            <img src="/study/paper_summaries/humanoid_policy_human_policy/img7.png" alt="Few-shot adaptation results" />
+            <p>
+              Humanoid A와 다른 환경에서 따로 모은 Humanoid B 데이터를 사용해 few-shot adaptation을 평가한다. Humanoid B
+              demo가 20개만 있을 때, (i) Humanoid B만, (ii) Humanoid B + Humanoid A, (iii) Humanoid B + Humanoid A +
+              Human 세 가지로 학습한다. Cross-embodiment co-training이 들어간 (ii)와 (iii)는 (i)를 모든 task에서 크게
+              앞지르며, 사람 데이터가 더해진 (iii)는 task variant가 늘수록 격차가 더 벌어진다. Humanoid B 데이터를
+              5~50개 사이로 늘려 가며 보아도 co-training policy의 성공률이 훨씬 높으며, 이는 데이터가 적을 때 특히
+              두드러진다.
+            </p>
+
+            <h3>Sampling Efficiency of Human and Humanoid Data</h3>
+            <img
+              class="half"
+              src="/study/paper_summaries/humanoid_policy_human_policy/img8.png"
+              alt="Sampling efficiency on vertical grasping grid"
+            />
+            <p>
+              사람 데이터가 단지 in-the-wild에서 모을 수 있다는 것뿐 아니라, 같은 시간 동안 모았을 때도 sample
+              efficiency가 더 좋은지를 본다. Vertical grasping에서 20분의 시간 예산으로 (1) humanoid 60개, (2) humanoid
+              30개 + human 120개 두 가지 데이터를 수집해 비교한다. 객체 배치를 균등 분포시켜 다양성을 제어한 뒤 학습한
+              결과, mixed 데이터가 humanoid-only보다 grid 전반에서 의미 있게 높은 성공률을 보인다. 사람 데이터가 단위
+              시간당 더 많은 분포를 커버한다는 가설을 뒷받침하는 결과이다.
+            </p>
+
+            <h3>State-Action Design</h3>
+            <img
+              class="half"
+              src="/study/paper_summaries/humanoid_policy_human_policy/img9.png"
+              alt="Importance of unifying policy inputs and outputs"
+            />
+            <p>
+              Vertical grasping에서 두 가지 베이스라인을 추가로 비교해 unified state-action space의 효과를 분리한다.
+              하나는 통일된 state-action space는 쓰되 human action을 interpolation하지 않은 모델, 다른 하나는 사람
+              action은 interpolation하지만 state 표현은 humanoid는 joint position, 사람은 EEF로 따로 두는 모델이다. 첫
+              번째는 policy가 사람 속도와 robot 속도 사이에서 진동하면서 불안정해지고, 두 번째는 policy가 두
+              embodiment를 구분하는 지름길을 학습해 I.D.는 비슷하지만 O.O.D.에서 크게 무너진다. 결과적으로 unified
+              state-action 표현과 speed 보정 모두가 필요하다는 것을 정량적으로 보여 준다.
+            </p>
+
+            <h2>Conclusion</h2>
+            <p>
+              이 논문은 humanoid manipulation을 사람과 같은 cross-embodiment 학습 문제로 다루는 단순하면서도 직설적인
+              접근을 제안한다. PH²D는 consumer grade VR로 모은 task-oriented egocentric human 데이터셋이고, HAT는 사람과
+              humanoid를 같은 6D wrist + finger tip 표현 공간에서 모델링한다. 사람 action을 학습 surrogate가 아닌 실제
+              policy 입력/출력으로 그대로 넣고 IK와 hand retargeting으로 사후에 robot으로 변환한다는 설계 덕분에, 학습
+              surrogate 없이도 일반화와 robustness가 크게 개선된다.
+            </p>
+
+            <h3>Limitations</h3>
+            <p>
+              저자들이 직접 언급한 한계는 세 가지이다. 첫째, PH²D에 자연어 instruction이 포함되어 있음에도 현재 policy
+              구조가 단순해서 language conditioning을 활용하지 못하고 task별 별도 checkpoint에 머물러 있다. 향후
+              language-conditioned cross-embodiment policy로 확장할 계획이라고 밝힌다. 둘째, 사람 데이터 수집이 VR
+              하드웨어와 그 hand tracking SDK에 의존하기 때문에, VR용으로 학습된 SDK가 occlusion이 심한
+              manipulation에서는 실패할 수 있다. 셋째, 본 논문의 평가가 dexterous hand가 달린 humanoid에 한정되어 있어,
+              다른 robot morphology로의 확장은 개념상 가능하지만 검증되지 않았다.
+            </p>
+          </div>
+
+          <post-footer></post-footer>
+        </section>
+      </div>
+    </main>
+
+    <web-footer></web-footer>
+  </body>
+</html>
