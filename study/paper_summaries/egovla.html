@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="/css/index.css" />
+    <script type="module" src="/js/main.js" defer></script>
+  </head>
+
+  <body>
+    <web-head></web-head>
+    <web-header></web-header>
+
+    <main>
+      <div class="container">
+        <section id="post">
+          <post-header></post-header>
+
+          <div class="post-body">
+            <arxiv-card
+              title="EgoVLA: Learning Vision-Language-Action Models from Egocentric Human Videos"
+              venue="ArXiv 2025.07"
+              authors="Ruihan Yang, Qinxi Yu, Yecheng Wu, Rui Yan, Borui Li, An-Chieh Cheng, Xueyan Zou, Yunhao Fang, Xuxin Cheng, Ri-Zhao Qiu, Hongxu Yin, Sifei Liu, Song Han, Yao Lu, Xiaolong Wang"
+              link="https://arxiv.org/abs/2507.12440"
+            >
+            </arxiv-card>
+
+            <h2>TL;DR</h2>
+            <ul>
+              <li>
+                Egocentric 사람 영상으로 VLA를 사전학습한 뒤 적은 양의 humanoid robot demonstration으로 fine-tune하는
+                EgoVLA를 제안한다.
+              </li>
+              <li>
+                MANO hand parameter와 wrist 6D pose를 사람과 로봇 양쪽이 공유하는 unified action space로 사용하여, 사람
+                영상에서 학습한 manipulation skill을 inverse kinematics와 retargeting만으로 로봇 action으로 변환한다.
+              </li>
+              <li>
+                NVIDIA Isaac Lab 기반의 12-task bimanual 벤치마크인 Ego Humanoid Manipulation Benchmark를 함께 제안하고,
+                사람 영상 pretraining이 특히 unseen 시각 환경과 long-horizon task에서의 일반화에 큰 도움이 됨을 보인다.
+              </li>
+            </ul>
+
+            <h2>Thoughts</h2>
+            <p>
+              로봇 데이터의 scale 한계를 사람 영상으로 우회하려는 시도는 EgoMimic, Humanoid Policy ~ Human Policy 등이
+              이미 시도해 온 흐름이다. EgoVLA의 차별점은 MANO를 양쪽 embodiment가 공유하는 명시적 action space로 못박고,
+              "사람을 특수한 형태의 로봇으로 본다"는 관점을 retargeting과 작은 MLP로 깔끔하게 구현한 부분이다. 사람 손
+              fingertip과 로봇 손 fingertip을 동일한 MANO 좌표계 위에 정렬한 뒤 IK로 흘려보내기 때문에, NVILA backbone
+              자체에는 embodiment 관련 inductive bias가 거의 들어가지 않는다는 점이 깔끔하다.
+            </p>
+            <p>
+              한계도 분명하다. Pretraining 데이터가 wrist/hand pose annotation을 갖춘 영상에 한정되어 있어 Ego4D 같은
+              in-the-wild 영상 대부분이 그대로 배제되며, 결과적으로 데이터 규모가 50만 frame 수준에 머문다. Zero-shot
+              transfer가 0%라는 사실은 "사람 prior 그 자체가 robot policy의 1차 근사"라는 주장의 강도를 상당히
+              약화시킨다. 또한 wrist 6D + MANO 15-PCA 표현은 손가락 하나하나의 contact가 결정적인 task(예를 들어 정밀
+              조립이나 끈 매듭)에서는 표현력이 부족할 가능성이 있다.
+            </p>
+            <p>
+              흥미로운 관찰은 사람 영상 pretraining의 효과가 short-horizon task(약 13% SR gain)보다 long-horizon task
+              (약 20% SR gain)에서 더 크다는 점이다. 이는 사람 영상에서 transfer되는 것이 atomic motor skill이라기보다는
+              task 수준의 procedural prior일 가능성을 시사한다. 어떤 수준의 prior가 실제로 옮겨지고 있는지에 대한 분석이
+              한 걸음 더 들어갔다면 본 연구의 기여가 훨씬 단단해졌을 것이다.
+            </p>
+
+            <h2>Introduction</h2>
+            <img
+              src="/study/paper_summaries/egovla/img1.png"
+              alt="Overall framework — top row human videos, bottom row humanoid robot performing learned skills"
+            />
+            <p>
+              Imitation learning을 통한 robot manipulation 연구는 대규모 robot demonstration 수집에 의존해 왔지만, robot
+              hardware와 expert teleoperator라는 제약이 데이터 규모를 근본적으로 제한한다. 반면 사람 손은 매일 수십억
+              명이 다양한 환경과 task에서 사용 중이며, 최근 AR/VR 디바이스의 보급으로 wrist와 hand pose가 annotated된
+              egocentric 영상도 빠르게 늘고 있다.
+            </p>
+            <p>
+              EgoVLA의 출발점이 되는 관찰은 사람 action space와 로봇 action space의 차이가 생각보다 크지 않다는 것이다.
+              두 공간 사이의 변환은 wrist 위치를 end-effector 위치로 매핑하는 inverse kinematics와 사람 손가락 자세를
+              로봇 손가락 자세로 옮기는 retargeting 정도로 근사할 수 있다. 따라서 사람 video로 학습한 VLA는 그 자체로
+              이미 robot policy의 대략적인 근사가 되며, 소량의 robot demo로 fine-tune하면 실제 robot policy로 사용할 수
+              있다.
+            </p>
+            <p>
+              EgoVLA의 평가를 위해 저자들은 NVIDIA Isaac Lab을 기반으로 12개 bimanual task로 구성된 Ego Humanoid
+              Manipulation Benchmark를 함께 제안한다. 이 벤치마크에서 EgoVLA는 specialist baseline과 generalist baseline
+              모두를 큰 차이로 앞서며, 특히 unseen 시각 환경과 long-horizon task에서 사람 영상 pretraining의 효과를
+              뚜렷하게 보인다.
+            </p>
+
+            <h2>Ego-Centric Human Manipulation Dataset</h2>
+            <p>
+              저자들은 wrist와 hand pose annotation이 함께 제공되는 4개 egocentric 데이터셋을 합쳐 약 50만 image-action
+              pair를 만든다.
+            </p>
+            <ul>
+              <li>
+                <b>HOI4D</b> 4,000개 영상으로 한 손 pick-and-place, reorientation, articulated object 조작을 포함한다.
+              </li>
+              <li>
+                <b>HOT3D</b> 33개 rigid object와 상호작용하는 833분 분량 영상이며, 정밀한 3D hand와 camera pose
+                annotation을 제공한다.
+              </li>
+              <li>
+                <b>HoloAssist</b> 배터리 교체, 가구 조립, 기계 셋업 같은 복잡한 task의 166시간 분량 영상이다. Hand pose
+                annotation이 다소 noisy하지만 풍부한 bimanual interaction을 담고 있어 1/10만 uniform하게 샘플링하여 다른
+                소스와 균형을 맞춘다.
+              </li>
+              <li><b>TACO</b> 151개 tool-action-object triplet에 대한 2,317개 motion sequence로 구성된다.</li>
+            </ul>
+            <p>
+              Egocentric 영상은 카메라가 끊임없이 움직이기 때문에 학습이 어려운데, 저자들은 world-frame camera pose를
+              이용해 미래 wrist 위치를 현재 카메라 좌표계로 투영함으로써 supervision의 일관성을 확보한다. 학습 sample은
+              3 FPS로 RGB observation을 샘플링하여 만든다.
+            </p>
+
+            <h2>EgoVLA Model</h2>
+            <img
+              src="/study/paper_summaries/egovla/img2.png"
+              alt="EgoVLA architecture — visual history, language instruction, and action query tokens flow through pre-trained NVILA-2B VLM and action head to predict wrist pose and MANO hand parameters"
+            />
+            <p>
+              EgoVLA는 NVILA-2B를 backbone vision-language model로 사용한다. NVILA는 robust한 vision-language
+              understanding과 비교적 컴팩트한 크기 덕분에 의도 추론과 효율적인 fine-tuning을 동시에 만족시킨다. 모델
+              입력은 현재와 과거의 egocentric image, language instruction, action query token, 그리고 사람
+              proprioception이며, 이들은 VLM backbone과 그 뒤의 action head를 거쳐 미래 사람 또는 로봇 action을
+              예측한다.
+            </p>
+            <p>
+              <b>Visual observation</b>은 현재 frame과 0.2초 간격으로 샘플링된 직전 5개 frame을 합쳐 총 6개의 RGB
+              frame이며, 각 frame의 해상도는 $384 \times 384$이다. 1초 정도의 history만 사용하기 때문에 모델은
+              high-level planning보다 skill 실행에 집중하게 되며, 이는 language input과 예측 action 사이의 매핑을
+              깔끔하게 만든다. <b>Language instruction</b>은 high-level goal이 아니라 즉시 수행할 행동을 기술한다.
+              <b>Human proprioception</b>은 wrist translation/rotation과 hand pose parameter로 구성되며, MLP를 거쳐
+              action head로 들어간다.
+            </p>
+            <p>
+              예측 action은 카메라 좌표계 기준의 wrist pose와 hand joint angle로 구성된다. Wrist pose는 3D translation과
+              rot6D rotation으로, hand joint angle은 MANO hand model의 PCA 상위 15개 component로 표현한다. 학습 목적
+              함수는 wrist translation과 hand joint angle에 대한 L2 loss와 wrist rotation에 대한 rot6D 전용 loss의
+              가중합이다.
+            </p>
+            <p class="math-center">
+              $\mathcal{L} = \lambda_{\text{wrist trans}} \mathcal{L}_{\text{wrist trans}} + \lambda_{\text{wrist rot}}
+              \mathcal{L}_{\text{wrist rot}} + \lambda_{\text{joint}} \mathcal{L}_{\text{joint}}$
+            </p>
+            <p>
+              <b>Action head</b>는 hidden size 1536, 6개 encoder layer로 구성된 약 300M 파라미터 transformer이다. 사람
+              또는 로봇 proprioception과 action query token에 대응되는 latent embedding을 받아, 30 Hz로 1초 동안의 미래
+              action sequence $A_t = [a_t, a_{t+1}, \ldots, a_{t+H}]$를 양손에 대해 예측한다($H = 30$). Action query
+              token은 vocabulary 끝의 30개 word ID를 재활용한다.
+            </p>
+            <p>
+              Pretraining은 사람 영상 데이터셋에서 20 epoch 동안 진행한 뒤, 로봇 demonstration에 대해 115 epoch의
+              post-training을 수행한다. 100 epoch 이후에는 learning rate를 줄이고, vision encoder를 포함한 전체 모델을
+              fine-tune한다.
+            </p>
+
+            <h2>Transferring EgoVLA to Humanoid Robot</h2>
+            <img
+              src="/study/paper_summaries/egovla/img3.png"
+              alt="Unified action space — MANO hand parameters as shared action space, with retargeting between robot DOF and human representation"
+            />
+            <p>
+              사람과 humanoid robot은 두 팔과 두 손이라는 큰 구조를 공유하지만, camera pose, hand morphology, 그리고
+              시각 외형이 다르기 때문에 EgoVLA를 그대로 옮겨 쓰면 동작하지 않는다. 저자들은 MANO를 사람과 로봇이
+              공유하는 unified action space로 사용하여, 적은 양의 robot demonstration만으로 fine-tuning을 수행할 수 있게
+              한다.
+            </p>
+
+            <h3>Retargeting Robot Data to Human Representation</h3>
+            <p>
+              Robot demonstration을 사람 표현으로 정렬하는 과정은 두 부분으로 나뉜다. End-effector pose는 단순히 3D
+              transformation으로 좌표계만 맞추면 되지만, hand 자세 정렬은 더 복잡하다. 저자들은 로봇 손이 만든 fingertip
+              위치를 가장 잘 재현하는 MANO parameter $\Theta \in \mathbb{R}^{15}$를 SmoothL1 loss로 최적화한다.
+            </p>
+            <p class="math-center">
+              $\min\limits_{\Theta} \mathcal{L}(\Theta) = \cfrac{1}{5} \sum\limits_{i=1}^{5}
+              \text{SmoothL1}(\mathbf{J}_{\text{pred}}(\Theta)_i, \mathbf{J}_{\text{obs},i})$
+            </p>
+            <p>
+              여기서 $\mathbf{J}_{\text{pred}}(\Theta)$는 MANO forward kinematics로 계산한 fingertip 위치이고
+              $\mathbf{J}_{\text{obs}} \in \mathbb{R}^{5 \times 3}$는 관측된 robot fingertip 위치이다. 이 정렬 덕분에
+              robot demonstration은 사람 데이터와 동일한 action space에서 fine-tuning에 사용될 수 있고, 별도의 구조
+              변경이나 재초기화가 필요하지 않다.
+            </p>
+
+            <h3>Mapping Human Hand to Robot Hand</h3>
+            <p>
+              추론 시에는 반대 방향의 변환이 필요하다. EgoVLA가 예측한 wrist pose와 hand pose는 다음 두 단계를 거쳐 로봇
+              actuator 명령으로 변환된다.
+            </p>
+            <ol>
+              <li>Wrist pose는 3D transformation으로 robot end-effector pose로 옮긴 뒤 IK로 팔 joint angle을 푼다.</li>
+              <li>
+                Hand pose의 경우 예측한 MANO parameter로부터 3D fingertip keypoint를 계산하고, 이를 입력으로 하는 가벼운
+                MLP가 robot hand의 joint command를 예측한다. 이 MLP는 robot demonstration을 사람 표현으로 retargeting한
+                데이터로 학습된다.
+              </li>
+            </ol>
+            <p>
+              학습된 MLP는 평균 fingertip 위치 오차 $5 \times 10^{-5}$ m를 달성하며, raw demonstration을 retargeting
+              파이프라인을 통해 다시 재생해도 task가 정상 수행된다는 점에서 이 매핑이 control 성능에 의미 있는 손상을
+              주지 않음을 보인다.
+            </p>
+
+            <h2>Ego Humanoid Manipulation Benchmark</h2>
+            <img
+              src="/study/paper_summaries/egovla/img4.png"
+              alt="Task visualization — 12 simulated humanoid manipulation tasks"
+            />
+            <p>
+              저자들은 NVIDIA Isaac Lab에서 humanoid manipulation 평가를 위한 시뮬레이션 벤치마크 Ego Humanoid
+              Manipulation Benchmark를 새로 구성한다. Sim-to-real을 직접 목표로 하지 않고, 재현 가능한 controlled
+              testbed로 활용하기 위한 설계이다. 플랫폼은 Unitree H1 humanoid 로봇과 양손에 장착된 Inspire dexterous
+              hand이며, 총 12개 task가 있다.
+            </p>
+            <ul>
+              <li>
+                <b>Short-horizon</b> atomic task 7개. Push-Box, Flip-Mug, Pour-Balls, Close-Drawer, Open-Drawer,
+                Open-Laptop, Stack-Cans.
+              </li>
+              <li>
+                <b>Long-horizon</b> multi-stage task 5개. Sort-Cans, Insert-Cans, Unload-Cans, Insert-And-Unload-Cans,
+                Stack-Cans-Into-Drawer.
+              </li>
+            </ul>
+            <p>
+              Observation space는 robot joint position, end-effector pose, contact force, egocentric RGB-D를 포함하지만,
+              EgoVLA는 그중 egocentric 시각 정보, end-effector pose, hand joint, task description만 사용한다. 양손은 각
+              12 DoF(active 6, mimic 6)이며, 최종 action space는 양팔 IK와 hand actuation을 합쳐 36차원이다. 제어 주기는
+              30 Hz이고, sub-task 단위 success indicator도 함께 제공된다.
+            </p>
+            <p>
+              시각적 일반화 평가를 위해 5개의 방 텍스처와 5개의 테이블 텍스처를 조합하여 25가지 시각 환경을 만든다.
+              Demonstration은 OpenTelevision과 Meta Quest 3로 수집하며, 각 task당 100개의 성공 demonstration을 제공한다.
+              에피소드 길이는 task 복잡도에 따라 100에서 500 frame 사이이다.
+            </p>
+
+            <h2>Experiments</h2>
+
+            <h3>Human Manipulation Modeling</h3>
+            <img
+              src="/study/paper_summaries/egovla/img5.png"
+              alt="Visual instruction following — same visual input with different language instructions yields different predicted hand trajectories"
+            />
+            <p>
+              로봇으로 옮기기 전에, 사람 영상만으로 학습된 EgoVLA가 사람의 손 동작을 얼마나 잘 모델링하는지부터
+              확인한다. 사람 wrist translation의 평균 미래 예측 오차는 약 8 cm 수준이며, 2D image plane으로 투영한
+              정규화 오차는 약 0.13으로 HOI-forecast의 SOTA에 근접한 값이다.
+            </p>
+            <p>
+              더 흥미로운 결과는 language instruction의 효과 분석이다. 동일한 시각 입력에 대해 instruction을 "Put it in
+              the drawer"에서 "Take it out of the drawer"로 바꾸면 예측 trajectory가 서랍 안으로 향하는 대신 cabinet
+              표면 쪽으로 이동하고, "Put something in it"을 "Open and close the door"로 바꾸면 trajectory가 금고 내부에
+              물건을 놓는 동작에서 금고 문을 다루는 동작으로 바뀐다. EgoVLA가 단순히 운동학적 motion model을 넘어
+              instruction의 semantic intent까지 함께 학습했음을 보여준다.
+            </p>
+
+            <h3>Humanoid Robot Evaluation</h3>
+            <p>
+              평가 지표는 두 가지이다. <b>Success Rate (SR)</b>은 전체 task 성공률이고, <b>Progress Rate (PSR)</b>은
+              long-horizon task에서 완료된 sub-task 수를 전체 sub-task 수로 나눈 평균값이다. Baseline은 두 가지를
+              비교한다. <b>EgoVLA-NoPretrain</b>은 사람 video pretraining 없이 NVILA를 robot demonstration으로만
+              fine-tune한 것이고, <b>ACT</b>는 task별로 별도의 specialist transformer를 학습한 것이다. 또한 Seen
+              환경(학습에서 본 시각 background)과 Unseen 환경(완전히 새로운 background)에서 평가한다.
+            </p>
+
+            <img
+              src="/study/paper_summaries/egovla/img6.png"
+              alt="Evaluation on short-horizon tasks on seen and unseen visual configurations"
+            />
+            <img
+              src="/study/paper_summaries/egovla/img7.png"
+              alt="Evaluation on long-horizon tasks on seen and unseen visual configurations"
+            />
+
+            <h4>EgoVLA Requires Robot Data Post-training</h4>
+            <p>
+              사람 영상으로만 학습한 EgoVLA를 humanoid robot에 zero-shot으로 배포하면 모든 task에서 성공률이 0%이다.
+              이는 사람과 로봇 사이의 외형, 인지, 운동학 차이 때문이다. Seen task(e.g. Pouring Balls)도 마찬가지로
+              실패한다.
+            </p>
+
+            <h4>Ego-centric Human Pretraining Improves In-Domain Performance</h4>
+            <p>
+              Seen 환경에서 EgoVLA는 EgoVLA-NoPretrain을 short-horizon과 long-horizon 모두에서 일관되게 앞선다. 특히
+              Stack-Cans, Sort-Cans, Insert-And-Unload-Cans, Flip-Mugs처럼 정밀한 manipulation이 필요한 task에서 차이가
+              두드러진다. 사람 영상 pretraining 단계에서 모델이 embodiment에 무관한 일반적인 손 조작 skill을 학습한
+              결과로 해석된다. 두 모델 사이의 격차는 long-horizon task에서 더 커서 평균 SR 차이가 약 20%에 달한다.
+            </p>
+            <p>
+              한편 generalist 모델(EgoVLA, EgoVLA-NoPretrain) 모두가 task별 specialist인 ACT를 short-horizon과
+              long-horizon 양쪽에서 크게 앞선다. Specialist는 low-level manipulation과 long-horizon planning을 처음부터
+              동시에 학습해야 하지만, generalist는 task 사이에서 low-level skill을 공유할 수 있기 때문이다.
+            </p>
+
+            <h4>Ego-centric Human Pretraining Enhances Out-of-Domain Generalization</h4>
+            <p>
+              Unseen background에서의 차이가 더 인상적이다. Short-horizon task에서 EgoVLA의 평균 SR은 큰 폭의 하락 없이
+              유지되는 반면, EgoVLA-NoPretrain은 23%가량 떨어진다. Long-horizon task에서도 EgoVLA는 약 30%의 평균 SR을
+              유지하며, PSR이 SR에 비해 비교적 잘 보존된다는 점에서 실패가 task의 마지막 단계에서 주로 발생함을 알 수
+              있다. 사람 영상 pretraining이 단순한 in-domain 성능 향상을 넘어 일반화에도 유의미한 도움을 준다는
+              증거이다.
+            </p>
+
+            <h4>Ablation: Robot Data Scale</h4>
+            <p>
+              Robot demonstration의 절반(50%)만 사용해 fine-tune한 EgoVLA(50%)를 비교하면, short-horizon task에서는 일부
+              성능이 유지되지만 long-horizon task에서 평균 SR이 45.93%에서 7.41%로 급격히 떨어진다. 사람 영상
+              pretraining이 상당한 prior를 제공하더라도, long-horizon task에서는 여전히 일정량의 task-specific robot
+              demonstration이 필요함을 보여준다.
+            </p>
+
+            <h4>Ablation: Pretrain Data Mixture</h4>
+            <img
+              class="half"
+              src="/study/paper_summaries/egovla/img8.png"
+              alt="Data mixture ablation — short-horizon SR and Progress for different dataset combinations"
+            />
+            <p>
+              사전학습 데이터 구성의 효과도 분리해서 본다. HOI4D, HOI4D+HOT3D, HOI4D+HOT3D+TACO, HOI4D+HOT3D+HOLO+TACO
+              순으로 데이터셋을 추가할수록 unseen background에서의 평균 SR과 PSR이 모두 증가한다. HoloAssist의 noisy한
+              hand annotation, HOT3D의 부족한 language label, TACO의 제한된 시각 다양성에도 불구하고 positive transfer가
+              관찰된다는 점은 이 접근이 데이터 품질의 일부 결함에 대해 robust하다는 것을 시사한다.
+            </p>
+
+            <h4>Spatial Generalization</h4>
+            <img
+              class="half"
+              src="/study/paper_summaries/egovla/img9.png"
+              alt="Spatial distribution heatmaps of success rate and progress over object spawning positions"
+            />
+            <p>
+              Object 초기 위치에 따른 성능을 시각화한 heatmap을 보면, EgoVLA는 randomized 영역의 중심부에서 가장 높은
+              SR을 보이며, long-horizon task에서는 두 개의 peak가 양 손의 성공적인 사용 영역과 대응된다. 학습에 사용한
+              demonstration이 task당 100개에 불과함에도 모델이 넓은 spatial 영역에서 동작 가능함을 보여준다.
+            </p>
+
+            <h2>Conclusion</h2>
+            <p>
+              EgoVLA는 egocentric 사람 영상으로 사전학습한 vision-language-action model을 MANO 기반 unified action
+              space와 retargeting 파이프라인으로 humanoid robot에 옮기는 framework이다. 12-task bimanual 벤치마크에서
+              사람 영상 pretraining이 in-domain 성능과 시각 일반화 모두에 의미 있는 기여를 함을 보였고, 데이터 mixture와
+              robot data scale에 대한 ablation으로 그 효과를 분리해 확인했다.
+            </p>
+
+            <h3>Limitations</h3>
+            <p>
+              저자들이 명시적으로 인정하는 한계는 두 가지이다. 첫째, pretraining framework가 wrist와 hand pose
+              annotation을 가진 사람 영상에 의존하기 때문에 사용 가능한 데이터가 제한된다. Quest 3, Vision Pro, Aria
+              Glasses 같은 고품질 AR/VR 디바이스의 보급이 이 제약을 완화할 것으로 기대된다. 둘째, unified action space로
+              사전학습되었음에도 EgoVLA는 일정량의 robot data로 fine-tune해야 동작하며, embodiment-agnostic
+              pretraining을 통한 zero-shot transferability 향상은 future work로 남는다.
+            </p>
+          </div>
+
+          <post-footer></post-footer>
+        </section>
+      </div>
+    </main>
+
+    <web-footer></web-footer>
+  </body>
+</html>
