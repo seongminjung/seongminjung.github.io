@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="/css/index.css" />
+    <script type="module" src="/js/main.js" defer></script>
+  </head>
+
+  <body>
+    <web-head></web-head>
+    <web-header></web-header>
+
+    <main>
+      <div class="container">
+        <section id="post">
+          <post-header></post-header>
+
+          <div class="post-body">
+            <arxiv-card
+              title="Masquerade: Learning from In-the-wild Human Videos using Data-Editing"
+              venue="ICRA 2026"
+              authors="Marion Lepert, Jiaying Fang, Jeannette Bohg"
+              link="https://arxiv.org/abs/2508.09976"
+            >
+            </arxiv-card>
+
+            <h2>TL;DR</h2>
+            <ul>
+              <li>
+                Epic Kitchens 같은 in-the-wild egocentric human video를 인페인팅과 robot overlay로 편집하여, 인간의 손
+                대신 가상 양팔 로봇이 같은 동작을 수행하는 듯한 "robotized" 영상을 만든다.
+              </li>
+              <li>
+                ViT-Base encoder를 675K 편집된 frame으로 2D keypoint 예측 task에 pretrain한 뒤, 단일 scene에서 수집한
+                50개 robot demonstration과 co-training하여 policy를 학습한다.
+              </li>
+              <li>
+                세 가지 long-horizon bimanual task에서 OOD scene 평균 성공률 12%에서 74%로 baseline 대비 5배 이상
+                향상되며, in-distribution과 OOD 사이의 성능 차이도 거의 사라진다.
+              </li>
+              <li>
+                Overlay와 co-training 모두가 필수적이라는 ablation 결과와, in-the-wild 데이터양에 따라 성공률이 로그
+                스케일로 증가한다는 scaling 실험 결과를 함께 제시한다.
+              </li>
+            </ul>
+
+            <h2>Thoughts</h2>
+            <p>
+              가장 흥미로운 점은 "embodiment gap을 명시적으로 줄이는 것이 정말 효과가 있는가"라는 질문에 명확한 실증
+              근거를 제시했다는 것이다. 같은 시기의 H2R이 Phantom 스타일 편집 파이프라인을 in-the-wild에 적용했지만
+              finetuning만 해서 효과가 제한적이었던 것과 대조적으로, 본 논문은 No Co-train ablation으로 finetuning만
+              하면 성능이 무너진다는 점을 직접 보였고, 동시에 No Overlay ablation으로 overlay 자체의 기여도 분리해 냈다.
+              두 ablation이 동시에 깔끔하게 나온다는 점이 이 논문의 주장을 가장 단단하게 받쳐 준다.
+            </p>
+            <p>
+              실험 설계도 전반적으로 깔끔하다. 세 가지 long-horizon bimanual task, task당 3개 OOD scene, 데이터 스케일
+              0~100% 곡선, ID와 OOD 직접 비교까지 묶어서 보여 주기 때문에 어디서 성능 차이가 오는지 추적하기 쉽다. 특히
+              ImageNet baseline을 별도의 unbiased 비교 연구를 인용해 정당화한 점, DINOv2 같은 강력한 general-purpose
+              표현까지 함께 비교한 점은 in-the-wild 활용 연구에서 자주 빠지는 부분을 잘 보강했다고 본다. 방법 자체는
+              새로운 모듈이나 loss를 발명하지 않고 HaMeR, Detectron2, SAM2, E2FGVI 같은 off-the-shelf 도구를 엮어 만든
+              파이프라인이지만, 그것을 단점이라기보다 reproducibility 측면에서 오히려 강점으로 봐도 좋겠다.
+            </p>
+            <p>
+              물론 한계도 분명하다. 저자들이 직접 언급한 depth 부재로 인한 occlusion 처리 실패, fast motion이나 가려진
+              frame을 다수 버려야 하는 hand pose estimator의 한계, parallel-jaw로의 retargeting 손실은 모두 향후 개선
+              여지가 큰 지점이다. 그 외에는, 평가 task가 모두 kitchen tabletop bimanual manipulation에 한정되어
+              pretraining domain인 Epic Kitchens와 매우 가깝다는 점이 일반화 주장의 범위를 제한한다. 다른 domain, 예를
+              들어 조립이나 산업 task로 확장될 수 있는지는 열려 있는 질문이다. 또한 2D keypoint regression 이라는 단순한
+              auxiliary가 왜 이렇게 잘 동작하는지에 대한 메커니즘 분석이 부족한 것도 아쉬운 부분이다. Spatial
+              grounding이 잡히는 것인지, robot end-effector의 implicit pose prior가 학습되는 것인지 등에 따라 다른
+              task로의 transfer 가능성도 달라질 수 있다.
+            </p>
+
+            <h2>Introduction</h2>
+            <img
+              src="/study/paper_summaries/masquerade/img1.png"
+              alt="Overview of Masquerade: pretrain on edited in-the-wild videos, co-train with robot dataset, deploy zero-shot"
+            />
+            <p>
+              NLP나 vision 분야가 거대 데이터로 도약한 것과 달리, robot manipulation은 여전히 데이터 부족에 시달린다.
+              가장 큰 robot dataset조차 language나 vision 모델에 사용된 데이터에 비해 몇 배나 작고 수집 비용도 비싸다.
+              반면 사람들이 일상적으로 무언가를 조작하는 영상은 인터넷에 거의 무한히 존재하지만, action label이 없고
+              사람의 손과 로봇 그리퍼 사이에 visual embodiment gap이 존재해 그대로 쓰기 어렵다.
+            </p>
+            <p>
+              이 논문은 이 embodiment gap을 명시적으로, 그러나 단순하게 해결한다. Phantom이 carefully collected
+              single-hand human video에 적용했던 data-editing 파이프라인을 in-the-wild bimanual video로 확장한 것이다.
+              구체적으로 각 영상에서 3D hand pose를 추정하고, 사람의 팔을 인페인팅으로 지운 다음, 같은 자세를 따르는
+              양팔 가상 로봇을 렌더링해 다시 합성한다. 이렇게 만든 "robotized" 영상으로 ViT-Base encoder를 2D keypoint
+              예측으로 pretrain하고, 단일 scene에서 수집한 50개 robot demonstration으로 diffusion policy head와 함께
+              co-training한다.
+            </p>
+            <p>
+              세 가지 long-horizon bimanual kitchen task에서, 이 방식으로 학습된 policy는 처음 보는 OOD scene에서도
+              baseline 대비 평균 5배 이상 높은 성공률을 보였고, 편집된 human video 양이 늘어날수록 성능이 로그 스케일로
+              증가한다는 점도 확인되었다.
+            </p>
+
+            <h2>Related Work</h2>
+
+            <h3>Learning from In-the-wild Human Videos</h3>
+            <p>
+              In-the-wild human video를 활용하는 한 갈래는 vision encoder pretraining이다. R3M은 Ego4D에
+              time-contrastive 및 video-language 목적함수를 적용했고, Voltron은 caption과 정렬, MVP와 VC-1은 MAE 기반
+              reconstruction을 사용했다. HRP는 future contact point, hand pose, object affordance 같은 신호를
+              self-supervised로 추출해 backbone을 학습한다. 두 번째 갈래는 in-the-wild video로부터 reward function이나
+              dynamics 기반 world model을 추정하는 흐름, 그리고 hand pose 궤적이나 object-centric affordance, discrete
+              latent action 등을 뽑아내는 흐름이다. 이런 접근은 대부분 human과 robot 사이의 visual embodiment gap을
+              명시적으로 다루지 않고, correspondence가 학습 과정에서 암묵적으로 잡히기를 기대한다.
+            </p>
+
+            <h3>Learning from Curated Human Video Demonstrations</h3>
+            <p>
+              In-the-wild 데이터의 noise를 피하기 위해 task-focused로 깔끔하게 촬영한 human demonstration을 쓰는 흐름도
+              있다. EgoMimic, PH²D는 wearable camera로 수집한 egocentric demonstration과 teleoperation trajectory를
+              shared backbone과 cross-domain alignment loss로 같이 학습한다. EgoVLA는 양쪽 데이터로 VLA를 pretrain한다.
+              다른 연구들은 implicit motion prior나 object-centric trajectory/point flow를 학습하기도 하고, Whirl,
+              Phantom처럼 인페인팅으로 사람 손을 지우고 로봇을 덧입히는 data-editing 접근도 존재한다. 이런 방법들은
+              정렬은 잘 되지만 규모가 hand-collected 데이터에 한정된다.
+            </p>
+
+            <h3>Positioning</h3>
+            <p>
+              Masquerade는 위 두 흐름의 장점을 합치려는 시도이다. Data-editing으로 visual embodiment gap을 명시적으로
+              줄이되, 그 대상을 carefully collected가 아닌 in-the-wild egocentric video로 확장한다. 같은 시기에 발표된
+              H2R도 Phantom과 유사한 파이프라인을 in-the-wild에 적용했지만 robot demonstration으로 finetuning만 수행해
+              효과가 제한적이었다고 저자들은 지적한다. Masquerade는 그 대신 robot data와 함께 co-training하여 pretrain
+              표현이 사라지는 것을 막는 것이 핵심 차별점이라고 말한다.
+            </p>
+
+            <h2>Method</h2>
+
+            <h3>Problem Setup</h3>
+            <img
+              src="/study/paper_summaries/masquerade/img2.png"
+              alt="Overview of Masquerade: editing pipeline, ViT encoder pretraining, and co-training with diffusion policy"
+            />
+            <p>
+              두 종류의 데이터를 가정한다. 첫째는 in-the-wild human video dataset $\mathcal{D}_\text{human} =
+              \{\tau_i^{(h)}\}_{i=1}^N$로, 본 논문에서는 Epic Kitchens를 사용한다. Egocentric camera로 촬영된 다양한
+              kitchen task와 자연어 annotation이 포함되어 있다. 둘째는 robot egocentric camera로 수집한 task-specific
+              bimanual robot demonstration $\mathcal{D}_\text{robot} = \{\tau_j^{(r)}\}_{j=1}^M$로, intrinsic과
+              extrinsic이 알려져 있다. 전체 파이프라인은 세 단계로 구성된다.
+            </p>
+            <ol>
+              <li>Human video를 편집해 embodiment gap을 줄인다.</li>
+              <li>편집된 영상으로 vision encoder를 pretrain한다.</li>
+              <li>편집된 데이터와 함께 imitation policy를 co-training한다.</li>
+            </ol>
+
+            <h3>Data Processing of In-the-wild Egocentric Videos</h3>
+
+            <h4>Visual Editing of In-the-wild Videos</h4>
+            <p>
+              각 frame에 대해 Epic Kitchens annotation으로 양손 위치를 잡고 HaMeR로 손당 21개 anatomical keypoint를
+              추정한 뒤, Phantom의 retargeting을 따라 각 손마다 3D end-effector pose $\mathbf{P}_t = (\mathbf{p}_t,
+              \mathbf{R}_t, g_t)$로 매핑한다. $g_t \in [0, 1]$은 normalized gripper opening width이며, $\mathbf{P}_t$는
+              noise 감소를 위해 시간축으로 smoothing한다. 다음으로 Detectron2와 SAM2로 사람의 팔을 segment한 뒤 E2FGVI
+              인페인팅으로 제거하고, 알려진 camera intrinsic과 extrinsic으로 가상 bimanual robot의 end-effector가
+              $\mathbf{P}_t$를 따르도록 렌더링해 원래 frame 위에 합성한다. 결과는 로봇이 같은 동작을 수행하는 것처럼
+              보이는 영상이며, 이렇게 편집된 clip 전체가 $\mathcal{D}_\text{human}'$이 된다.
+            </p>
+
+            <h4>Extracting Training Labels from In-the-wild Videos</h4>
+            <p>
+              HaMeR는 hand shape과 2D keypoint는 잘 잡지만 monocular 입력만으로 절대 3D pose를 정확히 추정하기 어렵다.
+              Phantom은 depth로 이를 보정했지만 in-the-wild는 depth가 없다. 따라서 2D keypoint만 supervision으로 쓰되
+              policy에 직접 넣지 않고 representation 학습용 auxiliary loss로 사용한다. 구체적으로 시간축 smoothing된 3D
+              end-effector position $\mathbf{p}_t$를 image plane으로 projection해 2D action waypoint $\mathbf{p}_{t,
+              \text{2D}} \in \mathbb{R}^2$를 얻는다. 다음 한 step만 예측하지 않고 다음 $H$ step의 waypoint sequence를 한
+              번에 예측 target으로 둔다.
+            </p>
+            <p class="math-center">
+              $\mathbf{p}_{t:t+H, \text{2D}} = (\mathbf{p}_{t, \text{2D}}, \mathbf{p}_{t+1, \text{2D}}, \ldots,
+              \mathbf{p}_{t+H, \text{2D}})$
+            </p>
+            <p>
+              Egocentric camera motion을 보정하기 위해 frame $t$에서 이후 frame으로의 homography를 계산하고, 미래의
+              keypoint들을 frame $t$ 시점의 view로 warp한 다음 sequence를 구성한다.
+            </p>
+
+            <h4>Data Filtering</h4>
+            <p>
+              Homography로 보정해도 너무 큰 camera motion이 남으면 정적인 robot camera 가정과 충돌한다. 따라서 추정된
+              camera motion이 threshold를 넘는 frame과 keypoint 오류나 kinematic limit으로 action이 무효해지는 frame을
+              걸러낸다. 이 필터링으로도 overlay가 완벽하지는 않다. Retargeting이 모든 dexterous grasp를 처리하지 못하고,
+              depth가 없어 occlusion이 잘못 처리되어 가끔 로봇 pixel이 scene object 위로 잘못 덮이기도 한다. 그럼에도
+              저자들은 이런 imperfect overlay조차 cross-embodiment transfer에 크게 기여한다는 점을 실험으로 보인다.
+            </p>
+
+            <h3>Policy Learning</h3>
+            <p>
+              Architecture는 language-conditioned vision encoder $f(x, z)$와 diffusion-based action head $g(\cdot)$로
+              구성된다.
+            </p>
+
+            <h4>Vision Encoder Pretraining</h4>
+            <p>
+              편집된 $\mathcal{D}_\text{human}'$에서 2D action waypoint를 supervision으로 encoder를 pretrain한다.
+              Encoder에는 clip별 자연어 annotation을 DistilBERT로 임베딩한 $z_x \in \mathbb{R}^d$를 FiLM으로 주입해
+              high-level semantic으로 visual feature를 modulate한다. 같은 clip 내의 모든 frame에는 동일한 language
+              embedding이 적용된다. Pretraining loss는 다음과 같다.
+            </p>
+            <p class="math-center">
+              $\mathcal{L}_\text{2D} = \left\| h\bigl(f(x, z_x)\bigr) - \mathbf{p}_{t:t+H, \text{2D}} \right\|^2, \quad
+              x \sim \mathcal{D}_\text{human}'$
+            </p>
+            <p>여기서 $h$는 encoder feature를 2D keypoint target으로 매핑하는 작은 MLP이다.</p>
+
+            <h4>Policy Learning Using Cotraining</h4>
+            <p>
+              Pretrain된 encoder 위에 diffusion-based policy head를 얹어 imitation learning을 진행하되, encoder를
+              freezing하지 않고 pretraining objective를 함께 유지하면서 학습한다. $\mathcal{D}_\text{human}'$과
+              $\mathcal{D}_\text{robot}$ 사이의 visual gap을 줄이기 위해, robot 영상에서도 실제 로봇 위에 같은 방식으로
+              inpainted virtual robot을 덧입혀 모델이 항상 inpainted robot을 보도록 만든다. Policy loss는 다음과 같다.
+            </p>
+            <p class="math-center">
+              $\mathcal{L}_\text{policy} = \left\| g\bigl(f(y)\bigr) - \mathbf{P}^{(r)} \right\|^2, \quad y \sim
+              \mathcal{D}_\text{robot}$
+            </p>
+            <p>여기서 $\mathbf{P}^{(r)}$은 실제 robot data의 cartesian end-effector action이다. 최종 학습 목표는</p>
+            <p class="math-center">$\mathcal{L} = \mathcal{L}_\text{2D} + \lambda \mathcal{L}_\text{policy}$</p>
+            <p>로 둘을 동시에 최적화하며, $\lambda$는 경험적으로 선택한다.</p>
+
+            <h2>Results</h2>
+            <p>
+              Dual-Kinova arm setup에서 세 가지 bimanual task를 평가한다. Vision encoder는 ImageNet으로 초기화된
+              ViT-Base이며, action head는 Diffusion Policy를 따른다. Pretraining은 Epic Kitchens에서 10K clip (675K
+              frame)을 사용하고, 각 task별로 단일 scene에서 50개 robot demonstration을 수집한다.
+            </p>
+
+            <h3>Task Descriptions</h3>
+            <img
+              src="/study/paper_summaries/masquerade/img3.png"
+              alt="In-distribution and out-of-distribution scenes for Stack Pots, Scrape Potato, and Sweep Chilis"
+            />
+            <p>
+              세 가지 long-horizon bimanual task를 OOD scene에서 평가하며, 각 task의 partial progress는 subtask 단위로
+              점수화된다.
+            </p>
+            <ul>
+              <li>
+                <b>Stack Pots</b>. 작은 냄비를 큰 냄비에서 꺼낸다. 중간 냄비를 큰 냄비에 넣는다. 작은 냄비를 중간 냄비
+                안에 놓는다.
+              </li>
+              <li><b>Scrape Potato</b>. 감자가 담긴 접시를 든다. 주걱을 든다. 주걱으로 감자를 냄비에 옮긴다.</li>
+              <li>
+                <b>Sweep Chilis</b>. 그릇을 잡아 테이블 가장자리로 옮긴다. 스펀지를 든다. 고추를 그릇 안으로 쓸어
+                담는다.
+              </li>
+            </ul>
+
+            <h3>Baselines</h3>
+            <p>
+              비교 대상은 human video로 학습된 state-of-the-art representation과 일반적으로 robotics에서 쓰이는
+              representation이다. <b>HRP</b>는 future hand pose, active-object bounding box, contact-point location 세
+              가지 affordance label을 raw video에서 자동 추출해 vision encoder를 학습한 모델로, 본 비교에서는 오픈된
+              가중치를 그대로 사용하고 별도 co-training은 하지 않는다. <b>ImageNet</b>은 ImageNet-1K로 초기화된 ViT로,
+              robotics 표현 학습 연구를 unbiased로 비교한 Dasari et al.이 R3M, VC-1, MVP보다 robot control에서 더 안정적
+              backbone으로 보고한 baseline이다. <b>DINOv2</b>는 142M curated image로 학습된 self-supervised ViT로 강력한
+              general-purpose 표현을 제공한다. 모든 모델은 ViT-Base architecture를 공유한다.
+            </p>
+
+            <h3>Performance in OOD Scenes</h3>
+            <img
+              class="half"
+              src="/study/paper_summaries/masquerade/img4.png"
+              alt="Average success rate on Stack Pots, Scrape Potato, and Sweep Chilis for ImageNet, DINOv2, HRP, and Ours"
+            />
+            <p>
+              세 task 각각에서 3개의 OOD scene을 골라 scene당 10번씩, task당 30번 rollout을 평가한다. Masquerade는 모든
+              OOD scene에서 baseline을 큰 차이로 능가하며 평균적으로 62 percentage point 차이를 보인다 (12% → 74%).
+              Stack Pots, Scrape Potato, Sweep Chilis 세 task 모두에서 일관된 패턴이다.
+            </p>
+
+            <h3>Do Robot Overlays Improve Performance?</h3>
+            <img
+              class="half"
+              src="/study/paper_summaries/masquerade/img5.png"
+              alt="Ablation on robot overlays and co-training across three tasks"
+            />
+            <p>
+              인페인팅으로 사람 손만 지우고 가상 로봇을 덧입히지 않은 raw human video로 같은 절차를 진행한 변형(No
+              Overlay)을 비교한다. OOD Scene 1에서 세 task 모두 No Overlay는 큰 폭의 성능 저하를 보인다. Robot overlay로
+              embodiment gap을 줄이는 단계가 in-the-wild video로부터 더 많은 신호를 끌어낼 수 있게 해 준다는 의미이다.
+            </p>
+
+            <h3>Does Cotraining Improve Performance?</h3>
+            <p>
+              편집된 human video로 encoder를 pretrain한 뒤 policy loss만으로 finetuning한 변형(No Co-train)도 함께
+              비교한다. 이 경우에도 극적인 성능 저하가 발생한다. Co-training 없이 단순 finetuning만 진행하면 encoder가
+              human video에서 배운 표현을 잊어버리기 때문이라는 해석이다. 즉, pretrain 단계의 task 신호를 학습 내내
+              유지하는 것이 high task performance에 필수적이다.
+            </p>
+
+            <h3>Does Increasing the Amount of In-the-wild Data Improve Performance?</h3>
+            <img
+              class="half"
+              src="/study/paper_summaries/masquerade/img6.png"
+              alt="Data scaling curve showing success rate vs fraction of edited human videos"
+            />
+            <p>
+              Edited human video 데이터셋을 0%, 10%, 50%, 100%로 subsample하여 Stack Pots policy를 재학습한다. Co-train
+              data가 늘어남에 따라 0% → 2%, 10% → 26%, 50% → 47%, 100% → 68%로 단조 증가한다. 곡선이 로그 스케일로
+              증가하는 추세를 보여, 데이터를 더 키우면 추가 성능 향상의 여지가 있음을 시사한다.
+            </p>
+
+            <h3>In-distribution vs Out-of-distribution Performance</h3>
+            <img
+              class="half"
+              src="/study/paper_summaries/masquerade/img7.png"
+              alt="In-distribution vs out-of-distribution success rate on Sweep Chilis"
+            />
+            <p>
+              Sweep Chilis task에서 원래 학습 scene(in-distribution)과 OOD Scene 1을 비교하면, baseline들은 ID에서는
+              어느 정도 동작하지만 OOD에서는 거의 0에 가깝게 성능이 무너진다. Masquerade는 ID와 OOD 사이의 차이가 거의
+              없으며, in-the-wild human video로부터 학습된 표현이 scene shift에 대한 robust성을 부여한다는 것을 보여
+              준다.
+            </p>
+
+            <h2>Conclusion</h2>
+            <p>
+              Masquerade는 단순한 2D 인페인팅과 로봇 overlay만으로도 인간과 로봇 사이의 visual embodiment gap을
+              명시적으로 줄일 수 있고, 이렇게 편집된 in-the-wild human video가 policy 학습에 실제로 큰 신호를 준다는
+              점을 보였다. ViT-Base encoder를 675K robotized frame으로 pretrain하고 task당 50개 demonstration과
+              co-training하는 것만으로 baseline 대비 OOD 성능이 5배 이상 향상되며, ID와 OOD 사이의 격차도 거의 사라진다.
+              Ablation은 overlay와 co-training이 모두 필수적임을 보였고, human video corpus를 키울수록 성능이 꾸준히
+              올라간다는 scaling 결과도 함께 제시했다.
+            </p>
+
+            <h3>Limitations and Future Work</h3>
+            <p>
+              첫째, hand-pose estimator에 의존하기 때문에 fast motion이나 강한 occlusion이 있는 frame은 학습에서
+              제외해야 한다. 둘째, depth가 없어 로봇 pixel이 실제로 가려져야 할 부분을 가리지 못한다. Depth reasoning을
+              개선하면 overlay의 사실성이 크게 향상될 수 있다. 셋째, egocentric camera motion이 너무 크면 정적인 robot
+              camera 가정과 충돌해 많은 frame을 버리게 된다. Mobile robot에 movable camera를 결합하면 이 가정을 완화할
+              수 있다. 넷째, dexterous human grasp를 parallel-jaw로 retargeting하는 과정이 본질적으로 손실이 있으며,
+              dexterous end-effector와 더 정교한 retargeting이 embodiment gap을 더 좁힐 수 있는 방향이다. 마지막으로
+              같은 data-editing 파이프라인이 reward learning, motion prior 추출, video generation 등 다른 human video
+              활용 방식과 결합될 가능성도 열려 있다.
+            </p>
+          </div>
+
+          <post-footer></post-footer>
+        </section>
+      </div>
+    </main>
+
+    <web-footer></web-footer>
+  </body>
+</html>
