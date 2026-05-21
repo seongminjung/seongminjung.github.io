@@ -97,3 +97,4 @@ date,category_id,filename,title,detail
 2026-05-04,3,dexwild,DexWild: Dexterous Human Interactions for In-the-Wild Robot Policies,RSS 2025
 2026-05-11,3,h2r,H2R: A Human-to-Robot Data Augmentation for Robot Pre-training from Videos,ArXiv 2025.05
 2026-05-15,3,masquerade,Masquerade: Learning from In-the-wild Human Videos using Data-Editing,ICRA 2026
+2026-05-20,3,hwm,Hierarchical Planning with Latent World Models,ArXiv 2026.04

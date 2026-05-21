@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="/css/index.css" />
+    <script type="module" src="/js/main.js" defer></script>
+  </head>
+
+  <body>
+    <web-head></web-head>
+    <web-header></web-header>
+
+    <main>
+      <div class="container">
+        <section id="post">
+          <post-header></post-header>
+
+          <div class="post-body">
+            <arxiv-card
+              title="Hierarchical Planning with Latent World Models"
+              venue="ArXiv 2026.04"
+              authors="Wancong Zhang, Basile Terver, Artem Zholus, Soham Chitnis, Harsh Sutaria, Mido Assran, Randall Balestriero, Amir Bar, Adrien Bardes, Yann LeCun, Nicolas Ballas"
+              link="https://arxiv.org/abs/2604.03208"
+            >
+            </arxiv-card>
+
+            <h2>TL;DR</h2>
+            <ul>
+              <li>
+                미리 학습된 latent world model 위에 high-level과 low-level 두 단계의 MPC를 얹어, long-horizon 제어를
+                temporal hierarchy로 분해하는 inference-time planning 프레임워크 HWM을 제안한다.
+              </li>
+              <li>
+                High-level은 학습된 action encoder가 만든 macro-action 위에서 plan을 짜 첫 latent state를 subgoal로
+                내려보내고, low-level은 primitive action으로 그 subgoal까지 짧은 horizon만 MPC로 푼다. 두 단계가 같은
+                latent space에서 동작하므로 inverse model이나 skill 학습 없이 subgoal이 직접 전달된다.
+              </li>
+              <li>
+                VJEPA2-AC, DINO-WM, PLDM 세 가지 backbone에 plug-in했을 때 zero-shot Franka pick-and-place에서 0%에서
+                70%, Push-T에서 17%에서 61%, Diverse Maze에서 44%에서 83%까지 향상되며, 같은 성능을 약 3배 적은 planning
+                compute로 달성한다.
+              </li>
+              <li>
+                ~77배 더 많은 robot data로 학습된 VLA baseline(Octo, $\pi_0$-FAST-DROID, $\pi_{0.5}$-DROID)도 final goal
+                image만 받은 zero-shot 셋업에서 능가한다.
+              </li>
+            </ul>
+
+            <h2>Thoughts</h2>
+            <p>
+              세 가지 서로 다른 latent world model 위에 거의 동일한 hierarchical planner를 그대로 얹어 일관된 개선을
+              보인다는 점이 이 논문의 가장 강한 메시지로 보인다. Method 자체는 high-level과 low-level이 같은 latent
+              space를 공유하고, high-level의 첫 예측 latent를 그대로 subgoal로 쓰는 구조라 매우 직관적이며, inverse
+              model 이나 skill discovery, goal-conditioned RL 같은 기존 hierarchy 학습 흐름이 필요했던 단계를 통째로
+              건너뛴다. Pretrained world model 시대에 맞춰 hierarchy를 정확히 어디에 끼워 넣을 수 있는지를 보여 준
+              작업이라고 해석할 수 있다.
+            </p>
+            <p>
+              실험 설계도 깔끔하다. 동일한 backbone을 flat planner와 hierarchical planner로 묶어 평가했기 때문에
+              hierarchy 자체의 기여가 분리된다. 실제 로봇 pick-and-place처럼 final goal image만 주어진 non-greedy
+              상황에서 flat planner가 0%인 반면 hierarchical은 70%까지 올라간다는 결과는 시각적으로도 설득력이 있고,
+              ~77배 더 큰 robot data로 학습한 VLA들을 zero-shot으로 능가한다는 비교도 model-based control의 sample
+              efficiency에 대한 좋은 증거다. Latent action dim과 long-horizon prediction error에 대한 ablation까지
+              포함되어 어디서 이득이 나오는지를 추적하기 쉽다.
+            </p>
+            <p>
+              한계도 분명하다. 저자들이 직접 언급하듯 horizon이 길어질수록 모든 method가 성능이 떨어지고, top-down
+              decomposition만 다루어 hierarchy 단계 간 feedback이나 uncertainty-aware planning은 future work으로 남았다.
+              독립적으로 짚자면, 실제 로봇 평가가 Franka pick-and-place와 drawer 두 task에 한정되어 generalization 폭이
+              아직 좁고, hierarchy도 정확히 두 단계로 고정되어 3단 이상으로 확장될 때 같은 단순한 latent-matching 방식이
+              유지될지 알기 어렵다. 또한 macro-action dimension에 대한 sensitivity가 강해서(Fig. 7에서 $d=4$에서 정점,
+              $d=16$에서 성능 급락) backbone이나 domain이 바뀌면 sweet spot을 다시 찾아야 한다. CEM 기반 MPC만 다루어
+              gradient 기반이나 diffusion 기반 planner와의 비교가 빠진 것도 후속 연구에서 짚을 만한 부분이다.
+            </p>
+
+            <h2>Introduction</h2>
+            <img
+              src="/study/paper_summaries/hwm/img1.png"
+              alt="Overview of HWM with current obs to high-level WM to subgoal to low-level WM to actions, plus results table and plan-time chart"
+            />
+            <p>
+              Learned world model을 사용한 planning은 embodied decision making의 강력한 패러다임으로 자리잡았다.
+              최근에는 self-supervised로 학습된 latent world model이 task-agnostic offline 데이터에서 zero-shot으로
+              다양한 control task에 사용될 수 있음이 보고되었다. 그러나 학습된 world model로 직접 plan을 짜는 flat MPC는
+              horizon이 길어질수록 두 가지 근본 문제로 무너진다. 첫째, autoregressive rollout에서 prediction error가
+              누적되어 plan이 점점 부정확해진다. 둘째, primitive action 공간을 horizon만큼 직접 탐색하는 비용이
+              horizon에 대해 지수적으로 커진다.
+            </p>
+            <p>
+              본 논문은 이 두 문제를 hierarchical planning으로 해결하려 한다. 핵심은 새로운 world model architecture를
+              제안하는 것이 아니라, 이미 학습된 latent world model 위에 high-level과 low-level 두 단계의 latent
+              planner를 얹는 inference-time abstraction이다. High-level은 학습된 action encoder가 만든 latent
+              macro-action 위에서 긴 horizon의 plan을 짜고, 그 plan의 첫 latent state를 그대로 subgoal로 넘긴다.
+              Low-level 은 primitive action으로 그 subgoal까지 짧은 horizon MPC를 푼다. 두 단계가 동일한 latent space를
+              공유하기 때문에 inverse model이나 explicit goal-conditioned policy 없이도 subgoal이 직접 전달된다.
+            </p>
+            <p>
+              HWM은 model-agnostic plug-in으로 설계되어 VJEPA2-AC(robot manipulation), DINO-WM(push manipulation),
+              PLDM(maze navigation) 세 가지 서로 다른 latent world model에 동일하게 적용된다. 실제 Franka 로봇에서
+              single goal image만 받는 non-greedy pick-and-place에서 0%에서 70%로 올라가며, ~77배 더 많은 robot data로
+              학습된 VLA baseline들도 능가한다. Push-T와 Diverse Maze 시뮬레이션에서는 같은 성공률을 약 3배 적은
+              planning compute로 달성한다.
+            </p>
+
+            <h2>Related Works</h2>
+
+            <h3>World Models and Planning</h3>
+            <p>
+              Environment dynamics를 예측하는 모델을 학습하는 흐름은 model-based RL의 핵심으로 오래 연구되어 왔다. 초기
+              연구는 state-space dynamics에 집중했고, 이후 고차원 관측에서 직접 동작하는 latent space dynamics를
+              학습하는 방향으로 확장되었다. 최근에는 task-agnostic generative world model이 large-scale real-world
+              video로 학습 되면서 physical environment의 다양한 시뮬레이션을 만들어 낼 수 있게 되었다. 본 논문과 가장
+              가까운 흐름은 reward-free offline 데이터로 next-latent prediction을 학습한 latent world model을 zero-shot
+              downstream control에 쓰는 방향이다. 이 모델들은 task-specific policy 학습 없이 cost optimization으로
+              action을 고른다.
+            </p>
+
+            <h3>Limitations of Long Horizon Planning</h3>
+            <p>
+              Learned world model은 long-horizon planning에서 두 가지 본질적 한계에 부딪힌다. 첫째, autoregressive
+              rollout에서 prediction error가 누적된다. 둘째, perfect model을 가정해도 search tree가 branching factor와
+              horizon에 대해 지수적으로 커지는 curse of horizon이 남는다. HWM은 temporal hierarchy로 두 문제 모두에
+              개입한다.
+            </p>
+
+            <h3>Hierarchical Reinforcement Learning</h3>
+            <p>
+              Long-horizon control을 다루는 또 다른 흐름은 options나 skill 같은 temporal abstraction을 통한 hierarchical
+              reinforcement learning이다. 또 다른 갈래는 model-based RL 안에서 hierarchical world model을 직접 학습해
+              여러 temporal scale에서 dynamics를 잡으려 한다. 이런 방법들은 long-horizon reasoning은 가능하게 하지만
+              task-specific policy 학습에 의존하기 때문에 zero-shot이나 general-purpose control에는 적용이 제한된다.
+            </p>
+
+            <h3>Hierarchical Model Predictive Control</h3>
+            <p>
+              최적 제어 쪽에서는 hierarchical MPC가 long-horizon multi-task 설정에서 연구되어 왔다. 그러나 기존
+              hierarchical MPC는 low-dimensional state, hand-engineered representation, 혹은 알려진 dynamics에 한정되어
+              raw pixel 같은 고차원 관측으로 확장되지 못했다. HWM은 학습된 latent world model 위에 hierarchical MPC를
+              얹어 이 gap을 줄이는 방향에 위치한다.
+            </p>
+
+            <h2>Hierarchical Planning with Latent World Models</h2>
+
+            <h3>Problem Setting</h3>
+            <p>
+              MDP $\mathcal{M} = (\mathcal{S}, \mathcal{A}, \mu, p)$를 가정하고, offline 환경에서 state-action
+              trajectory dataset $\mathcal{D} = \{(s_1, a_1, s_2, \ldots, a_{T-1}, s_T)\}$만 사용할 수 있다고 둔다. 학습
+              단계에서 explicit parametric policy를 학습하는 대신 world model을 학습해 true transition $p$를 근사하고,
+              추론 시에는 MPC로 action을 고른다. 평가 시에는 goal state $s_g$를 받아 그 상태에 도달하는 goal-reaching
+              task로 평가한다.
+            </p>
+
+            <h3>Latent World Models</h3>
+            <p>
+              World model은 환경이 agent의 action에 어떻게 변하는지를 학습하는 dynamical model이다. 고차원 관측에서는
+              encoder $E$가 관측 $s_t$를 latent state $z_t$로 보내고, latent world model이 action에 조건화된 future
+              latent $p(z_{t+1} \mid z_t, a_t)$를 예측한다. 이런 latent world model을 reward-free offline 데이터로
+              학습하면 zero-shot goal-conditioned control에 쓸 수 있음이 최근 연구들에서 보고되었다. 다만 horizon이
+              길어지면 flat MPC는 누적 error와 검색 공간 폭증으로 brittle해진다.
+            </p>
+
+            <h3>Top-Down Hierarchical Planning</h3>
+            <img
+              src="/study/paper_summaries/hwm/img2.png"
+              alt="Hierarchical planning in latent space with high-level and low-level world models and macro-action encoder"
+            />
+            <p>
+              Latent world model은 서로 다른 추상화 단계에서 서로 다른 temporal horizon을 reason할 수 있으므로 hierarchy
+              에 자연스럽게 들어맞는다. 본 논문은 top-down 전략을 채택해 두 단계의 latent planner를 둔다. High-level은
+              긴 horizon의 latent macro-action sequence를 plan으로 짜 그 첫 예측 latent를 subgoal로 내려보내고,
+              low-level 은 primitive action으로 그 subgoal까지 짧은 horizon MPC를 푸는 receding-horizon 방식으로
+              동작한다.
+            </p>
+            <p>
+              두 개의 latent world model이 같은 encoder $E$가 만든 공유 latent space에서 동작한다. Low-level model
+              $P^{(1)}(z_{t+1} \mid z_t, a_t)$는 primitive action $a_t$로 조건화된 short-horizon transition을 예측하고,
+              high-level model $P^{(2)}(z_{t+h} \mid z_t, l_t)$는 latent macro-action $l_t$로 조건화된 long-horizon
+              transition을 예측한다. Macro-action $l_t$는 학습된 action encoder가 시간적으로 연속된 low-level action
+              sequence를 압축해 만든 표현이다. 고정 stride를 가정하지 않기 때문에 각 high-level transition은 가변 길이의
+              low-level segment에 대응할 수 있다.
+            </p>
+            <h4>High-Level Planning</h4>
+            <p>
+              초기 관측 $s_1$과 goal 관측 $s_g$를 받아 $z_1 = E(s_1)$, $z_g = E(s_g)$로 인코딩한다. High-level은 길이
+              $H$ 의 latent action sequence $\hat{l}_{1:H}$에 대해 goal-conditioned energy를 최소화한다.
+            </p>
+            <p class="math-center">
+              $\mathcal{E}_2(\hat{l}_{1:H}; z_1, z_g) \triangleq \left\| z_g - P^{(2)}(\hat{l}_{1:H}; z_1) \right\|_1$
+            </p>
+            <p>
+              여기서 $P^{(2)}(\hat{l}_{1:H}; z_1)$은 $z_1$에서 시작해 latent action $\hat{l}_{1:H}$로 world model을
+              autoregressive하게 풀어 얻은 최종 latent를 뜻한다. 최적 plan은 $l^*_{1:H} = \arg\min_{\hat{l}_{1:H}}
+              \mathcal{E}_2(\hat{l}_{1:H}; z_1, z_g)$이며, 이를 펼쳐 얻은 intermediate latent subgoal sequence가
+              $\tilde{z}_i \triangleq P^{(2)}(l^*_{1:i}; z_1), i = 1, \ldots, H$이다.
+            </p>
+
+            <h4>Low-Level Planning</h4>
+            <p>
+              실행 시에는 첫 subgoal $\tilde{z}_1$만 사용한다. 현재 latent state $z_1$에서 시작해 길이 $h$의 primitive
+              action sequence에 대한 energy를 정의한다.
+            </p>
+            <p class="math-center">
+              $\mathcal{E}_1(\hat{a}_{1:h}; z_1, \tilde{z}_1) \triangleq \left\| \tilde{z}_1 - P^{(1)}(\hat{a}_{1:h};
+              z_1) \right\|_1$
+            </p>
+            <p>
+              최적 low-level plan $a^*_{1:h} = \arg\min_{\hat{a}_{1:h}} \mathcal{E}_1(\hat{a}_{1:h}; z_1,
+              \tilde{z}_1)$을 controller에 넣고, $k$ step마다 hierarchical planner를 다시 호출한다.
+            </p>
+
+            <h3>Low-Level Latent World Model</h3>
+            <p>
+              Low-level latent world model $P^{(1)}_\theta$는 standard latent world-model objective로 학습된다.
+              Teacher-forcing loss 와 multi-step autoregressive rollout loss를 사용하며 JEPA 스타일 predictive model의
+              학습 레시피를 그대로 따른다. 실험에서는 backbone world model(VJEPA2-AC, DINO-WM, PLDM)의 학습 레시피와
+              architecture를 재활용해 hierarchy가 만들어 내는 이득이 low-level dynamics 차이가 아니라 hierarchical
+              planning 자체에서 나오는 것이 되도록 통제했다.
+            </p>
+
+            <h3>High-Level Latent World Model</h3>
+            <img
+              class="half"
+              src="/study/paper_summaries/hwm/img3.png"
+              alt="High-level world model architecture with action encoder and macro latent actions"
+            />
+            <p>
+              High-level model $P^{(2)}_\phi$는 더 긴 temporal scale을 예측하도록 학습된다. Trajectory $\tau = (s_1,
+              a_1, s_2, \ldots, s_T)$에서 $N$개의 waypoint index를 고른다($1 = t_1 < t_2 < \cdots < t_N < t_{N+1}$). 각
+              high-level transition은 $(s_{t_k}, (a_{t_k:t_{k+1}}), s_{t_{k+1}})$로 정의되어 waypoint 사이의 모든
+              low-level action을 포함한다. Waypoint state는 공유 encoder $E$를 통해 latent feature $(z_{t_k})_{k \in
+              [N]}$로 인코딩되고, action encoder $A_\psi$가 action subsequence $(a_{t_k:t_{k+1}})_{k \in [N]}$를 macro
+              latent action $(l_{t_k})_{k \in [N]}$으로 압축한다. 두 sequence를 교차로 끼워 $P^{(2)}_\phi$에 넣어 다음
+              waypoint latent $(\hat{z}_{t_{k+1}})_{k \in [N]}$를 예측한다. 학습은 teacher-forcing loss로 이루어진다.
+            </p>
+            <p class="math-center">
+              $\hat{z}_{t_{k+1}} := P^{(2)}_\phi\bigl((l_{t_i}, z_{t_i})_{i \leq k}\bigr), \quad
+              \mathcal{L}_\text{tf}(\phi, \psi) := \cfrac{1}{N} \sum\limits_{k=1}^{N} \left\| \hat{z}_{t_{k+1}} -
+              z_{t_{k+1}} \right\|_1$
+            </p>
+            <p>
+              Action encoder는 transformer 기반으로 action subsequence를 받아 CLS token을 latent action 공간에
+              projection 해 macro-action을 만든다. 학습은 $\phi$와 $\psi$를 동시에 최적화한다.
+            </p>
+
+            <h2>Empirical Evaluation of Hierarchical Planning Across World Models and Tasks</h2>
+            <p>
+              세 가지 representative latent world model 위에 HWM을 적용한다. VJEPA2-AC에는 real-world Franka
+              manipulation, DINO-WM에는 Push-T, PLDM에는 Diverse Maze navigation으로 task horizon이나 환경 다양성을 원래
+              연구보다 크게 늘려 평가한다. 결과는 다음 네 가지로 요약된다.
+            </p>
+            <ol>
+              <li>Zero-shot non-greedy 실제 로봇 제어에서 Franka pick-and-place 성공률이 0%에서 70%로 올라간다.</li>
+              <li>Long-horizon reasoning에서 Push-T 성공률이 17%에서 61%로 올라간다.</li>
+              <li>OOD generalization에서 PLDM이 더 크고 처음 보는 maze에서 향상된다.</li>
+              <li>같거나 더 나은 planning 성능을 약 3배 적은 compute로 달성한다.</li>
+            </ol>
+
+            <h3>Franka Arm with Robotiq Gripper</h3>
+            <img
+              src="/study/paper_summaries/hwm/img4.png"
+              alt="Real-robot executions on pick-and-place and Push-T showing inferred subgoals"
+            />
+            <p>
+              Droid 셋업과 유사한 Franka Emika Panda 7-DoF arm에 Robotiq gripper를 단 셋업에서 평가한다. Pick-and-place
+              는 cup과 box 두 object에 대해 10개의 start-goal pair를 사용하고, drawer manipulation은 7개의
+              opening/closing task로 구성된다. Goal은 final goal image 하나로만 주어지며 성공은 goal 상태에 도달하는지로
+              정의된다. VJEPA2-AC를 그대로 쓴 flat planner를 baseline으로 두고, 동일한 backbone과 학습 데이터로
+              hierarchical planner만 추가했다. 추가로 Octo, $\pi_0$-FAST-DROID, $\pi_{0.5}$-DROID 같은 VLA baseline과도
+              비교한다. World model은 DROID와 RoboSet에서 약 130시간의 unlabeled real-robot 데이터로 학습되었다.
+            </p>
+            <img
+              class="half"
+              src="/study/paper_summaries/hwm/img5.png"
+              alt="Zero-shot Franka manipulation results comparing flat and hierarchical planners with VLA baselines"
+            />
+            <p>
+              결과는 명확하다. Flat planner는 drawer의 7개 변형 중 단순 push나 pull로 풀리는 2개만 성공시키며 pick-and-
+              place에는 0%이다. 이는 task가 non-greedy해 goal까지의 거리가 일시적으로 늘어나는 중간 동작이 필요하기 때문
+              이다. Hierarchical planner는 동일한 backbone에서 cup pick-and-place 70%, box pick-and-place 60%, drawer
+              70%를 달성하며, manual subgoal image 없이도 end-to-end로 풀어 낸다. ~77배 더 많은 robot interaction
+              데이터로 학습된 VLA baseline들도 능가한다. 실패는 대부분 perceptual imprecision(예를 들어 depth 추정
+              오차)이나 high-level과 low-level 사이의 jointly optimization이 없어 발생하는 near-miss 실행에서 나온다.
+            </p>
+
+            <h3>Push-T</h3>
+            <p>
+              DINO-WM 위에 HWM을 얹어 Push-T 환경에서 평가한다. T-shape 물체를 validation trajectory에서 sampling한 goal
+              configuration으로 미는 task이다. Long-horizon planning을 stress-test하기 위해 start-goal 분리 거리 $d$를
+              25, 50, 75 timestep으로 늘린다. 모든 모델은 DINO-WM이 공개한 offline dataset으로 학습된다. Baseline은
+              DINO-WM과 offline goal-conditioned RL 계열 GCIQL, HIQL, 그리고 zero-shot unsupervised RL 방법 HILP이다.
+            </p>
+            <img
+              class="half"
+              src="/study/paper_summaries/hwm/img6.png"
+              alt="Push-T performance across task horizons d=25, 50, 75"
+            />
+            <p>
+              결과는 horizon이 길어질수록 hierarchical의 이득이 커지는 패턴을 보인다. DINO-WM 단독 성공률은 $d=25$에서
+              84%이지만 $d=75$에서는 17%까지 떨어지는 반면, hierarchical 버전은 각각 89%, 78%, 61%로 훨씬 robust하다.
+              GCIQL이나 HIQL 같은 offline RL baseline은 horizon이 길어질수록 가파르게 무너진다. 절대 성능뿐 아니라
+              compute-성능 trade-off에서도 hierarchical 쪽이 유리하다.
+            </p>
+
+            <h3>Diverse Maze</h3>
+            <p>
+              PLDM 위에 HWM을 얹어 MuJoCo PointMaze 환경의 Diverse Maze에서 평가한다. 10×10 grid에 free space가 무작위로
+              연결된 maze를 25개로 학습하고 20개의 held-out layout에서 평가하며, start-goal grid distance $D$로 난이도
+              세 가지를 정의한다($D \in [5, 8]$, $D \in [9, 12]$, $D \in [13, 16]$). Baseline은 PLDM, GCIQL, HIQL, HILP
+              이다.
+            </p>
+            <img
+              class="half"
+              src="/study/paper_summaries/hwm/img7.png"
+              alt="Diverse Maze performance across task horizons"
+            />
+            <p>
+              Task horizon이 길어질수록 HWM과 flat PLDM의 격차가 벌어진다. 가장 어려운 $D \in [13, 16]$에서 PLDM 단독은
+              44%이지만 hierarchical 버전은 83%이며, 같은 성능을 4배 적은 compute로도 낼 수 있다. 특히 두 가지 PLDM 기반
+              모델이 goal-conditioned 및 zero-shot RL policy baseline들을 모두 능가해 model-based planning이 environment
+              geometry shift에 더 robust함을 보여 준다.
+            </p>
+            <img
+              src="/study/paper_summaries/hwm/img8.png"
+              alt="Success rate vs test-time compute for Push-T and Diverse Maze"
+            />
+            <p>
+              CEM/MPPI sample 수와 iteration을 sweeping하며 planning budget을 바꾸면 hierarchical planner는 같은
+              성공률을 flat planner 대비 약 3배 적은 test-time compute로 달성한다. Test-time compute가 한정된 실제
+              deployment 상황에서 hierarchy가 단순히 성능을 올리는 것을 넘어 efficiency 측면에서도 의미가 있음을
+              시사한다.
+            </p>
+
+            <h2>Analysis of Hierarchical Planning</h2>
+            <p>
+              Hierarchical planning 성능에 영향을 미치는 요인을 ablation으로 분석한다. 이 절의 모든 모델은 real-world
+              robotic dataset으로 학습된 VJEPA2 backbone을 사용한다.
+            </p>
+
+            <h3>Do Latent Actions Help with High Level Planning?</h3>
+            <img
+              class="half"
+              src="/study/paper_summaries/hwm/img9.png"
+              alt="Action alignment to expert trajectories for highlevel models"
+            />
+            <p>
+              High-level world model이 waypoint 사이의 모든 low-level action을 압축해 latent macro-action으로 받는 것이,
+              waypoint 간 net end-effector displacement(delta pose)를 그대로 쓰는 것에 비해 도움이 되는지를 비교한다.
+              Latent action을 쓰는 모델이 더 expert behavior에 가까운 plan을 낸다. Waypoint 사이의 시간 간격이 길어지면
+              그 사이 trajectory가 highly non-greedy(예를 들어 처음 위로 들고 그 다음 옆으로 이동)할 수 있는데,
+              delta-pose 표현은 이를 단일 변위로 뭉뚱그려 feasible transition 예측에 필요한 정보를 잃는 반면, learned
+              latent action은 action sequence의 구조를 compact하게 인코딩할 수 있다.
+            </p>
+
+            <h3>Do High-Level World Models Improve Long Horizon Prediction?</h3>
+            <img
+              class="half"
+              src="/study/paper_summaries/hwm/img10.png"
+              alt="Prediction L1 error as a function of prediction horizon in seconds"
+            />
+            <p>
+              Long-horizon planning에서 학습된 world model이 가장 brittle해지는 부분이 autoregressive rollout에서의
+              error 누적이다. DROID로 학습된 low-level과 high-level world model 모두에 held-out 초기 관측을 주고 2초
+              앞까지의 latent 상태를 예측하게 한 뒤 ground-truth 미래 latent와 $\ell_1$ error를 측정한다. 2초 앞을 예측
+              하려면 low-level은 최대 16개의 autoregressive step을 거쳐야 하는 반면 high-level은 단일 step으로 끝난다.
+              결과는 1초 미만 짧은 horizon에서는 low-level이 더 정확하지만 1.5초 이상의 긴 horizon에서는 high-level의
+              single-step prediction이 더 정확하다. Hierarchical 전략 자체가 long-term guidance를 high-level에 맡기고
+              short-term precision을 low-level에 맡기는 방식인 것과 정확히 부합한다.
+            </p>
+
+            <h3>How to Generate Good Subgoals?</h3>
+            <img
+              src="/study/paper_summaries/hwm/img11.png"
+              alt="Effect of latent action dimension on high-level plan success rate and action cosine similarity"
+            />
+            <p>
+              Hierarchical planning이 잘 동작하려면 high-level planner가 final goal까지 feasible path 위의 subgoal을
+              제안해야 하고, 그 subgoal이 low-level planner로 reachable해야 한다. 따라서 high-level plan은 invalid plan,
+              unreachable subgoal을 가진 valid plan, reachable subgoal을 가진 valid plan 세 가지로 나뉜다. Latent action
+              dimension $d$를 바꿔 보면 latent space가 너무 작을 때(예를 들어 $d=3$)는 high-level planner 자체가 valid한
+              plan을 만들지 못한다. $d$가 커지면 plan 성공률은 빠르게 올라가지만, moderate dimensionality 너머에서는
+              제안된 subgoal이 low-level planner로 실행하기 점점 어려워지고 action cosine similarity가 떨어진다.
+              경험적으로 Franka task에서는 $d=4$가 균형 지점이다.
+            </p>
+            <p>
+              흥미롭게도 reconstruction fidelity는 latent action dimension과 강하게 상관되지 않는다. 더 작은 latent
+              space 는 prediction이 더 흐려지지만 contact event나 motion direction 같은 coarse semantic은 보존되며, 이는
+              visual precision이 떨어져도 hierarchical planning에는 충분함을 보여 준다.
+            </p>
+
+            <h2>Conclusion</h2>
+            <p>
+              HWM은 학습된 latent dynamics 위에서 여러 temporal scale의 MPC를 수행하는 hierarchical planning
+              framework이다. Long-horizon reasoning과 fine-grained execution을 분리함으로써 single-level world-model
+              planner를 제한하던 error 누적과 검색 공간 폭증을 동시에 완화한다. 서로 다른 world model architecture에서
+              일관되게 flat planner를 능가하면서 inference-time efficiency까지 개선한다는 점이 핵심이다.
+            </p>
+
+            <h3>Limitations and Future Work</h3>
+            <p>
+              Long-horizon manipulation은 여전히 어렵고 모든 method가 horizon이 길어질수록 성능이 떨어진다. 저자들은 세
+              가지 후속 방향을 제시한다. 첫째, higher-level world model에는 더 abstract한 representation이 필요할 수
+              있다. 둘째, long-horizon real-world prediction에서 stochasticity와 model uncertainty를 명시적으로 다루는
+              uncertainty-aware planning이 필요하다. 셋째, top-down decomposition을 넘어 hierarchy 단계 사이에
+              feedback과 interaction이 가능한 hierarchical planning 알고리즘이 필요하다.
+            </p>
+          </div>
+
+          <post-footer></post-footer>
+        </section>
+      </div>
+    </main>
+
+    <web-footer></web-footer>
+  </body>
+</html>
