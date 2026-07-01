@@ -121,17 +121,31 @@ MathJax.Hub.Config({
           id: "mapmyvisitors",
           type: "text/javascript",
           src: "//mapmyvisitors.com/map.js?d=lhkwnS8G_vrjHqH6j4zkkmHDJU0apnxe7kZ3wjeFSNc&cl=ffffff&w=a",
+        },
+        // hide the visible mapmyvisitors widget while keeping visitor tracking active
+        {
+          tag: "style",
+          textContent: `
+  #mapmyvisitors,
+  #mapmyvisitors-widget,
+  .mapmyvisitors-map-control,
+  .mapmyvisitors,
+  .mapmyvisitors-map-container,
+  .mv-container,
+  .jvectormap-tip,
+  #clustrmaps-widget,
+  .clustrmaps-map,
+  #clstr_globe,
+  img[alt='mapmyvisitors'],
+  a[href*='mapmyvisitors'],
+  img[src*='mapmyvisitors'],
+  a[href*='clustrmaps'],
+  img[src*='clustrmaps'] {
+    display: none !important;
+  }
+        `,
         }
       );
-
-      // hide mapmyvisitors widget
-      const observer = new MutationObserver(() => {
-        const els = document.querySelectorAll(
-          "#mapmyvisitors, .mapmyvisitors, .mv-container, img[alt='mapmyvisitors']"
-        );
-        els.forEach((el) => el.remove());
-      });
-      observer.observe(document.body, { childList: true, subtree: true });
     }
 
     resources.forEach((res) => {
