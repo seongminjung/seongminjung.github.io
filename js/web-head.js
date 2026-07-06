@@ -122,29 +122,37 @@ MathJax.Hub.Config({
           type: "text/javascript",
           src: "//mapmyvisitors.com/map.js?d=lhkwnS8G_vrjHqH6j4zkkmHDJU0apnxe7kZ3wjeFSNc&cl=ffffff&w=a",
         },
-        // hide the visible mapmyvisitors widget while keeping visitor tracking active
+        // Hide the mapmyvisitors widget while keeping visitor tracking alive.
+        // map.js bundles jquery.inview and only counts a visit once the widget
+        // enters the viewport, so we must NOT use display:none or move it
+        // off-screen (either makes it "never in view" and breaks the count).
+        // Instead pin it inside the viewport but make it fully transparent and
+        // non-interactive. position:fixed keeps it out of document flow so no
+        // gap or horizontal scroll appears below the footer.
         {
           tag: "style",
           textContent: `
-  #mapmyvisitors,
-  #mapmyvisitors-widget,
-  .mapmyvisitors-map-control,
-  .mapmyvisitors,
-  .mapmyvisitors-map-container,
-  .mv-container,
-  .jvectormap-tip,
-  #clustrmaps-widget,
-  .clustrmaps-map,
-  #clstr_globe,
-  img[alt='mapmyvisitors'],
-  a[href*='mapmyvisitors'],
-  img[src*='mapmyvisitors'],
-  a[href*='clustrmaps'],
-  img[src*='clustrmaps'] {
-    display: none !important;
-  }
-        `,
-        }
+    #mapmyvisitors-widget,
+    .mapmyvisitors-map-control,
+    #clustrmaps-widget,
+    #clstr_globe {
+      position: fixed !important;
+      right: 0 !important;
+      bottom: 0 !important;
+      /* 1px (NOT 0) — a zero-size element is never "in view", which breaks
+         the inview-gated visit counting. 1px keeps inview firing. */
+      width: 1px !important;
+      height: 1px !important;
+      overflow: hidden !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+      z-index: -2147483647 !important;
+    }
+    .jvectormap-tip {
+      display: none !important;
+    }
+          `,
+        },
       );
     }
 
